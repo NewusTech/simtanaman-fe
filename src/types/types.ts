@@ -12,3 +12,12 @@ type BearActions = {
 
 // Combine state and actions
 export type BearStore = BearState & BearActions;
+
+type AllowedPrimitive = string | number | boolean | Date | File | Blob | null;
+export type AllowedValue = AllowedPrimitive | AllowedPrimitive[];
+
+// Format 2: Array data
+export type DataArray<T> = T[];
+
+// Format 3: Single object data
+export type DataObject<T> = T;
