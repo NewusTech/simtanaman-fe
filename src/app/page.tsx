@@ -1,13 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { useLoginMutation } from "@/services/auth/useAuth";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      Hello Word
-    </main>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/landingPage");
+  }, [router]);
+
+  return null;
 }

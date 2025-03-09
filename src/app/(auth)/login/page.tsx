@@ -39,7 +39,7 @@ export default function LoginPage() {
         </div>
         <div className="w-[500px] h-[558px] mx-auto">
           <Image
-            src="assets/images/ilustrationLogin.svg"
+            src="assets/images/IlustrationLogin.svg"
             alt="Login Image"
             layout="responsive"
             width={500}

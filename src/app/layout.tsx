@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import QueryProvider from "./QueryProvider";
 import { Poppins } from "next/font/google";
+import "animate.css";
 
 export const metadata: Metadata = {
   title: "Create Next App",
