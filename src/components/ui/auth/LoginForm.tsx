@@ -14,12 +14,19 @@ import React from "react";
 import { Input } from "../input";
 import { Button } from "../button";
 import IconGoogle from "@/assets/IconGoogle";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    router.push("/home");
+  };
   return (
     <div>
-      <form className="flex flex-col space-y-4">
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <div className="flex flex-col mb-8">
           <div className="flex flex-col mb-4">
             <div className="text-sm mb-4">Email</div>
