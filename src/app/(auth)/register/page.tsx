@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * The RegisterPage component renders the registration page layout.
  * It includes a welcome message, a login form, and some additional information.
@@ -11,11 +13,32 @@
  *
  * @returns {JSX.Element} The rendered registration page component.
  */
-import LoginForm from "@/components/ui/auth/LoginForm";
+import { useState } from "react";
+import TermsAndConditionsModal from "@/components/ui/auth/modal/TermsAndConditionsModal";
 import RegisterForm from "@/components/ui/auth/RegisterForm";
 import Image from "next/image";
+import PrivacyPolicyModal from "@/components/ui/auth/modal/PrivacyPolicyModal";
 
 export default function RegisterPage() {
+  const [isModalOpen1, setIsModalOpen] = useState(false);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
+
+  const openModal = (id: string) => {
+    if (id === "terms") {
+      setIsModalOpen(true);
+    } else {
+      setIsModalOpen2(true);
+    }
+  };
+
+  const closeModal = (id: String) => {
+    if (id === "terms") {
+      setIsModalOpen(false);
+    } else {
+      setIsModalOpen2(false);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen md:flex-row">
       <div className="w-full h-[100vh] p-10 pt-14 bg-white md:w-1/2">
@@ -25,7 +48,14 @@ export default function RegisterPage() {
             Selamat Datang di Website Tani
           </div>
         </div>
-        <RegisterForm />
+        <RegisterForm
+          openModalTerm={() => {
+            openModal("terms");
+          }}
+          openModalPrivacy={() => {
+            openModal("privacy");
+          }}
+        />
         <div className="flex items-center justify-center mt-8">
           <div className="text-xs text-neutral-400">
             © Website Tani - All Rights Reserved
@@ -50,6 +80,19 @@ export default function RegisterPage() {
           />
         </div>
       </div>
+
+      <TermsAndConditionsModal
+        isOpen={isModalOpen1}
+        onClose={() => {
+          closeModal("terms");
+        }}
+      />
+      <PrivacyPolicyModal
+        isOpen={isModalOpen2}
+        onClose={() => {
+          closeModal("privacy");
+        }}
+      />
     </div>
   );
 }

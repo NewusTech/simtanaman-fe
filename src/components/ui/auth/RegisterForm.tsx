@@ -13,14 +13,22 @@
  */
 "use client";
 
-import React from "react";
+import { useState } from "react";
 import { Input } from "../input";
 import { Button } from "../button";
 import IconGoogle from "@/assets/IconGoogle";
 import { Checkbox } from "@/components/ui/checkbox";
 
-export default function RegisterForm() {
-  const [showPassword, setShowPassword] = React.useState(false);
+interface RegisterFormProps {
+  openModalTerm: () => void;
+  openModalPrivacy: () => void;
+}
+
+export default function RegisterForm({
+  openModalTerm,
+  openModalPrivacy,
+}: RegisterFormProps) {
+  const [showPassword, setShowPassword] = useState(false);
   return (
     <div>
       <form className="flex flex-col space-y-4">
@@ -98,10 +106,19 @@ export default function RegisterForm() {
             Ya, saya mengonfirmasi bahwa saya telah membaca, memahami, dan{" "}
             <br />
             menyetujui{" "}
-            <span className="text-primary-500">
+            <span
+              onClick={openModalTerm}
+              className="text-primary-500 cursor-pointer font-bold"
+            >
               Syarat dan Ketentuan
-            </span> dan{" "}
-            <span className="text-primary-500">Kebijakan Privasi.</span>
+            </span>{" "}
+            dan{" "}
+            <span
+              onClick={openModalPrivacy}
+              className="text-primary-500 cursor-pointer font-bold"
+            >
+              Kebijakan Privasi.
+            </span>
           </label>
         </div>
         <div className="flex flex-col mb-4">
