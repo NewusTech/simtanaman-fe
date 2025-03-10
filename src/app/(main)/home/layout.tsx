@@ -83,12 +83,7 @@ export default function Layout({ children }: LayoutProps) {
                           }
                         >
                           {getSegmentName(
-                            segment == "farmer"
-                              ? "Petani"
-                              : pathname.split("/")[2] === "management" &&
-                                  pathname.split("/")[3] === "user"
-                                ? "Manajemen Pengguna"
-                                : segment,
+                            segment == "farmer" ? "Petani" : segment,
                             pathname.split("/")[index + 1]
                           )}
                         </span>

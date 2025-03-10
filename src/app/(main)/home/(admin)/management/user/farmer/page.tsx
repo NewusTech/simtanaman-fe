@@ -78,8 +78,8 @@ export default function FarmerPage() {
     setSearch(value);
   };
 
-  const handleAddFarmer = () => {
-    router.push("/home/management/user/farmer/add");
+  const handleAddFarmer = (value: String) => {
+    router.push("/home/management/user/farmer/" + value);
   };
 
   return (
@@ -90,7 +90,7 @@ export default function FarmerPage() {
           <Search value={search} onChange={handleChange} />
         </div>
         <button
-          onClick={handleAddFarmer}
+          onClick={() => handleAddFarmer("Tambah")}
           className="bg-primary-500 flex text-white px-5 py-2 text-nowrap rounded-full"
         >
           <Plus className="mr-2" />
@@ -144,10 +144,16 @@ export default function FarmerPage() {
                       <EllipsisVertical className="cursor-pointer" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
-                      <DropdownMenuItem className="cursor-pointer">
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => handleAddFarmer("Detail")}
+                      >
                         Detail
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer">
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => handleAddFarmer("Edit")}
+                      >
                         Edit
                       </DropdownMenuItem>
                     </DropdownMenuContent>
