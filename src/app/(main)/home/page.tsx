@@ -1,13 +1,22 @@
 "use client";
 
-import Sidebar from "@/components/ui/home/Sidebar";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
+/**
+ * Home component that redirects to the dashboard page.
+ *
+ * This component uses the Next.js `useRouter` hook to programmatically
+ * navigate to the "/home/dashboard" route when the component is mounted.
+ *
+ * @returns {null} This component does not render any content.
+ */
 export default function Home() {
-  return (
-    <div className="flex flex-col md:flex-row">
-      <Sidebar />
-      <main className="flex-1 p-6 md:ml-60"></main>
-    </div>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/home/dashboard");
+  }, [router]);
+
+  return null;
 }

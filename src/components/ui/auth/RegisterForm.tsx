@@ -1,3 +1,19 @@
+"use client";
+
+import { useState } from "react";
+import { Input } from "../input";
+import { Button } from "../button";
+import IconGoogle from "@/assets/IconGoogle";
+import { Checkbox } from "@/components/ui/checkbox";
+
+/**
+ * RegisterFormProps is an interface for the props of RegisterForm component.
+ */
+interface RegisterFormProps {
+  openModalTerm: () => void;
+  openModalPrivacy: () => void;
+}
+
 /**
  * RegisterForm component renders a registration form with fields for name, email, and password.
  * It includes a toggle for showing/hiding the password, a checkbox for agreeing to terms and conditions,
@@ -11,19 +27,6 @@
  *
  * @returns {JSX.Element} The rendered registration form component.
  */
-"use client";
-
-import { useState } from "react";
-import { Input } from "../input";
-import { Button } from "../button";
-import IconGoogle from "@/assets/IconGoogle";
-import { Checkbox } from "@/components/ui/checkbox";
-
-interface RegisterFormProps {
-  openModalTerm: () => void;
-  openModalPrivacy: () => void;
-}
-
 export default function RegisterForm({
   openModalTerm,
   openModalPrivacy,

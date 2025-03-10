@@ -1,5 +1,11 @@
 "use client";
 
+import { useState } from "react";
+import TermsAndConditionsModal from "@/components/ui/auth/modal/TermsAndConditionsModal";
+import RegisterForm from "@/components/ui/auth/RegisterForm";
+import Image from "next/image";
+import PrivacyPolicyModal from "@/components/ui/auth/modal/PrivacyPolicyModal";
+
 /**
  * The RegisterPage component renders the registration page layout.
  * It includes a welcome message, a login form, and some additional information.
@@ -13,12 +19,6 @@
  *
  * @returns {JSX.Element} The rendered registration page component.
  */
-import { useState } from "react";
-import TermsAndConditionsModal from "@/components/ui/auth/modal/TermsAndConditionsModal";
-import RegisterForm from "@/components/ui/auth/RegisterForm";
-import Image from "next/image";
-import PrivacyPolicyModal from "@/components/ui/auth/modal/PrivacyPolicyModal";
-
 export default function RegisterPage() {
   const [isModalOpen1, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);

@@ -1,3 +1,10 @@
+"use client";
+import React from "react";
+import { Input } from "../input";
+import { Button } from "../button";
+import IconGoogle from "@/assets/IconGoogle";
+import { useRouter } from "next/navigation";
+
 /**
  * LoginForm component renders a login form with email and password input fields.
  *
@@ -9,13 +16,6 @@
  *
  * @returns {JSX.Element} A JSX element containing the login form.
  */
-"use client";
-import React from "react";
-import { Input } from "../input";
-import { Button } from "../button";
-import IconGoogle from "@/assets/IconGoogle";
-import { useRouter } from "next/navigation";
-
 export default function LoginForm() {
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);

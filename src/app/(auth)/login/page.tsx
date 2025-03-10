@@ -1,3 +1,6 @@
+import LoginForm from "@/components/ui/auth/LoginForm";
+import Image from "next/image";
+
 /**
  * The `LoginPage` component renders the login page layout.
  * It consists of two main sections:
@@ -9,9 +12,6 @@
  *
  * @returns {JSX.Element} The rendered login page component.
  */
-import LoginForm from "@/components/ui/auth/LoginForm";
-import Image from "next/image";
-
 export default function LoginPage() {
   return (
     <div className="flex flex-col min-h-screen md:flex-row">

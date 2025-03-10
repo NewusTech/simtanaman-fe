@@ -1,3 +1,15 @@
+import React from "react";
+import { Button } from "../../button";
+
+/**
+ * ModalProps is an interface for the properties of the modal component.
+ * @interface
+ */
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
 /**
  * TermsAndConditionsModal component renders a modal dialog with terms and conditions.
  *
@@ -8,14 +20,6 @@
  *
  * @returns {JSX.Element | null} The rendered modal component or null if not open.
  */
-import React from "react";
-import { Button } from "../../button";
-
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
 const TermsAndConditionsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
   return (
