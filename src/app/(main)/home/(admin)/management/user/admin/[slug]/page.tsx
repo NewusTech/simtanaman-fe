@@ -9,24 +9,24 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 /**
- * AddFarmerPage component renders a form for adding a new farmer.
+ * AddAdminPage component renders a form for adding a new farmer.
  *
  * @component
  * @example
  * return (
- *   <AddFarmerPage />
+ *   <AddAdminPage />
  * )
  *
- * @returns {JSX.Element} The rendered AddFarmerPage component.
+ * @returns {JSX.Element} The rendered AddAdminPage component.
  */
-export default function AddFarmerPage() {
+export default function AddAdminPage() {
   const router = useRouter();
   const pathname = usePathname();
   const [formData, setFormData] = useState({
     name: "",
     date: new Date(),
     email: "",
-    kelompok_tani: "",
+    nip: "",
     nik: "",
     jenis_kelamin: "",
     alamat: "",
@@ -40,7 +40,7 @@ export default function AddFarmerPage() {
       name: "",
       date: new Date(),
       email: "",
-      kelompok_tani: "",
+      nip: "",
       nik: "",
       jenis_kelamin: "",
       alamat: "",
@@ -53,7 +53,7 @@ export default function AddFarmerPage() {
   return (
     <div className="bg-white p-4 rounded-md shadow-md">
       <div className="text-lg font-medium">
-        {pathname.split("/").pop()} Petani
+        {pathname.split("/").pop()} Admin
       </div>
       <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
         <div className="flex flex-col items-center w-full gap-4">
@@ -69,15 +69,15 @@ export default function AddFarmerPage() {
             onSelect={(date: Date) => setFormData({ ...formData, date })}
           />
           <FormInput
-            label="Email"
-            placeholder="Masukan Email"
-            value={formData.email}
+            label="NIP"
+            placeholder="Masukan NIP"
+            value={formData.nip}
             required
           />
-          <FormSelect
-            label="Kelompok Tani"
-            value={["Kelompok 1", "Kelompok 2"]}
-            selected={formData.kelompok_tani}
+          <FormInput
+            label="Nomor Telepon"
+            placeholder="Masukan Nomor Telepon"
+            value={formData.no_hp}
             required
           />
         </div>
@@ -95,9 +95,9 @@ export default function AddFarmerPage() {
             required
           />
           <FormInput
-            label="No. HP"
-            placeholder="Masukan No. HP"
-            value={formData.no_hp}
+            label="Email"
+            placeholder="Masukan Email"
+            value={formData.email}
             required
           />
           <FormInput

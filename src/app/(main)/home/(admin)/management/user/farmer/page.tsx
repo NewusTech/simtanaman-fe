@@ -14,13 +14,20 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { EllipsisVertical, Plus } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  EllipsisVertical,
+  Filter,
+  Plus,
+} from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import FarmerFilterModal from "@/components/ui/home/(admin)/management/user/modal/FarmerFilterModal";
 
 /**
  * FarmerPage component renders a page that displays a list of farmers with their details.
@@ -39,6 +46,7 @@ import { useRouter } from "next/navigation";
 export default function FarmerPage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [listUser, setListUser] = useState([
     {
       nama: "Robi",
@@ -82,11 +90,35 @@ export default function FarmerPage() {
     router.push("/home/management/user/farmer/" + value);
   };
 
+  const handleFilter = () => {
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="bg-white p-4 rounded-md shadow-md font-poppins">
       <div className="text-lg font-medium">Petani</div>
       <div className="mt-4 flex items-center justify-between w-full gap-4">
-        <div className="flex items-center w-full">
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={() => handleFilter()}
+            className="border border-neutral-70 text-neutral-70 px-5 py-5 rounded-full"
+          >
+            <Filter className="mr-2 text-neutral-70" />
+            Filter
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="w-10 h-10 flex justify-center items-center rounded-full border border-neutral-70">
+              <EllipsisVertical className="cursor-pointer text-neutral-70" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
+              <DropdownMenuItem className="cursor-pointer">id</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Nama
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="w-full">
           <Search value={search} onChange={handleChange} />
         </div>
         <button
@@ -114,7 +146,7 @@ export default function FarmerPage() {
         </TableHeader>
         <TableBody>
           {listUser.map((value) => (
-            <TableRow key={value.nama}>
+            <TableRow key={listUser.indexOf(value)}>
               <TableCell className="w-[50px]">
                 {listUser.indexOf(value) + 1}
               </TableCell>
@@ -176,13 +208,13 @@ export default function FarmerPage() {
                       1
                     </div>
                     <div className="w-4 h-4 relative">
-                      <div className="w-2 h-1 left-1 top-1.5 absolute border border-[#597445]"></div>
+                      <ChevronDown className="w-4 h-4 text-[#597445]" />
                     </div>
                   </div>
                   <div className="w-[235px] flex justify-between items-start">
                     <div className="w-10 py-2 bg-[#FCFBFB] rounded-md border border-[#BDBDC2] flex flex-col justify-center items-center">
                       <div className="w-4 h-4 relative">
-                        <div className="w-1 h-2 left-1.5 top-1 absolute border border-[#597445]"></div>
+                        <ChevronLeft className="w-4 h-4 text-[#597445]" />
                       </div>
                     </div>
                     <div className="px-4 py-2 bg-[#597445] rounded-md flex justify-center items-center gap-2">
@@ -202,7 +234,7 @@ export default function FarmerPage() {
                     </div>
                     <div className="w-10 h-9 bg-[#FCFBFB] rounded-md border border-[#BDBDC2] flex flex-col justify-center items-center">
                       <div className="w-4 h-4 relative">
-                        <div className="w-1 h-2 left-1.5 top-1 absolute border border-[#597445]"></div>
+                        <ChevronRight className="w-4 h-4 text-[#597445]" />
                       </div>
                     </div>
                   </div>
@@ -212,6 +244,12 @@ export default function FarmerPage() {
           </TableRow>
         </TableFooter>
       </Table>
+
+      {/* Component Modal */}
+      <FarmerFilterModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
