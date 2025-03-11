@@ -260,7 +260,7 @@ const Sidebar = () => {
                         <button
                           onClick={() => handleClickChild(childItem)}
                           className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
-            ${pathname.split("/")[4] == childItem.link?.split("/")[4] ? "border border-primary-default text-primary-default" : "text-primary-default hover:bg-primary-default hover:text-white"}
+            ${pathname.split("/")[4] == childItem.link?.split("/")[4] ? "font-bold text-primary-default" : "text-primary-default hover:bg-primary-default hover:text-white"}
             `}
                           aria-current={childItem.current ? "page" : undefined}
                         >
