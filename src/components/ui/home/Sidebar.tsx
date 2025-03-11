@@ -140,7 +140,26 @@ const Sidebar = () => {
       current: false,
       link: "/home/management",
     },
-    { name: "Data Master", icon: Database, current: false },
+    {
+      name: "Data Master",
+      icon: Database,
+      current: false,
+      link: "/home/master",
+      child: [
+        {
+          name: "Poktan",
+          icon: Dot,
+          current: false,
+          link: "/home/master/poktan",
+        },
+        {
+          name: "Jenis Tanaman",
+          icon: Dot,
+          current: false,
+          link: "/home/master/type-plant",
+        },
+      ],
+    },
   ]);
 
   const toggleSidebar = () => {
@@ -175,6 +194,20 @@ const Sidebar = () => {
             ? { ...navItem, current: true }
             : { ...navItem, current: false }
         )
+      );
+      setNavigation((prevNavigation) =>
+        prevNavigation.map((navItem) => {
+          if (navItem.child) {
+            return {
+              ...navItem,
+              child: navItem.child.map((childItem) => ({
+                ...childItem,
+                current: false,
+              })),
+            };
+          }
+          return navItem;
+        })
       );
     }
   };
@@ -240,15 +273,15 @@ const Sidebar = () => {
                 <button
                   onClick={() => handleClickParent(item)}
                   className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
-            ${pathname.split("/")[2] == item.link?.split("/")[2] ? "bg-primary-default text-white" : "text-primary-default hover:bg-primary-default hover:text-white"}
-            `}
+              ${pathname.startsWith(item.link ?? "") && item.child ? "bg-primary-default text-white" : "text-primary-default hover:bg-primary-default hover:text-white"}
+              `}
                   aria-current={item.current ? "page" : undefined}
                 >
                   <item.icon
-                    className={`h-6 w-6 ${pathname.split("/")[2] == item.link?.split("/")[2] ? "text-white" : ""} `}
+                    className={`h-6 w-6 ${pathname.startsWith(item.link ?? "") && item.child ? "text-white" : ""} `}
                   />
                   <span
-                    className={`ml-4 ${!isOpen && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
+                    className={`ml-4 text-sm ${!isOpen && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
                   >
                     {item.name}
                   </span>
@@ -260,15 +293,15 @@ const Sidebar = () => {
                         <button
                           onClick={() => handleClickChild(childItem)}
                           className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
-            ${pathname.split("/")[4] == childItem.link?.split("/")[4] ? "font-bold text-primary-default" : "text-primary-default hover:bg-primary-default hover:text-white"}
-            `}
+              ${pathname.startsWith(childItem.link) ? "font-bold text-primary-default" : "text-primary-default hover:bg-primary-default hover:text-white"}
+              `}
                           aria-current={childItem.current ? "page" : undefined}
                         >
                           <childItem.icon
-                            className={`h-6 w-6 ${pathname.split("/")[4] == childItem.link?.split("/")[4] ? "text-primary-default" : ""} `}
+                            className={`h-6 w-6 ${pathname.startsWith(childItem.link) ? "text-primary-default" : ""} `}
                           />
                           <span
-                            className={`ml-2 ${!isOpen && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
+                            className={`ml-2 text-xs ${!isOpen && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
                           >
                             {childItem.name}
                           </span>
