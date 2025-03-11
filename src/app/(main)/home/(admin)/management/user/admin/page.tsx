@@ -30,6 +30,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import AdminFilterModal from "@/components/ui/home/(admin)/management/user/modal/AdminFilterModal";
 
+/**
+ * AdminPage component renders a page for managing admin users.
+ *
+ * @component
+ * @example
+ * return (
+ *   <AdminPage />
+ * )
+ *
+ * @returns {JSX.Element} The rendered AdminPage component.
+ */
 export default function AdminPage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
