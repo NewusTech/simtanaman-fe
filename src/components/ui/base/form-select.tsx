@@ -29,7 +29,10 @@ export default function FormSelect({
       </div>
       <Select>
         <SelectTrigger className="w-full rounded-full border border-gray-300 p-2 px-4">
-          <SelectValue placeholder={"Pilih " + label} />
+          <SelectValue
+            placeholder={"Pilih " + label}
+            className="text-neutral-70"
+          />
         </SelectTrigger>
         <SelectContent className="bg-white shadow-md rounded-md w-full">
           <SelectGroup>

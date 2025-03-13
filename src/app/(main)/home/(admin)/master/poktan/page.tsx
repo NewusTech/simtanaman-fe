@@ -23,7 +23,45 @@ import {
   Plus,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+/**
+ * PoktanPage component renders a page for managing "Kelompok Tani" (Poktan) groups.
+ *
+ * @component
+ * @example
+ * return (
+ *   <PoktanPage />
+ * )
+ *
+ * @returns {JSX.Element} The rendered PoktanPage component.
+ *
+ * @description
+ * This component includes a search bar, a button to add new Poktan, and a table displaying a list of Poktan groups.
+ * Each row in the table includes options to view details or edit the Poktan group.
+ *
+ * @function
+ * @name PoktanPage
+ *
+ * @property {string} search - The search term used to filter the list of Poktan groups.
+ * @property {function} setSearch - Function to update the search term.
+ * @property {Array<Object>} listPoktan - The list of Poktan groups.
+ * @property {function} setListPoktan - Function to update the list of Poktan groups.
+ *
+ * @param {string} listPoktan[].name - The name of the Poktan group.
+ *
+ * @property {function} handleChange - Function to handle changes in the search input.
+ * @property {function} handleSlugPoktan - Function to navigate to a specific Poktan page based on the slug.
+ *
+ * @requires useRouter from 'next/navigation'
+ * @requires useState, useEffect from 'react'
+ * @requires Search from '@/components/ui/search'
+ * @requires Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow from '@/components/ui/table'
+ * @requires DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger from '@/components/ui/dropdown-menu'
+ * @requires ChevronDown, ChevronLeft, ChevronRight, EllipsisVertical, Plus from 'lucide-react'
+ */
 export default function PoktanPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
 
   const handleChange = (value: string) => {
@@ -36,6 +74,10 @@ export default function PoktanPage() {
     },
   ]);
 
+  const handleSlugPoktan = (slug: string) => {
+    router.push("/home/master/poktan/" + slug);
+  };
+
   return (
     <div className="bg-white p-4 rounded-md shadow-md font-poppins">
       <div className="text-lg font-medium mb-4">
@@ -44,7 +86,7 @@ export default function PoktanPage() {
       <div className="flex justify-between items-center gap-4 mb-4">
         <div>
           <button
-            onClick={() => {}}
+            onClick={() => handleSlugPoktan("Tambah")}
             className="bg-primary-500 flex text-white px-5 py-2 text-nowrap rounded-full"
           >
             <Plus className="mr-2" />
@@ -79,13 +121,13 @@ export default function PoktanPage() {
                     <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => {}}
+                        onClick={() => handleSlugPoktan("Detail")}
                       >
                         Detail
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => {}}
+                        onClick={() => handleSlugPoktan("Edit")}
                       >
                         Edit
                       </DropdownMenuItem>
