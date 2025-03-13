@@ -9,6 +9,25 @@ import { DateRange } from "react-day-picker";
 import TableSubmissionPlant from "@/components/ui/home/(admin)/dashboard/components/table-submission-plant";
 import TableStokPlantSeeds from "@/components/ui/home/(admin)/dashboard/components/table-stock-plant-seeds";
 
+/**
+ * DashboardPage component renders the main dashboard page for the admin.
+ * It includes a date range picker, tab navigation for different sections,
+ * and displays corresponding tables based on the selected tab.
+ *
+ * @component
+ * @example
+ * return (
+ *   <DashboardPage />
+ * )
+ *
+ * @returns {JSX.Element} The rendered dashboard page component.
+ *
+ * @remarks
+ * - Uses `useState` to manage the selected date range, main tab, and child tab states.
+ * - Contains two main tabs: "Pengajuan" and "Manajemen Tanaman".
+ * - "Pengajuan" tab displays the `TabSubmission` and `TableSubmission` components.
+ * - "Manajemen Tanaman" tab displays the `TabManagementPlant` component and conditionally renders `TableSubmissionPlant` or `TableStokPlantSeeds` based on the selected child tab.
+ */
 export default function DashboardPage() {
   const [dateParent, setDateParent] = useState<DateRange>({
     from: new Date(),

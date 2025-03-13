@@ -97,7 +97,12 @@ const Sidebar = () => {
       current: false,
       link: "/home/dashboard",
     },
-    { name: "Pengajuan", icon: HandHelping, current: false },
+    {
+      name: "Pengajuan",
+      icon: HandHelping,
+      current: false,
+      link: "/home/submission",
+    },
     { name: "Distribusi", icon: Boxes, current: false },
     { name: "Manajemen Tanaman", icon: Sprout, current: false },
     { name: "Manajemen Website", icon: PanelsTopLeft, current: false },
@@ -186,6 +191,20 @@ const Sidebar = () => {
             : navItem
         )
       );
+      setNavigation((prevNavigation) =>
+        prevNavigation.map((navItem) => {
+          if (navItem.child) {
+            return {
+              ...navItem,
+              child: navItem.child.map((childItem) => ({
+                ...childItem,
+                current: false,
+              })),
+            };
+          }
+          return navItem;
+        })
+      );
     } else {
       router.push(item.link);
       setNavigation((prevNavigation) =>
@@ -273,7 +292,7 @@ const Sidebar = () => {
                 <button
                   onClick={() => handleClickParent(item)}
                   className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
-                ${pathname.startsWith(item.link ?? "") && !item.child && item.current ? "bg-primary-default text-white" : "text-primary-default hover:bg-primary-default hover:text-white"}
+                ${(pathname.split("/")[2] == item.link?.split("/")[2] && !item.child) || item.current ? "bg-primary-default text-white" : "text-primary-default hover:bg-primary-default hover:text-white"}
                 ${pathname.startsWith(item.link ?? "") && item.child ? "bg-primary-default text-white" : ""}
                 `}
                   aria-current={item.current ? "page" : undefined}
