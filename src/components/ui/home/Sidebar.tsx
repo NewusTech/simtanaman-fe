@@ -273,12 +273,13 @@ const Sidebar = () => {
                 <button
                   onClick={() => handleClickParent(item)}
                   className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
-              ${pathname.startsWith(item.link ?? "") && item.child ? "bg-primary-default text-white" : "text-primary-default hover:bg-primary-default hover:text-white"}
-              `}
+                ${pathname.startsWith(item.link ?? "") && !item.child && item.current ? "bg-primary-default text-white" : "text-primary-default hover:bg-primary-default hover:text-white"}
+                ${pathname.startsWith(item.link ?? "") && item.child ? "bg-primary-default text-white" : ""}
+                `}
                   aria-current={item.current ? "page" : undefined}
                 >
                   <item.icon
-                    className={`h-6 w-6 ${pathname.startsWith(item.link ?? "") && item.child ? "text-white" : ""} `}
+                    className={`h-6 w-6 ${pathname.startsWith(item.link ?? "") && !item.child && item.current ? "text-white" : ""} `}
                   />
                   <span
                     className={`ml-4 text-sm ${!isOpen && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
