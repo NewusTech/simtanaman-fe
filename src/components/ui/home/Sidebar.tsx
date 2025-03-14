@@ -163,6 +163,30 @@ const Sidebar = () => {
           current: false,
           link: "/home/master/type-plant",
         },
+        {
+          name: "Metode Penanaman Tanaman",
+          icon: Dot,
+          current: false,
+          link: "/home/master/planting-methods",
+        },
+        {
+          name: "Metode Distribusi",
+          icon: Dot,
+          current: false,
+          link: "/home/master/distribution-method",
+        },
+        {
+          name: "Status Kepemilikan Lahan",
+          icon: Dot,
+          current: false,
+          link: "/home/master/land-ownership-status",
+        },
+        {
+          name: "Syarat dan Ketentuan",
+          icon: Dot,
+          current: false,
+          link: "/home/master/terms-and-conditions",
+        },
       ],
     },
   ]);
