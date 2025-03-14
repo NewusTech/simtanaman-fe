@@ -23,7 +23,7 @@ export default function LoginForm() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    router.push("/home");
+    router.push("/home/dashboard");
   };
   return (
     <div>
