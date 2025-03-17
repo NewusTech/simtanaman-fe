@@ -25,13 +25,30 @@ function NavigationLink({
   href: string;
   children: React.ReactNode;
 }) {
+  /**
+   * handleClick is a function that handles the click event on the navigation link.
+   * It prevents the default behavior and scrolls to the target section smoothly.
+   * @param {React.MouseEvent<HTMLAnchorElement, MouseEvent>} e - The click event object.
+   * @returns {void}
+   * @example
+   * handleClick(event);
+   * @function
+   * @name handleClick
+   * @type {Function}
+   * @returns {void}
+   * @param {React.MouseEvent<HTMLAnchorElement, MouseEvent>} e - The click event object.
+   * @description
+   * The function uses the `preventDefault` method to prevent the default behavior of the event.
+   * It then finds the target section by the provided `href` and scrolls to it smoothly.
+   * The scroll behavior is set to "smooth" for a better user experience.
+   * The function does not return any value.
+   **/
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     e.preventDefault();
     document
       .getElementById(href.substring(1))
       ?.scrollIntoView({ behavior: "smooth" });
   };
-  const router = useRouter();
 
   return (
     <li>
@@ -46,6 +63,11 @@ function NavigationLink({
   );
 }
 
+/**
+ * LandingPage component renders the main landing page with various sections and navigation.
+ * @component
+ * @returns {JSX.Element} The rendered landing page component.
+ */
 export default function LandingPage() {
   const router = useRouter();
   return (
