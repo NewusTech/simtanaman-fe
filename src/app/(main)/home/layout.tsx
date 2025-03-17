@@ -7,6 +7,7 @@ import "animate.css";
 import { usePathname } from "next/navigation";
 import { Poppins } from "next/font/google";
 import { ChevronRight } from "lucide-react";
+import UserProfil from "@/components/ui/home/UserProfil";
 
 /**
  * The props for the Layout component.
@@ -58,11 +59,11 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex flex-col">
             <div className="flex text-lg font-semibold text-primary-default">
               {pathname.split("/")[2] === "management" &&
-              pathname.split("/")[3] === "user"
+                pathname.split("/")[3] === "user"
                 ? "Manajemen Pengguna"
                 : pathname
-                    .split("/")[2]
-                    ?.replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
+                  .split("/")[2]
+                  ?.replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
             </div>
             <nav className="text-sm text-gray-500">
               <ol className="list-reset flex">
@@ -93,19 +94,7 @@ export default function Layout({ children }: LayoutProps) {
               </ol>
             </nav>
           </div>
-          <div className="flex items-center">
-            <div className="flex items-center">
-              <div className="flex flex-col items-end mr-2">
-                <div className="text-sm font-semibold text-primary-default">
-                  Admin
-                </div>
-                <div className="text-sm font-medium text-primary-default">
-                  Role
-                </div>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-gray-200"></div>
-            </div>
-          </div>
+          <UserProfil />
         </header>
         <div className="p-4 md:ml-64 h-[calc(100vh-6rem)] overflow-auto">
           {children}
