@@ -47,21 +47,19 @@ export default function DashboardPage() {
         <div className="flex gap-4 justify-between items-center bg-primary-default rounded-full p-4">
           <button
             onClick={() => setSelectTab(0)}
-            className={`flex-1 py-2  rounded-full ${
-              selectTab === 0
-                ? "bg-white text-primary-default"
-                : "border border-white text-white"
-            }`}
+            className={`flex-1 py-2  rounded-full ${selectTab === 0
+              ? "bg-white text-primary-default"
+              : "border border-white text-white"
+              }`}
           >
             <span className="text-sm">Pengajuan</span>
           </button>
           <button
             onClick={() => setSelectTab(1)}
-            className={`flex-1 py-2 rounded-full  ${
-              selectTab === 1
-                ? "bg-white text-primary-default"
-                : "border border-white text-white"
-            }`}
+            className={`flex-1 py-2 rounded-full  ${selectTab === 1
+              ? "bg-white text-primary-default"
+              : "border border-white text-white"
+              }`}
           >
             <span className="text-sm">Manajemen Tanaman</span>
           </button>
