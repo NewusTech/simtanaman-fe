@@ -104,7 +104,22 @@ const Sidebar = () => {
       link: "/home/submission",
     },
     { name: "Distribusi", icon: Boxes, current: false, link: "/home/distribution" },
-    { name: "Manajemen Tanaman", icon: Sprout, current: false },
+    {
+      name: "Manajemen Tanaman", icon: Sprout, current: false, link: "/home/planting", child: [
+        {
+          name: "Ajukan Tanaman",
+          icon: Dot,
+          current: false,
+          link: "/home/planting/submission-plant",
+        },
+        {
+          name: "Stok Bibit",
+          icon: Dot,
+          current: false,
+          link: "/home/planting/seed-stock",
+        },
+      ]
+    },
     { name: "Manajemen Website", icon: PanelsTopLeft, current: false },
     { name: "Laporan", icon: File, current: false },
     {

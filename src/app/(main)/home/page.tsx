@@ -2,21 +2,37 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { usePermission } from "@/hooks/usePermission";
+import { log } from "console";
 
-/**
- * Home component that redirects to the dashboard page.
- *
- * This component uses the Next.js `useRouter` hook to programmatically
- * navigate to the "/home/dashboard" route when the component is mounted.
- *
- * @returns {null} This component does not render any content.
- */
 export default function Home() {
   const router = useRouter();
+  const { role } = usePermission();
 
   useEffect(() => {
-    router.push("/home/dashboard");
-  }, [router]);
+    if (role) {
+      switch (role) {
+        case 'admin':
+          router.push("/home/dashboard");
+          break;
+        case 'penyuluh':
+          router.push("/home/penyuluh/dashboard");
+          break;
+        case 'distributor':
+          router.push("/home/distributor/dashboard");
+          break;
+        case 'user':
+          router.push("/home/user/dashboard");
+          break;
+        default:
+          router.push("/auth/login");
+      }
+    } else {
+      router.push("/auth/login");
+    }
+  }, [router, role]);
 
-  return null;
+  return (
+    <div>HOME</div>
+  );
 }

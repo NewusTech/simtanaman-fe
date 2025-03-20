@@ -4,34 +4,80 @@ import { Input } from "../input";
 import { Button } from "../button";
 import IconGoogle from "@/assets/IconGoogle";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { CircleAlert, Eye, EyeOff } from "lucide-react";
 
-/**
- * LoginForm component renders a login form with email and password input fields.
- *
- * @component
- * @example
- * return (
- *   <LoginForm />
- * )
- *
- * @returns {JSX.Element} A JSX element containing the login form.
- */
 export default function LoginForm() {
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [error, setError] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    router.push("/home/dashboard");
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // Set cookies
+      document.cookie = `token=${data.token}; path=/`;
+      document.cookie = `role=${data.role}; path=/`;
+
+      // Redirect based on role
+      switch (data.role) {
+        case 'admin':
+          router.push('/home/(admin)/dashboard');
+          break;
+        case 'penyuluh':
+          router.push('/home/penyuluh');
+          break;
+        case 'distributor':
+          router.push('/home/distributor');
+          break;
+        default:
+          router.push('/home');
+      }
+    } catch (err) {
+      setError('Email atau kata sandi salah');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   return (
     <div>
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <div className="flex flex-col mb-8">
           <div className="flex flex-col mb-4">
             <div className="text-sm mb-4">Email</div>
-            <Input type="email" placeholder="Masukkan Email Anda" />
+            <Input
+              type="email"
+              placeholder="Masukkan Email Anda"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            {error && (
+              <div className="flex items-center gap-2 text-red-500 text-sm text-left mt-1">
+                <CircleAlert />
+                {error}
+              </div>
+            )}
           </div>
           <div className="flex flex-col">
             <div className="text-sm mb-4">Kata Sandi</div>
@@ -39,6 +85,9 @@ export default function LoginForm() {
               <Input
                 type={showPassword ? "text" : "password"}
                 placeholder="Masukkan Kata Sandi"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <button
                 type="button"
@@ -48,6 +97,12 @@ export default function LoginForm() {
                 {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
               </button>
             </div>
+            {error && (
+              <div className="flex items-center gap-2 text-red-500 text-sm text-left mt-1">
+                <CircleAlert />
+                {error}
+              </div>
+            )}
           </div>
         </div>
         <div className="flex flex-col mb-4">
@@ -55,8 +110,9 @@ export default function LoginForm() {
             <button
               type="submit"
               className="bg-primary-500 text-white rounded-full py-2 w-[120px]"
+              disabled={isLoading}
             >
-              Masuk
+              {isLoading ? "Loading..." : "Masuk"}
             </button>
           </div>
         </div>
