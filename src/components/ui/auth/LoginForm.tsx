@@ -39,19 +39,7 @@ export default function LoginForm() {
       document.cookie = `role=${data.role}; path=/`;
 
       // Redirect based on role
-      switch (data.role) {
-        case 'admin':
-          router.push('/home/(admin)/dashboard');
-          break;
-        case 'penyuluh':
-          router.push('/home/penyuluh');
-          break;
-        case 'distributor':
-          router.push('/home/distributor');
-          break;
-        default:
-          router.push('/home');
-      }
+      router.push('/home/dashboard');
     } catch (err) {
       setError('Email atau kata sandi salah');
     } finally {
