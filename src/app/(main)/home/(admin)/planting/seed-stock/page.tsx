@@ -51,7 +51,7 @@ export default function SeedStokPage() {
         <div className="bg-white p-4 rounded-lg shadow-md">
             {/* header */}
             <div className="flex justify-between items-center">
-                <div className="text-lg font-semibold">Pengajuan Tanaman</div>
+                <div className="text-lg font-semibold">Data Stok Bibit Tanaman</div>
                 <DatePickerWithRange date={dateParent} onSelect={setDateParent} />
             </div>
 
