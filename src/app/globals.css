@@ -251,3 +251,7 @@ body {
   color: white;
   border-radius: inherit;
 }
+
+.ql-editor.ql-blank {
+  min-height: 200px;
+}

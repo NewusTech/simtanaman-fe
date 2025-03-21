@@ -103,7 +103,7 @@ const Sidebar = () => {
       current: false,
       link: "/home/submission",
     },
-    { name: "Distribusi", icon: Boxes, current: false },
+    { name: "Distribusi", icon: Boxes, current: false, link: "/home/distribution" },
     { name: "Manajemen Tanaman", icon: Sprout, current: false },
     { name: "Manajemen Website", icon: PanelsTopLeft, current: false },
     { name: "Laporan", icon: File, current: false },

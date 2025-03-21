@@ -184,6 +184,10 @@ const config = {
           500: "#D32F2F",
           600: "#B11D1D",
         },
+        info: {
+          200: "#BBDEFB",
+          500: "#1976D2"
+        },
         alert: {
           "warning-bg": "#FFF3CD",
           "warning-border": "#FFECB5",
