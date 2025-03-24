@@ -94,7 +94,7 @@ const Sidebar = () => {
     {
       name: "Dashboard",
       icon: LayoutDashboard,
-      current: false,
+      current: true,
       link: "/home/dashboard",
     },
     {
@@ -121,7 +121,28 @@ const Sidebar = () => {
       ]
     },
     { name: "Manajemen Website", icon: PanelsTopLeft, current: false },
-    { name: "Laporan", icon: File, current: false },
+    {
+      name: "Laporan", icon: File, current: false, link: "/home/report", child: [
+        {
+          name: "Pengajuan",
+          icon: Dot,
+          current: false,
+          link: "/home/report/submission",
+        },
+        {
+          name: "Pengajuan Tanaman",
+          icon: Dot,
+          current: false,
+          link: "/home/report/plant-submission",
+        },
+        {
+          name: "Distribusi",
+          icon: Dot,
+          current: false,
+          link: "/home/report/distribution",
+        },
+      ]
+    },
     {
       name: "Manajemen Pengguna",
       child: [
