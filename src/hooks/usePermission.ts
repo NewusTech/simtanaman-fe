@@ -1,17 +1,15 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Role, Permission, Feature, ROLE_PERMISSIONS } from '@/types/auth'
+import useUserStore from '@/store/auth/userStore'
 
 export function usePermission(requiredRole?: Role) {
     const router = useRouter()
+    const user = useUserStore((state) => state.user)
 
     const getRole = (): Role | null => {
-        const role = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('role='))
-            ?.split('=')[1] as Role | null
-
-        return role
+        const role = user?.role?.name
+        return (role as Role) || null
     }
 
     const hasPermission = (feature: Feature, permission: Permission): boolean => {

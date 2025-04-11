@@ -1,12 +1,19 @@
 "use client";
-import React from "react";
+import React, { use } from "react";
 import { Input } from "../input";
 import { Button } from "../button";
 import IconGoogle from "@/assets/IconGoogle";
 import { useRouter } from "next/navigation";
 import { CircleAlert, Eye, EyeOff } from "lucide-react";
+import useUserStore from "@/store/auth/userStore";
+import { Bounce, toast } from "react-toastify";
+import { da } from "date-fns/locale";
 
 export default function LoginForm() {
+  const setUser = useUserStore((state) => state.setUser);
+  const setRole = useUserStore((state) => state.setRole);
+  const user = useUserStore((state) => state.user);
+  const role = useUserStore((state) => state.role);
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
   const [email, setEmail] = React.useState("");
@@ -14,13 +21,13 @@ export default function LoginForm() {
   const [error, setError] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setError("");
-    setIsLoading(true);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      const response = await fetch('/api/auth/login', {
+      setIsLoading(true);
+      // Menggunakan fetch untuk melakukan login ke API route
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,22 +35,52 @@ export default function LoginForm() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-
+      // Jika response tidak OK (tidak ada status 200)
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login gagal');
       }
 
-      // Set cookies
-      document.cookie = `token=${data.token}; path=/`;
-      document.cookie = `role=${data.role}; path=/`;
+      // Mendapatkan data user dari response API
+      const data = await response.json();
+      // Menyimpan data user dan token di Zustand
+      console.log(data['data']);  // Lihat apakah respons sesuai ekspektasi
 
-      // Redirect based on role
-      router.push('/home/dashboard');
-    } catch (err) {
-      setError('Email atau kata sandi salah');
-    } finally {
+      await setUser(data['data']);
+      await setRole(data['data']['role']);
+
+      if (response.status === 200) {
+
+        // Set cookies
+        document.cookie = `token=${data['data']['token']}; path=/`;
+        document.cookie = `role=${data['data']['role']['name']}; path=/`;
+        // Navigasi ke halaman home setelah login berhasil
+        router.push('/home/dashboard');  // Atau ke halaman lain sesuai dengan rute
+      } else {
+        // Menangani error saat login
+        setError(data.message || 'Login gagal');
+      }
+
+      // Menyimpan token di localStorage jika perlu
+      localStorage.setItem('token', data.token);
       setIsLoading(false);
+
+    } catch (err) {
+      console.log(err);
+
+      setIsLoading(false);
+      setError(err instanceof Error ? err.message : 'Login gagal, coba lagi!');
+      toast.error(`${err}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     }
   };
 
@@ -60,12 +97,6 @@ export default function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            {error && (
-              <div className="flex items-center gap-2 text-red-500 text-sm text-left mt-1">
-                <CircleAlert />
-                {error}
-              </div>
-            )}
           </div>
           <div className="flex flex-col">
             <div className="text-sm mb-4">Kata Sandi</div>
@@ -85,12 +116,6 @@ export default function LoginForm() {
                 {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
               </button>
             </div>
-            {error && (
-              <div className="flex items-center gap-2 text-red-500 text-sm text-left mt-1">
-                <CircleAlert />
-                {error}
-              </div>
-            )}
           </div>
         </div>
         <div className="flex flex-col mb-4">

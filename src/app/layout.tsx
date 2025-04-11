@@ -3,6 +3,7 @@ import "./globals.css";
 import QueryProvider from "./QueryProvider";
 import { Poppins } from "next/font/google";
 import "animate.css";
+import { ToastContainer } from "react-toastify";
 
 export const metadata: Metadata = {
   title: "Sistem Informasi Manajemen Tani",
@@ -27,6 +28,7 @@ export default function RootLayout({
         }
       >
         <QueryProvider> {children}</QueryProvider>
+        <ToastContainer />
       </body>
     </html>
   );
