@@ -94,7 +94,7 @@ const Sidebar = () => {
     {
       name: "Dashboard",
       icon: LayoutDashboard,
-      current: false,
+      current: true,
       link: "/home/dashboard",
     },
     {
@@ -104,9 +104,45 @@ const Sidebar = () => {
       link: "/home/submission",
     },
     { name: "Distribusi", icon: Boxes, current: false, link: "/home/distribution" },
-    { name: "Manajemen Tanaman", icon: Sprout, current: false },
+    {
+      name: "Manajemen Tanaman", icon: Sprout, current: false, link: "/home/planting", child: [
+        {
+          name: "Ajukan Tanaman",
+          icon: Dot,
+          current: false,
+          link: "/home/planting/submission-plant",
+        },
+        {
+          name: "Stok Bibit",
+          icon: Dot,
+          current: false,
+          link: "/home/planting/seed-stock",
+        },
+      ]
+    },
     { name: "Manajemen Website", icon: PanelsTopLeft, current: false },
-    { name: "Laporan", icon: File, current: false },
+    {
+      name: "Laporan", icon: File, current: false, link: "/home/report", child: [
+        {
+          name: "Pengajuan",
+          icon: Dot,
+          current: false,
+          link: "/home/report/submission",
+        },
+        {
+          name: "Pengajuan Tanaman",
+          icon: Dot,
+          current: false,
+          link: "/home/report/plant-submission",
+        },
+        {
+          name: "Distribusi",
+          icon: Dot,
+          current: false,
+          link: "/home/report/distribution",
+        },
+      ]
+    },
     {
       name: "Manajemen Pengguna",
       child: [
@@ -316,7 +352,7 @@ const Sidebar = () => {
                 <button
                   onClick={() => handleClickParent(item)}
                   className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
-                ${(pathname.split("/")[2] == item.link?.split("/")[2] && !item.child) || item.current ? "bg-primary-default text-white" : "text-primary-default hover:bg-primary-default hover:text-white"}
+                ${(pathname.split("/")[2] == item.link?.split("/")[2] && !item.child) && item.current ? "bg-primary-default text-white" : "text-primary-default hover:bg-primary-default hover:text-white"}
                 ${pathname.startsWith(item.link ?? "") && item.child ? "bg-primary-default text-white" : ""}
                 `}
                   aria-current={item.current ? "page" : undefined}

@@ -1,5 +1,6 @@
+"usee client";
 import LoginForm from "@/components/ui/auth/LoginForm";
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 /**
  * The `LoginPage` component renders the login page layout.
@@ -39,7 +40,7 @@ export default function LoginPage() {
         </div>
         <div className="w-[500px] h-[558px] mx-auto">
           <Image
-            src="assets/images/IlustrationLogin.svg"
+            src="/assets/images/IlustrationLogin.svg"
             alt="Login Image"
             layout="responsive"
             width={500}

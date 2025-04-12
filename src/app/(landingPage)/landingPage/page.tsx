@@ -87,7 +87,7 @@ export default function LandingPage() {
             </nav>
             <Button
               onClick={() => {
-                router.push("/login");
+                router.push("/auth/login");
               }}
               className="bg-primary-default text-white rounded-full px-5 hidden md:block"
             >

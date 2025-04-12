@@ -3,7 +3,7 @@
 import { useState } from "react";
 import TermsAndConditionsModal from "@/components/ui/auth/modal/TermsAndConditionsModal";
 import RegisterForm from "@/components/ui/auth/RegisterForm";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import PrivacyPolicyModal from "@/components/ui/auth/modal/PrivacyPolicyModal";
 
 /**
