@@ -41,8 +41,8 @@ export default function RegisterPage() {
 
   return (
     <div className="flex flex-col min-h-screen md:flex-row">
-      <div className="w-full h-[100vh] p-10 pt-14 bg-white md:w-1/2">
-        <div className="flex items-center mb-8">
+      <div className="w-full max-h-[100vh] overflow-auto p-10 pt-5 bg-white md:w-1/2">
+        <div className="flex items-center mb-4">
           <img src="assets/images/LogoPali.svg" alt="" />
           <div className="text-2xl font-bold text-primary-500 ml-5">
             Selamat Datang di Website Tani
@@ -56,7 +56,7 @@ export default function RegisterPage() {
             openModal("privacy");
           }}
         />
-        <div className="flex items-center justify-center mt-8">
+        <div className="flex items-center justify-center mt-4">
           <div className="text-xs text-neutral-400">
             © Website Tani - All Rights Reserved
           </div>
@@ -72,7 +72,7 @@ export default function RegisterPage() {
         </div>
         <div className="w-[500px] h-[558px] mx-auto">
           <Image
-            src="assets/images/ilustrationLogin.svg"
+            src="/assets/images/ilustrationLogin.svg"
             alt="Login Image"
             layout="responsive"
             width={500}

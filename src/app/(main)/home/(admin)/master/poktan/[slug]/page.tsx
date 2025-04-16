@@ -58,7 +58,13 @@ import { useState } from "react";
  * @property {string} label - The label for the form label.
  * @property {string} value - The value of the form label.
  */
-export default function ComponentPage() {
+export default function ComponentPage(
+  {
+    params
+  }: {
+    params: { slug: string }
+  }
+) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -90,11 +96,11 @@ export default function ComponentPage() {
   return (
     <div>
       <div className="bg-white p-4 rounded-md shadow-md font-poppins">
-        {(pathname.split("/").pop() !== "Detail" && (
+        {(params.slug !== "Detail" && (
           <div>
             {/* header */}
             <div className="text-lg font-medium">
-              {pathname.split("/").pop()} Poktan
+              {params.slug} Poktan
             </div>
             {/* end of header */}
 
@@ -177,20 +183,20 @@ export default function ComponentPage() {
             </div>
           </div>
         )) || (
-          <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <FormLabel label="Nama Lengkap" value="John Doe" />
-              <FormLabel label="Ketua Poktan" value="John Doe" />
-              <FormLabel label="Total Anggota" value="12" />
-              <FormLabel label="Kecamatan" value="Ciranda" />
-              <FormLabel label="Kelurahan" value="Ciranda" />
-              <FormLabel label="Desa" value="Ciranda" />
-              <FormLabel label="Longitude" value="102.1231231" />
-              <FormLabel label="Latitude" value="-6.1232131" />
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <FormLabel label="Nama Lengkap" value="John Doe" />
+                <FormLabel label="Ketua Poktan" value="John Doe" />
+                <FormLabel label="Total Anggota" value="12" />
+                <FormLabel label="Kecamatan" value="Ciranda" />
+                <FormLabel label="Kelurahan" value="Ciranda" />
+                <FormLabel label="Desa" value="Ciranda" />
+                <FormLabel label="Longitude" value="102.1231231" />
+                <FormLabel label="Latitude" value="-6.1232131" />
+              </div>
+              <FormLabel label="Alamat" value="Jl. Jalan" />
             </div>
-            <FormLabel label="Alamat" value="Jl. Jalan" />
-          </div>
-        )}
+          )}
       </div>
     </div>
   );

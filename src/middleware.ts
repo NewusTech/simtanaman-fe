@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname
 
     // Public routes
-    if (['/auth/login', '/auth/register'].includes(path)) {
+    if (['/auth/login', '/auth/register', '/auth/forgot-password'].includes(path)) {
         return token
             ? NextResponse.redirect(new URL('/home', request.url))
             : NextResponse.next()

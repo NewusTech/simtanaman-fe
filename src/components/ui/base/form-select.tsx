@@ -14,6 +14,7 @@ interface FormSelectProps {
   value: Array<string>;
   required?: boolean;
   selected?: string;
+  onChange?: (value: string) => void;
 }
 
 export default function FormSelect({
@@ -21,13 +22,14 @@ export default function FormSelect({
   required,
   value,
   selected,
+  onChange,
 }: FormSelectProps) {
   return (
     <div className="w-full flex flex-col items-start gap-1.5">
       <div className="text-sm">
         {label} {required ? <span className="text-danger-600">*</span> : ""}
       </div>
-      <Select>
+      <Select onValueChange={onChange}>
         <SelectTrigger className="w-full rounded-full border border-gray-300 p-2 px-4">
           <SelectValue
             placeholder={"Pilih " + label}
