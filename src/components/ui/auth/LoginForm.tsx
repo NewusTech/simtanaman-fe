@@ -8,6 +8,7 @@ import { CircleAlert, Eye, EyeOff } from "lucide-react";
 import useUserStore from "@/store/auth/userStore";
 import { Bounce, toast } from "react-toastify";
 import { da } from "date-fns/locale";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginForm() {
   const setUser = useUserStore((state) => state.setUser);
@@ -20,6 +21,7 @@ export default function LoginForm() {
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const { setAuthToken } = useAuth();
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,6 +56,8 @@ export default function LoginForm() {
         // Set cookies
         document.cookie = `token=${data['data']['token']}; path=/`;
         document.cookie = `role=${data['data']['role']['name']}; path=/`;
+        setAuthToken(data['data']['token']);
+
         // Navigasi ke halaman home setelah login berhasil
         router.push('/home/dashboard');  // Atau ke halaman lain sesuai dengan rute
       } else {

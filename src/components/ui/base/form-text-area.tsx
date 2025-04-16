@@ -9,15 +9,18 @@ interface FormTextAreaProps {
   value: string;
   placeholder?: string;
   required?: boolean;
+  onChange?: (value: string) => void;
+  errorMessage?: string | null;
 }
 
 export default function FormTextArea({
   label,
   value,
   required,
+  onChange,
   placeholder,
+  errorMessage,
 }: FormTextAreaProps) {
-  const [model, setValue] = useState(value);
   return (
     <div className="grid w-full items-center gap-1.5">
       <div className="text-sm">
@@ -27,12 +30,13 @@ export default function FormTextArea({
         <Textarea
           id="lengkap"
           placeholder={placeholder}
-          value={model}
-          onChange={(e) => {
-            setValue(e.target.value);
-          }}
+          value={value}
+          onChange={(e) => onChange && onChange(e.target.value)}
         />
       </div>
+      {errorMessage && (
+        <div className="text-sm text-danger-600 mt-1">{errorMessage}</div>
+      )}
     </div>
   );
 }

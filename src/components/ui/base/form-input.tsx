@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Input } from "../input";
 import { Eye, EyeOff } from "lucide-react";
+import { on } from "events";
 
 interface FormInputProps {
   label: string;
@@ -9,6 +10,8 @@ interface FormInputProps {
   placeholder?: string;
   required?: boolean;
   type?: string;
+  onChange?: (value: string) => void;
+  errorMessage?: string | null;
 }
 
 export default function FormInput({
@@ -16,9 +19,10 @@ export default function FormInput({
   value,
   required,
   placeholder,
+  onChange,
   type,
+  errorMessage
 }: FormInputProps) {
-  const [model, setValue] = useState(value);
   const [typeModel, setType] = useState(type || "text");
   return (
     <div className="grid w-full items-center gap-1.5">
@@ -30,10 +34,8 @@ export default function FormInput({
           type={typeModel}
           id="lengkap"
           placeholder={placeholder}
-          value={model}
-          onChange={(e) => {
-            setValue(e.target.value);
-          }}
+          value={value}
+          onChange={(e) => onChange && onChange(e.target.value)}
         />
         {type === "password" && (
           <button
@@ -51,6 +53,9 @@ export default function FormInput({
           </button>
         )}
       </div>
+      {errorMessage && (
+        <div className="text-sm text-danger-600 mt-1">{errorMessage}</div>
+      )}
     </div>
   );
 }

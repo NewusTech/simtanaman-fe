@@ -15,6 +15,7 @@ interface FormSelectProps {
   required?: boolean;
   selected?: string;
   onChange?: (value: string) => void;
+  errorMessage?: string | null;
 }
 
 export default function FormSelect({
@@ -23,6 +24,7 @@ export default function FormSelect({
   value,
   selected,
   onChange,
+  errorMessage,
 }: FormSelectProps) {
   return (
     <div className="w-full flex flex-col items-start gap-1.5">
@@ -51,6 +53,9 @@ export default function FormSelect({
           </SelectGroup>
         </SelectContent>
       </Select>
+      {errorMessage && (
+        <div className="text-sm text-danger-600 mt-1">{errorMessage}</div>
+      )}
     </div>
   );
 }
