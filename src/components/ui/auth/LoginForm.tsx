@@ -117,6 +117,15 @@ export default function LoginForm() {
               </button>
             </div>
           </div>
+          <div className="flex items-center justify-end mt-2">
+            <div className="text-sm text-primary-500 cursor-pointer font-medium" onClick={() => {
+              console.log("forgot password");
+
+              router.push("/auth/forgot-password")
+            }}>
+              Lupa Kata Sandi?
+            </div>
+          </div>
         </div>
         <div className="flex flex-col mb-4">
           <div className="flex items-center justify-center">
@@ -131,8 +140,10 @@ export default function LoginForm() {
         </div>
       </form>
       <div className="flex text-center text-primary-500 my-8">
-        Sudah memiliki akun?
-        <div className="font-bold ml-1">Masuk</div>
+        Belum memiliki akun?
+        <div className="font-bold ml-1 cursor-pointer" onClick={() => {
+          router.push("/auth/register")
+        }}>Daftar Disini</div>
       </div>
       <div className="flex text-center my-8">
         <div className="flex items-center w-full">
