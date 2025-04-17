@@ -264,7 +264,7 @@ export default function RegisterForm({
       </form>
       <div className="flex text-center text-primary-500 my-4">
         Sudah memiliki akun?
-        <div className="font-bold ml-1">Masuk</div>
+        <div className="font-bold ml-1 cursor-pointer" onClick={() => { router.push('/auth/login') }}>Masuk</div>
       </div>
       <div className="flex text-center my-4">
         <div className="flex items-center w-full">

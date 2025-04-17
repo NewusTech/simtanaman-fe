@@ -101,5 +101,6 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </main>
     </div>
+
   );
 }
