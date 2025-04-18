@@ -84,8 +84,8 @@ export default function PoktanPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const handleSlugPoktan = (slug: string) => {
-    router.push("/home/master/poktan/" + slug);
+  const handleSlugPoktan = (slug: string, params?: Object) => {
+    router.push("/home/master/poktan/" + slug + (params ? `?${new URLSearchParams(params as any)}` : ""));
   };
 
   const fetchPage = async (page: number) => {
@@ -96,7 +96,6 @@ export default function PoktanPage() {
     setItems(data.items);
     setListPoktan(data.items);
     setTotalPages(data.total_pages);
-    // setPage(page);
     setLoading(false);
   };
 
@@ -168,13 +167,13 @@ export default function PoktanPage() {
                       <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
                         <DropdownMenuItem
                           className="cursor-pointer"
-                          onClick={() => handleSlugPoktan("Detail")}
+                          onClick={() => handleSlugPoktan("Detail", { id: value.id })}
                         >
                           Detail
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="cursor-pointer"
-                          onClick={() => handleSlugPoktan("Edit")}
+                          onClick={() => handleSlugPoktan("Edit", { id: value.id })}
                         >
                           Edit
                         </DropdownMenuItem>
