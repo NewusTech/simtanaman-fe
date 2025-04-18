@@ -438,7 +438,7 @@ export default function TypePlantPage() {
         isLoading={isLoading}
         status={status}
       />
-      <ConfirmasiDeleteModal isOpen={isOpen} onBatal={() => { setIsOpen(false) }} onClose={() => { setIsOpen(false); }} onSimpan={handleDelete} status={status} />
+      <ConfirmasiDeleteModal isOpen={isOpen} onBatal={() => { setIsOpen(false) }} onClose={() => { setIsOpen(false); }} onSimpan={handleDelete} status={'Jenis Tanaman'} />
     </div>
   );
 }
