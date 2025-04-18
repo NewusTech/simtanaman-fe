@@ -27,7 +27,7 @@ import { useEffect, useState } from "react";
 import TypePlantModal from "@/components/ui/home/(admin)/master/modal/TypePlantModal";
 import { useAuth } from "@/hooks/useAuth";
 import { JenisTanaman } from "@/types/master/jenisTanaman";
-import { deleteJenisTanamanData, fetchJenisTanamanData, postJenisTanamanData, putJenisTanamanData } from "@/lib/master/jenisTanamanFetching";
+import { deleteJenisTanamanData, fetchJenisTanamanData, postJenisTanamanData, putJenisTanamanData, searchJenisTanamanData } from "@/lib/master/jenisTanamanFetching";
 import { Bounce, toast } from "react-toastify";
 import ConfirmasiDeleteModal from "@/components/ui/home/(admin)/master/modal/ConfirmasiDeleteModal";
 
@@ -101,6 +101,11 @@ export default function TypePlantPage() {
 
   const handleChange = (value: string) => {
     setSearch(value);
+    if (value.length > 0) {
+      handleSearchPoktan(value);
+    } else {
+      fetchPage(1);
+    }
   };
 
   const handleOpenModal = (slug: string, id?: number) => {
@@ -117,6 +122,15 @@ export default function TypePlantPage() {
 
     setLoading(true);
     const data = await fetchJenisTanamanData(page, String(token));
+    setItems(data.items);
+    setListPlant(data.items);
+    setTotalPages(data.total_pages);
+    setLoading(false);
+  };
+
+  const handleSearchPoktan = async (search: string) => {
+    setLoading(true);
+    const data = await searchJenisTanamanData(search, String(token));
     setItems(data.items);
     setListPlant(data.items);
     setTotalPages(data.total_pages);

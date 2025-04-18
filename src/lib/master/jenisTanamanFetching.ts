@@ -61,3 +61,14 @@ export const getJenisTanamanById = async (id: number, token: string): Promise<Ap
     const data = await res.json();
     return data.data;
 }
+
+// Fungsi untuk search data jenis tanaman
+export const searchJenisTanamanData = async (search: string, token: string): Promise<ApiResponse['data']> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}master/jenis-tanaman?search=${search}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    const data = await res.json();
+    return data.data;
+};
