@@ -74,6 +74,14 @@ export default function PoktanPage() {
   const token = getToken();
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [listPoktan, setListPoktan] = useState<Poktan[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [items, setItems] = useState<Poktan[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [status, setStatus] = useState("");
+  const [id, setId] = useState(0);
 
   const handleChange = (value: string) => {
     setSearch(value);
@@ -83,17 +91,6 @@ export default function PoktanPage() {
       fetchPage(1);
     }
   };
-
-  const [listPoktan, setListPoktan] = useState<Poktan[]>([]);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [items, setItems] = useState<Poktan[]>([]);
-  const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [status, setStatus] = useState("");
-  const [id, setId] = useState(0);
-
 
   const handleSlugPoktan = (slug: string, params?: Object) => {
     router.push("/home/master/poktan/" + slug + (params ? `?${new URLSearchParams(params as any)}` : ""));
