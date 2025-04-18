@@ -1,8 +1,13 @@
 import FormInput from "@/components/ui/base/form-input";
+import FormLabel from "@/components/ui/base/form-label";
 import FormSelect from "@/components/ui/base/form-select";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { postJenisTanamanData } from "@/lib/master/jenisTanamanFetching";
+import { error } from "console";
 import { XIcon } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
+import { Bounce, toast } from "react-toastify";
 
 /**
  * ModalProps is an interface for the properties of the modal component.
@@ -11,7 +16,12 @@ import React from "react";
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: () => void;
+  onChange: (value: string) => void;
   status?: string;
+  value?: string;
+  errorMessage?: string | null;
+  isLoading?: boolean;
 }
 
 /**
@@ -24,8 +34,9 @@ interface ModalProps {
  *
  * @returns {JSX.Element | null} The rendered modal component or null if not open.
  */
-const TypePlantModal: React.FC<ModalProps> = ({ isOpen, onClose, status }) => {
+const TypePlantModal: React.FC<ModalProps> = ({ isOpen, onClose, status, value, errorMessage, isLoading, onSubmit, onChange }) => {
   if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg p-6 w-3/4 md:w-1/2 lg:w-1/3">
@@ -35,27 +46,36 @@ const TypePlantModal: React.FC<ModalProps> = ({ isOpen, onClose, status }) => {
         </h2>
 
         <div className="flex flex-col gap-4 md:flex-row md:gap-6">
-          <FormInput
-            label="Jenis Tanaman"
-            placeholder="Masukan Jenis Tanaman"
-            value={""}
-            required
-          />
+          {
+            status === "Detail" ? (<FormLabel label="Jenis Tanaman" value={value ?? ''} />) : (<FormInput
+              label="Jenis Tanaman"
+              placeholder="Masukan Jenis Tanaman"
+              value={value ?? ''}
+              onChange={onChange}
+              type="text"
+              errorMessage={errorMessage}
+              required
+            />)
+          }
+
+
         </div>
 
         <div className="mt-4 flex justify-end gap-4">
           <Button
-            onClick={() => onclose}
+            onClick={onClose}
             className="border border-primary-default rounded-full text-primary-default px-5"
           >
-            Batal
+            {status === 'Tambah' || status === 'Edit' ? 'Batal' : 'Tutup'}
           </Button>
-          <Button
-            onClick={() => {}}
+          {status === 'Tambah' || status === 'Edit' ? (<Button
+            onClick={onSubmit}
+            disabled={isLoading}
             className="bg-primary-default rounded-full text-white px-5"
           >
-            Simpan
-          </Button>
+            {isLoading ? 'Loading...' : 'Simpan'}
+          </Button>) : (<div></div>)}
+
         </div>
       </div>
     </div>

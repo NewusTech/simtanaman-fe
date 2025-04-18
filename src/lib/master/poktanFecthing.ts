@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/types/master/poktan";
+import { ApiResponse, ApiResponseById } from "@/types/master/poktan";
 
 // Fungsi untuk mengambil data dari API
 export const fetchPoktanData = async (page: number, token: string): Promise<ApiResponse['data']> => {
@@ -10,3 +10,63 @@ export const fetchPoktanData = async (page: number, token: string): Promise<ApiR
     const data = await res.json();
     return data.data;
 };
+
+export const fetchPoktanDataById = async (id: number, token: string): Promise<ApiResponseById['data']> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}master/poktan/${id}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    const data = await res.json();
+    return data.data;
+};
+
+// Fungsi untuk mengirim data ke API
+export const postPoktanData = async (payload: object, token: string): Promise<Response> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}master/poktan`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+    });
+    const data = await res;
+    return data;
+};
+
+// Fungsi untuk mengupdate data ke API
+export const putPoktanData = async (id: number, payload: object, token: string): Promise<Response> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}master/poktan/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+    });
+    const data = await res;
+    return data;
+};
+
+// Fungsi untuk menghapus data dari API
+export const deletePoktanData = async (id: number, token: string): Promise<Response> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}master/poktan/${id}`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    const data = await res;
+    return data;
+};
+// Fungsi untuk mencari data poktan berdasarkan nama
+export const searchPoktanData = async (search: string, token: string): Promise<ApiResponse['data']> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}master/poktan?search=${search}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    const data = await res.json();
+    return data.data;
+}

@@ -20,3 +20,19 @@ export interface ApiResponse {
         links: PaginationLinks;
     };
 }
+
+export interface ApiResponseById {
+    status: number;
+    message: string;
+    data: {
+        name: string,
+        totalAnggota: number,
+        kelurahan: string
+        latitude: number,
+        longitude: number,
+        ketuaPoktan: string,
+        kecamatan: string,
+        desa: string,
+        alamat: string,
+    };
+}

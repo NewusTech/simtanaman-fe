@@ -5,8 +5,9 @@ import FormLabel from "@/components/ui/base/form-label";
 import FormSelect from "@/components/ui/base/form-select";
 import FormTextArea from "@/components/ui/base/form-text-area";
 import { useAuth } from "@/hooks/useAuth";
+import { fetchPoktanDataById, postPoktanData, putPoktanData } from "@/lib/master/poktanFecthing";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Bounce, toast } from "react-toastify";
 import { number } from "zod";
 
@@ -73,6 +74,7 @@ export default function ComponentPage(
   const [isLoading, setIsLoading] = useState(false);
   const { getToken } = useAuth();
   const token = getToken();
+  const [currentPage, setCurrentPage] = useState(1);
   const [messageError, setMessageError] = useState<Record<keyof typeof formData, string | null>>({
     name: null,
     totalAnggota: null,
@@ -127,60 +129,121 @@ export default function ComponentPage(
   const handleSimpan = async () => {
     setIsLoading(true);
     clearMessageError();
-    console.log(formData);
 
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}master/poktan`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          // console.log(errorData.data);
-          response.json().then((errorData) => {
-            setMessageError(errorData.data);
+    if (params.slug === "Tambah") {
+      await postPoktanData(formData, String(token))
+        .then((response) => {
+          if (!response.ok) {
+            response.json().then((errorData) => {
+              setMessageError(errorData.data);
+            });
+
+            throw new Error('Failed to save data');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          toast.success('Data berhasil disimpan', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
           });
 
-          throw new Error('Failed to save data');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        toast.success('Data berhasil disimpan', {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
+          clearFormData();
+          setIsLoading(false);
+          router.push('/home/master/poktan');
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          console.error('Error:', error);
+          toast.error(`${error}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
         });
+    } else {
+      const id = Number(new URLSearchParams(window.location.search).get("id"));
+      await putPoktanData(id, formData, String(token))
+        .then((response) => {
+          if (!response.ok) {
+            response.json().then((errorData) => {
+              setMessageError(errorData.data);
+            });
 
-        clearFormData();
-        setIsLoading(false);
-        router.push('/home/master/poktan');
-      })
-      .catch((error) => {
-        setIsLoading(false);
-        console.error('Error:', error);
-        toast.error(`${error}`, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
+            throw new Error('Failed to update data');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          toast.success('Data berhasil diupdate', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+
+          clearFormData();
+          setIsLoading(false);
+          router.push('/home/master/poktan');
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          console.error('Error:', error);
+          toast.error(`${error}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
         });
-      });
+    }
   };
+
+  useEffect(() => {
+    if (params.slug !== "Tambah") {
+      const id = Number(new URLSearchParams(window.location.search).get("id"));
+      fetchPoktanDataById(id, String(token))
+        .then((data) => {
+          setFormData({
+            name: data.name,
+            totalAnggota: data.totalAnggota,
+            kelurahan: data.kelurahan,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            ketuaPoktan: data.ketuaPoktan,
+            kecamatan: data.kecamatan,
+            desa: data.desa,
+            alamat: data.alamat,
+          });
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+    }
+  }, [params.slug, token]);
 
   return (
     <div>
@@ -201,7 +264,7 @@ export default function ComponentPage(
                   placeholder="Masukan Nama Lengkap"
                   value={formData.name}
                   onChange={(value: string) => setFormData({ ...formData, name: value })}
-                  errorMessage={messageError.name}
+                  errorMessage={messageError.name ?? ''}
                   required
                 />
                 <FormInput
@@ -299,17 +362,32 @@ export default function ComponentPage(
         )) || (
             <div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <FormLabel label="Nama Lengkap" value="John Doe" />
-                <FormLabel label="Ketua Poktan" value="John Doe" />
-                <FormLabel label="Total Anggota" value="12" />
-                <FormLabel label="Kecamatan" value="Ciranda" />
-                <FormLabel label="Kelurahan" value="Ciranda" />
-                <FormLabel label="Desa" value="Ciranda" />
-                <FormLabel label="Longitude" value="102.1231231" />
-                <FormLabel label="Latitude" value="-6.1232131" />
+                <FormLabel label="Nama Lengkap" value={formData.name} />
+                <FormLabel label="Ketua Poktan" value={formData.ketuaPoktan} />
+                <FormLabel label="Total Anggota" value={String(formData.totalAnggota)} />
+                <FormLabel label="Kecamatan" value={formData.kecamatan} />
+                <FormLabel label="Kelurahan" value={formData.kelurahan} />
+                <FormLabel label="Desa" value={formData.desa} />
+                <FormLabel label="Longitude" value={String(formData.longitude)} />
+                <FormLabel label="Latitude" value={String(formData.latitude)} />
               </div>
-              <FormLabel label="Alamat" value="Jl. Jalan" />
+              <FormLabel label="Alamat" value={formData.alamat} />
+
+              <div className="flex justify-end mt-4">
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => {
+                      clearFormData();
+                      router.back();
+                    }}
+                    className="border border-primary-default text-primary-default rounded-full py-2 px-4"
+                  >
+                    Kembali
+                  </button>
+                </div>
+              </div>
             </div>
+
           )}
       </div>
     </div>
