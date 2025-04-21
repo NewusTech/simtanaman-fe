@@ -26,11 +26,13 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { fetchPoktanData } from '@/lib/master/poktanFecthing';
+import { deletePoktanData, fetchPoktanData, searchPoktanData } from '@/lib/master/poktanFecthing';
 import { Poktan } from '@/types/master/poktan';
 import { usePaginationStore } from '@/store/usePaginationStore';
 import { useAuth } from '@/hooks/useAuth';
 import { se } from 'date-fns/locale';
+import ConfirmasiDeleteModal from '@/components/ui/home/(admin)/master/modal/ConfirmasiDeleteModal';
+import { Bounce, toast } from 'react-toastify';
 
 /**
  * PoktanPage component renders a page for managing "Kelompok Tani" (Poktan) groups.
@@ -72,20 +74,79 @@ export default function PoktanPage() {
   const token = getToken();
   const router = useRouter();
   const [search, setSearch] = useState("");
-
-  const handleChange = (value: string) => {
-    setSearch(value);
-  };
-
   const [listPoktan, setListPoktan] = useState<Poktan[]>([]);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [items, setItems] = useState<Poktan[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [status, setStatus] = useState("");
+  const [id, setId] = useState(0);
 
-  const handleSlugPoktan = (slug: string) => {
-    router.push("/home/master/poktan/" + slug);
+  const handleChange = (value: string) => {
+    setSearch(value);
+    if (value.length > 0) {
+      handleSearchPoktan(value);
+    } else {
+      fetchPage(1);
+    }
+  };
+
+  const handleSlugPoktan = (slug: string, params?: Object) => {
+    router.push("/home/master/poktan/" + slug + (params ? `?${new URLSearchParams(params as any)}` : ""));
+  };
+
+  const handleSearchPoktan = async (search: string) => {
+    setLoading(true);
+    const data = await searchPoktanData(search, String(token));
+    setItems(data.items);
+    setListPoktan(data.items);
+    setTotalPages(data.total_pages);
+    setLoading(false);
+  };
+
+  const handleDeletePoktan = async () => {
+    setLoading(true);
+    setIsOpen(false);
+    await deletePoktanData(id, String(token)).then((response) => {
+      if (response.ok) {
+        fetchPage(1);
+        toast.success('Data berhasil dihapus', {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+      } else {
+        toast.error('Data gagal dihapus', {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+      }
+    }).catch((error) => {
+      console.error("Error deleting Poktan:", error);
+    }
+    );
+
+    setLoading(false);
+  }
+
+  const handleOpenModal = (id: number) => {
+    setIsOpen(true);
+    setStatus("Kelompok Tani");
+    setId(id);
   };
 
   const fetchPage = async (page: number) => {
@@ -96,7 +157,6 @@ export default function PoktanPage() {
     setItems(data.items);
     setListPoktan(data.items);
     setTotalPages(data.total_pages);
-    // setPage(page);
     setLoading(false);
   };
 
@@ -168,15 +228,21 @@ export default function PoktanPage() {
                       <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
                         <DropdownMenuItem
                           className="cursor-pointer"
-                          onClick={() => handleSlugPoktan("Detail")}
+                          onClick={() => handleSlugPoktan("Detail", { id: value.id })}
                         >
                           Detail
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="cursor-pointer"
-                          onClick={() => handleSlugPoktan("Edit")}
+                          onClick={() => handleSlugPoktan("Edit", { id: value.id })}
                         >
                           Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => handleOpenModal(value.id)}
+                        >
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -232,6 +298,10 @@ export default function PoktanPage() {
           </TableRow>
         </TableFooter>
       </Table>
+
+      {/* Modal */}
+      <ConfirmasiDeleteModal isOpen={isOpen} onBatal={() => { setIsOpen(false) }} onClose={() => { setIsOpen(false); }} onSimpan={handleDeletePoktan} status={status} />
+
     </div>
   );
 }
