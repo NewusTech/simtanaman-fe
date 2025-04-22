@@ -4,8 +4,12 @@ import FormInput from "@/components/ui/base/form-input";
 import FormLabel from "@/components/ui/base/form-label";
 import FormSelect from "@/components/ui/base/form-select";
 import FormTextArea from "@/components/ui/base/form-text-area";
+import { useAuth } from "@/hooks/useAuth";
+import { fetchPoktanDataById, postPoktanData, putPoktanData } from "@/lib/master/poktanFecthing";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Bounce, toast } from "react-toastify";
+import { number } from "zod";
 
 /**
  * ComponentPage is a React functional component that renders a form for managing Poktan data.
@@ -58,17 +62,52 @@ import { useState } from "react";
  * @property {string} label - The label for the form label.
  * @property {string} value - The value of the form label.
  */
-export default function ComponentPage() {
+export default function ComponentPage(
+  {
+    params
+  }: {
+    params: { slug: string }
+  }
+) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isLoading, setIsLoading] = useState(false);
+  const { getToken } = useAuth();
+  const token = getToken();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [messageError, setMessageError] = useState<Record<keyof typeof formData, string | null>>({
+    name: null,
+    totalAnggota: null,
+    kelurahan: null,
+    latitude: null,
+    longitude: null,
+    ketuaPoktan: null,
+    kecamatan: null,
+    desa: null,
+    alamat: null,
+  });
+
+  const clearMessageError = () => {
+    setMessageError({
+      name: null,
+      totalAnggota: null,
+      kelurahan: null,
+      latitude: null,
+      longitude: null,
+      ketuaPoktan: null,
+      kecamatan: null,
+      desa: null,
+      alamat: null,
+    });
+  };
 
   const [formData, setFormData] = useState({
     name: "",
-    total_anggota: "",
+    totalAnggota: 0,
     kelurahan: "",
-    latitude: "",
-    longitude: "",
-    ketua_poktan: "",
+    latitude: 0,
+    longitude: 0,
+    ketuaPoktan: "",
     kecamatan: "",
     desa: "",
     alamat: "",
@@ -76,25 +115,144 @@ export default function ComponentPage() {
   const clearFormData = () => {
     setFormData({
       name: "",
-      total_anggota: "",
+      totalAnggota: 0,
       kelurahan: "",
-      latitude: "",
-      longitude: "",
-      ketua_poktan: "",
+      latitude: 0,
+      longitude: 0,
+      ketuaPoktan: "",
       kecamatan: "",
       desa: "",
       alamat: "",
     });
   };
 
+  const handleSimpan = async () => {
+    setIsLoading(true);
+    clearMessageError();
+
+    if (params.slug === "Tambah") {
+      await postPoktanData(formData, String(token))
+        .then((response) => {
+          if (!response.ok) {
+            response.json().then((errorData) => {
+              setMessageError(errorData.data);
+            });
+
+            throw new Error('Failed to save data');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          toast.success('Data berhasil disimpan', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+
+          clearFormData();
+          setIsLoading(false);
+          router.push('/home/master/poktan');
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          console.error('Error:', error);
+          toast.error(`${error}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+        });
+    } else {
+      const id = Number(new URLSearchParams(window.location.search).get("id"));
+      await putPoktanData(id, formData, String(token))
+        .then((response) => {
+          if (!response.ok) {
+            response.json().then((errorData) => {
+              setMessageError(errorData.data);
+            });
+
+            throw new Error('Failed to update data');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          toast.success('Data berhasil diupdate', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+
+          clearFormData();
+          setIsLoading(false);
+          router.push('/home/master/poktan');
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          console.error('Error:', error);
+          toast.error(`${error}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+        });
+    }
+  };
+
+  useEffect(() => {
+    if (params.slug !== "Tambah") {
+      const id = Number(new URLSearchParams(window.location.search).get("id"));
+      fetchPoktanDataById(id, String(token))
+        .then((data) => {
+          setFormData({
+            name: data.name,
+            totalAnggota: data.totalAnggota,
+            kelurahan: data.kelurahan,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            ketuaPoktan: data.ketuaPoktan,
+            kecamatan: data.kecamatan,
+            desa: data.desa,
+            alamat: data.alamat,
+          });
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+    }
+  }, [params.slug, token]);
+
   return (
     <div>
       <div className="bg-white p-4 rounded-md shadow-md font-poppins">
-        {(pathname.split("/").pop() !== "Detail" && (
+        {(params.slug !== "Detail" && (
           <div>
             {/* header */}
             <div className="text-lg font-medium">
-              {pathname.split("/").pop()} Poktan
+              {params.slug} Poktan
             </div>
             {/* end of header */}
 
@@ -105,24 +263,34 @@ export default function ComponentPage() {
                   label="Nama Lengkap"
                   placeholder="Masukan Nama Lengkap"
                   value={formData.name}
+                  onChange={(value: string) => setFormData({ ...formData, name: value })}
+                  errorMessage={messageError.name ?? ''}
                   required
                 />
                 <FormInput
                   label="Total Anggota"
                   placeholder="Masukan Total Anggota"
-                  value={formData.total_anggota}
+                  value={String(formData.totalAnggota)}
+                  type="number"
+                  onChange={(value: string) => setFormData({ ...formData, totalAnggota: Number(value) })}
+                  errorMessage={messageError.totalAnggota}
                   required
                 />
                 <FormSelect
                   label="Kelurahan"
                   value={["Kel. Sukaraja", "Kel. Sukawana"]}
                   selected={formData.kelurahan}
+                  onChange={(value: string) => setFormData({ ...formData, kelurahan: value })}
+                  errorMessage={messageError.kelurahan}
                   required
                 />
                 <FormInput
                   label="Longitude"
+                  type="number"
                   placeholder="Masukan Longitude"
-                  value={formData.longitude}
+                  value={String(formData.longitude)}
+                  onChange={(value: string) => setFormData({ ...formData, longitude: Number(value) })}
+                  errorMessage={messageError.longitude}
                   required
                 />
               </div>
@@ -130,24 +298,33 @@ export default function ComponentPage() {
                 <FormInput
                   label="Ketua Poktan"
                   placeholder="Masukan Ketua Poktan"
-                  value={formData.ketua_poktan}
+                  value={formData.ketuaPoktan}
+                  onChange={(value: string) => setFormData({ ...formData, ketuaPoktan: value })}
+                  errorMessage={messageError.ketuaPoktan}
                   required
                 />
                 <FormSelect
                   label="kecamatan"
                   value={["Kec. Sukaraja", "Kec. Sukawana"]}
                   selected={formData.kecamatan}
+                  onChange={(value: string) => setFormData({ ...formData, kecamatan: value })}
+                  errorMessage={messageError.kecamatan}
                   required
                 />
                 <FormSelect
                   label="Desa"
-                  value={["SAJARANA", "SAJARANA"]}
+                  value={["SAJARANA", "SUKASARI"]}
                   selected={formData.desa}
+                  errorMessage={messageError.desa}
+                  onChange={(value: string) => setFormData({ ...formData, desa: value })}
                 />
                 <FormInput
                   label="Latitude"
+                  type="number"
                   placeholder="Masukan Latitude"
-                  value={formData.latitude}
+                  errorMessage={messageError.latitude}
+                  value={String(formData.latitude)}
+                  onChange={(value: string) => setFormData({ ...formData, latitude: Number(value) })}
                   required
                 />
               </div>
@@ -155,6 +332,8 @@ export default function ComponentPage() {
             <FormTextArea
               label="Alamat"
               placeholder="Masukan Alamat"
+              errorMessage={messageError.alamat}
+              onChange={(value: string) => setFormData({ ...formData, alamat: value })}
               value={formData.alamat}
               required
             />
@@ -170,27 +349,46 @@ export default function ComponentPage() {
                 >
                   Batal
                 </button>
-                <button className="bg-primary-500 text-white rounded-full py-2 px-4">
-                  Simpan
+                <button className="bg-primary-500 text-white rounded-full py-2 px-4" onClick={handleSimpan}>
+                  {isLoading ? (
+                    "Loading..."
+                  ) : (
+                    "Simpan"
+                  )}
                 </button>
               </div>
             </div>
           </div>
         )) || (
-          <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <FormLabel label="Nama Lengkap" value="John Doe" />
-              <FormLabel label="Ketua Poktan" value="John Doe" />
-              <FormLabel label="Total Anggota" value="12" />
-              <FormLabel label="Kecamatan" value="Ciranda" />
-              <FormLabel label="Kelurahan" value="Ciranda" />
-              <FormLabel label="Desa" value="Ciranda" />
-              <FormLabel label="Longitude" value="102.1231231" />
-              <FormLabel label="Latitude" value="-6.1232131" />
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <FormLabel label="Nama Lengkap" value={formData.name} />
+                <FormLabel label="Ketua Poktan" value={formData.ketuaPoktan} />
+                <FormLabel label="Total Anggota" value={String(formData.totalAnggota)} />
+                <FormLabel label="Kecamatan" value={formData.kecamatan} />
+                <FormLabel label="Kelurahan" value={formData.kelurahan} />
+                <FormLabel label="Desa" value={formData.desa} />
+                <FormLabel label="Longitude" value={String(formData.longitude)} />
+                <FormLabel label="Latitude" value={String(formData.latitude)} />
+              </div>
+              <FormLabel label="Alamat" value={formData.alamat} />
+
+              <div className="flex justify-end mt-4">
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => {
+                      clearFormData();
+                      router.back();
+                    }}
+                    className="border border-primary-default text-primary-default rounded-full py-2 px-4"
+                  >
+                    Kembali
+                  </button>
+                </div>
+              </div>
             </div>
-            <FormLabel label="Alamat" value="Jl. Jalan" />
-          </div>
-        )}
+
+          )}
       </div>
     </div>
   );

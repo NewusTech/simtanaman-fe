@@ -96,10 +96,11 @@ export default function Layout({ children }: LayoutProps) {
           </div>
           <UserProfil />
         </header>
-        <div className="p-4 md:ml-64 h-[calc(100vh-6rem)] overflow-auto">
+        <div className="p-4 md:ml-64 h-[calc(100vh-5rem)] overflow-auto">
           {children}
         </div>
       </main>
     </div>
+
   );
 }

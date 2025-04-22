@@ -3,6 +3,8 @@ import "./globals.css";
 import QueryProvider from "./QueryProvider";
 import { Poppins } from "next/font/google";
 import "animate.css";
+import { ToastContainer } from "react-toastify";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
   title: "Sistem Informasi Manajemen Tani",
@@ -26,7 +28,14 @@ export default function RootLayout({
           poppins.className + "text-base text-foreground bg-background"
         }
       >
-        <QueryProvider> {children}</QueryProvider>
+        {/* <QueryProvider> 
+          {children}
+          </QueryProvider> */}
+
+        <AuthProvider>
+          <QueryProvider>{children}</QueryProvider>
+        </AuthProvider>
+        <ToastContainer />
       </body>
     </html>
   );

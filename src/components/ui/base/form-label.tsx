@@ -18,7 +18,6 @@ export default function FormLabel({
   placeholder,
   type,
 }: FormInputProps) {
-  const [model, setValue] = useState(value);
   const [typeModel, setType] = useState(type || "text");
   return (
     <div className="grid w-full items-center gap-1.5">
@@ -31,9 +30,9 @@ export default function FormLabel({
           disabled={true}
           type={typeModel}
           placeholder={placeholder}
-          value={model}
+          value={value}
           onChange={(e) => {
-            setValue(e.target.value);
+            // setValue(e.target.value);
           }}
         />
       </div>
