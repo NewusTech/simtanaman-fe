@@ -24,7 +24,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import OwnershipStatusModal from "@/components/ui/home/(admin)/master/modal/OwnershipStatusModal";
 import { useAuth } from "@/hooks/useAuth";
 import { StatusKepemilikan } from "@/types/master/statusKepemilikan";
@@ -116,7 +116,7 @@ export default function LandOwnershipStatusPage() {
     setStatus(slug);
   };
 
-  const fetchPage = async (page: number) => {
+  const fetchPage = useCallback(async (page: number) => {
     if (loading) return;
 
     setLoading(true);
@@ -125,7 +125,7 @@ export default function LandOwnershipStatusPage() {
     setlistStatus(data.items);
     setTotalPages(data.total_pages);
     setLoading(false);
-  };
+  }, [loading, token]);
 
   const handleSearchStatusKepemilikan = async (search: string) => {
     setLoading(true);
@@ -282,7 +282,7 @@ export default function LandOwnershipStatusPage() {
 
   useEffect(() => {
     fetchPage(currentPage);
-  }, [currentPage]);
+}, [currentPage]);
 
   return (
     <div className="bg-white p-4 rounded-md shadow-md font-poppins">

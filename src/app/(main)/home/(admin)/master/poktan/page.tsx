@@ -24,7 +24,7 @@ import {
   EllipsisVertical,
   Plus,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deletePoktanData, fetchPoktanData, searchPoktanData } from '@/lib/master/poktanFecthing';
 import { Poktan } from '@/types/master/poktan';
@@ -149,7 +149,7 @@ export default function PoktanPage() {
     setId(id);
   };
 
-  const fetchPage = async (page: number) => {
+  const fetchPage = useCallback(async (page: number) => {
     if (loading) return;
 
     setLoading(true);
@@ -158,10 +158,10 @@ export default function PoktanPage() {
     setListPoktan(data.items);
     setTotalPages(data.total_pages);
     setLoading(false);
-  };
+  }, [loading, token]);
 
   useEffect(() => {
-    fetchPage(currentPage);
+      fetchPage(currentPage);
   }, [currentPage]);
 
   return (

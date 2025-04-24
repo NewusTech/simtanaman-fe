@@ -24,7 +24,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import DistributionMethodModal from "@/components/ui/home/(admin)/master/modal/DistributionMethodModal";
 import { useAuth } from "@/hooks/useAuth";
 import { DistribusiMetode } from "@/types/master/distribusiMetode";
@@ -88,21 +88,26 @@ export default function DistributionMethodPage() {
     setIsModalOpen(true);
     setId(id ?? 0);
     setFormData({
-      name: id ? listDistribusi.find((item) => item.id === id)?.name ?? "" : "",
+      name: id
+        ? (listDistribusi.find((item) => item.id === id)?.name ?? "")
+        : "",
     });
     setStatus(slug);
   };
 
-  const fetchPage = async (page: number) => {
-    if (loading) return;
+  const fetchPage = useCallback(
+    async (page: number) => {
+      if (loading) return;
 
-    setLoading(true);
-    const data = await fetchDistribusiData(page, String(token));
-    setItems(data.items);
-    setListDistribusi(data.items);
-    setTotalPages(data.total_pages);
-    setLoading(false);
-  };
+      setLoading(true);
+      const data = await fetchDistribusiData(page, String(token));
+      setItems(data.items);
+      setListDistribusi(data.items);
+      setTotalPages(data.total_pages);
+      setLoading(false);
+    },
+    [loading, token]
+  );
 
   const handleSearchStatusKepemilikan = async (search: string) => {
     setLoading(true);
@@ -415,15 +420,24 @@ export default function DistributionMethodPage() {
         onChange={(value) => {
           setFormData({ ...formData, name: value });
           clearMessageError();
-        }
-        }
+        }}
         onSubmit={handleSubmit}
         value={formData.name}
-        errorMessage={messageError.name ?? ''}
+        errorMessage={messageError.name ?? ""}
         isLoading={isLoading}
         status={status}
       />
-      <ConfirmasiDeleteModal isOpen={isOpen} onBatal={() => { setIsOpen(false) }} onClose={() => { setIsOpen(false); }} onSimpan={handleDelete} status={'Metode DIstribusi'} />
+      <ConfirmasiDeleteModal
+        isOpen={isOpen}
+        onBatal={() => {
+          setIsOpen(false);
+        }}
+        onClose={() => {
+          setIsOpen(false);
+        }}
+        onSimpan={handleDelete}
+        status={"Metode DIstribusi"}
+      />
     </div>
   );
 }

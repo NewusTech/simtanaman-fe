@@ -27,7 +27,7 @@ import {
   List,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import AdminFilterModal from "@/components/ui/home/(admin)/management/user/modal/AdminFilterModal";
 import ListRoleModal from "@/components/ui/home/(admin)/management/user/modal/ListRoleModal";
@@ -101,20 +101,23 @@ export default function AccessPage() {
     setId(id);
   };
 
-  const fetchPage = async (page: number) => {
-    if (loading) return;
+  const fetchPage = useCallback(
+    async (page: number) => {
+      if (loading) return;
 
-    setLoading(true);
-    const data = await fetchHakAksesData(page, String(token));
-    setItems(data.items);
-    setListUser(data.items);
-    setTotalPages(data.total_pages);
-    setLoading(false);
-  };
+      setLoading(true);
+      const data = await fetchHakAksesData(page, String(token));
+      setItems(data.items);
+      setListUser(data.items);
+      setTotalPages(data.total_pages);
+      setLoading(false);
+    },
+    [loading, token]
+  );
 
   useEffect(() => {
     fetchPage(currentPage);
-  }, [currentPage]);
+}, [currentPage]);
 
   return (
     <div className="bg-white p-4 rounded-md shadow-md font-poppins">
