@@ -1,4 +1,5 @@
 import FormInput from "@/components/ui/base/form-input";
+import FormLabel from "@/components/ui/base/form-label";
 import FormSelect from "@/components/ui/base/form-select";
 import { Button } from "@/components/ui/button";
 import { XIcon } from "lucide-react";
@@ -11,7 +12,12 @@ import React from "react";
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: () => void;
+  onChange: (value: string) => void;
   status?: string;
+  value?: string;
+  errorMessage?: string | null;
+  isLoading?: boolean;
 }
 
 /**
@@ -28,6 +34,11 @@ const DistributionMethodModal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   status,
+  value,
+  errorMessage,
+  isLoading,
+  onSubmit,
+  onChange,
 }) => {
   if (!isOpen) return null;
   return (
@@ -39,27 +50,39 @@ const DistributionMethodModal: React.FC<ModalProps> = ({
         </h2>
 
         <div className="flex flex-col gap-4 md:flex-row md:gap-6">
-          <FormInput
-            label="Metode Distribusi"
-            placeholder="Masukan Metode Distribusi"
-            value={""}
-            required
-          />
+          {status === "Detail" ? (
+            <FormLabel label="Metode Distribusi" value={value ?? ""} />
+          ) : (
+            <FormInput
+              label="Metode Distribusi"
+              placeholder="Masukan Metode Distribusi"
+              value={value ?? ""}
+              onChange={onChange}
+              type="text"
+              errorMessage={errorMessage}
+              required
+            />
+          )}
         </div>
 
         <div className="mt-4 flex justify-end gap-4">
           <Button
-            onClick={() => onclose}
+            onClick={onClose}
             className="border border-primary-default rounded-full text-primary-default px-5"
           >
-            Batal
+            {status === "Tambah" || status === "Edit" ? "Batal" : "Tutup"}
           </Button>
-          <Button
-            onClick={() => {}}
-            className="bg-primary-default rounded-full text-white px-5"
-          >
-            Simpan
-          </Button>
+          {status === "Tambah" || status === "Edit" ? (
+            <Button
+              onClick={onSubmit}
+              disabled={isLoading}
+              className="bg-primary-default rounded-full text-white px-5"
+            >
+              {isLoading ? "Loading..." : "Simpan"}
+            </Button>
+          ) : (
+            <div></div>
+          )}
         </div>
       </div>
     </div>
