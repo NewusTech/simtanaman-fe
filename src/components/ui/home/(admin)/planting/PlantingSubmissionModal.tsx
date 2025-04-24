@@ -28,12 +28,12 @@ const PlantingSubmissionModal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  if (!isOpen) return null;
   const [formData, setFormData] = useState({
     tanggal: new Date(),
     jenis_tanaman: "",
     stok: ""
   });
+  if (!isOpen) return null;
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg p-6 w-3/4 md:w-1/2 lg:w-1/3">

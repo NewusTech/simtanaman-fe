@@ -242,6 +242,11 @@ const Sidebar = () => {
     }
   };
 
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  });
+
   const handleClickParent = (item: any) => {
     if (item.child) {
       setNavigation((prevNavigation) =>

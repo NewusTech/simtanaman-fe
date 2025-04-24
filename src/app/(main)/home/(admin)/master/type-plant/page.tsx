@@ -23,7 +23,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import TypePlantModal from "@/components/ui/home/(admin)/master/modal/TypePlantModal";
 import { useAuth } from "@/hooks/useAuth";
 import { JenisTanaman } from "@/types/master/jenisTanaman";
@@ -117,7 +117,7 @@ export default function TypePlantPage() {
     setStatus(slug);
   };
 
-  const fetchPage = async (page: number) => {
+  const fetchPage = useCallback(async (page: number) => {
     if (loading) return;
 
     setLoading(true);
@@ -126,7 +126,7 @@ export default function TypePlantPage() {
     setListPlant(data.items);
     setTotalPages(data.total_pages);
     setLoading(false);
-  };
+  }, [loading, token]);
 
   const handleSearchPoktan = async (search: string) => {
     setLoading(true);
@@ -282,7 +282,7 @@ export default function TypePlantPage() {
   }
   useEffect(() => {
     fetchPage(currentPage);
-  }, [currentPage]);
+}, [currentPage]);
 
   return (
     <div className="bg-white p-4 rounded-md shadow-md font-poppins">

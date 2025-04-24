@@ -3,5 +3,10 @@
     "next/core-web-vitals",
     "plugin:testing-library/react",
     "plugin:jest-dom/recommended"
-  ]
+  ],
+  "rules": {
+    "@next/next/no-img-element": "off",  // Disable the rule that warns against using <img> tags
+    "react-hooks/exhaustive-deps": "warn",  // Change the warning level for hooks dependency warnings
+    "react-hooks/rules-of-hooks": "error"  // Enforce hooks rules strictly
+  }
 }
