@@ -440,7 +440,6 @@ export default function LandOwnershipStatusPage() {
         isLoading={isLoading}
         status={status}
       />
-      //* Modal Konfirmasi Hapus */
       <ConfirmasiDeleteModal isOpen={isOpen} onBatal={() => { setIsOpen(false) }} onClose={() => { setIsOpen(false); }} onSimpan={handleDelete} status={'Status Kepemilikan'} />
     </div>
   );
