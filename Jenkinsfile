@@ -48,7 +48,7 @@ pipeline {
                             export NVM_DIR="$HOME/.nvm"
                             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
                             nvm use $NODE_VERSION
-                            pnpm install
+                            pnpm install --no-frozen-lockfile
                             pnpm run build
                         '''
                     }
