@@ -9,6 +9,10 @@ pipeline {
         PORT = "3070"
     }
 
+    triggers {
+        githubPush()
+    }
+
     stages {
         stage('Validate Path') {
             steps {
