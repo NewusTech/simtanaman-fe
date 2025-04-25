@@ -78,7 +78,7 @@ export default function LandingPage() {
           <div className="flex items-center space-x-4">
             <nav className="hidden md:block">
               <ul className="flex space-x-4">
-                <NavigationLink href="#beranda">Beranda</NavigationLink>
+                <NavigationLink href="#beranda">Berandas</NavigationLink>
                 <NavigationLink href="#peta">Peta Distribusi</NavigationLink>
                 <NavigationLink href="#statistika">Statistika</NavigationLink>
                 <NavigationLink href="#pengumuman">Pengumuman</NavigationLink>
