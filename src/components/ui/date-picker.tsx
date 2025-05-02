@@ -20,6 +20,7 @@ interface DatePickerProps {
   required?: boolean;
   date: Date;
   onSelect: (date: Date) => void;
+  errorMessage?: string | null;
 }
 
 export default function DatePicker({
@@ -27,6 +28,7 @@ export default function DatePicker({
   onSelect,
   label,
   required,
+  errorMessage
 }: DatePickerProps) {
   return (
     <div className="flex flex-col items-start w-full gap-1.5">
@@ -58,6 +60,9 @@ export default function DatePicker({
           />
         </PopoverContent>
       </Popover>
+      {errorMessage && (
+        <div className="text-sm text-danger-600 mt-1">{errorMessage}</div>
+      )}
     </div>
   );
 }
