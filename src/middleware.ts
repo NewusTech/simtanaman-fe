@@ -24,11 +24,11 @@ export async function middleware(request: NextRequest) {
             case 'admin':
                 return NextResponse.redirect(new URL('/home/dashboard', request.url))
             case 'penyuluh':
-                return NextResponse.redirect(new URL('/home/(penyuluh)/dashboard', request.url))
+                return NextResponse.redirect(new URL('/home/dashboard', request.url))
             case 'distributor':
-                return NextResponse.redirect(new URL('/home/(distributor)/dashboard', request.url))
+                return NextResponse.redirect(new URL('/home/dashboard', request.url))
             case 'user':
-                return NextResponse.redirect(new URL('/home/(user)/dashboard', request.url))
+                return NextResponse.redirect(new URL('/home/dashboard', request.url))
             default:
                 return NextResponse.redirect(new URL('/auth/login', request.url))
         }

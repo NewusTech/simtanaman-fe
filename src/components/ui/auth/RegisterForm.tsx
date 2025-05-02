@@ -219,13 +219,17 @@ export default function RegisterForm({
           </div>
           <FormSelect
             label="Role"
-            value={["Admin", "User"]}
+            value={["Admin", "User", "Penyuluh", "Distributor"]}
             selected={formData.select_role}
             onChange={(value) => {
               if (value === "Admin") {
                 setFormData({ ...formData, role: 1, select_role: value });
               } else if (value === "User") {
                 setFormData({ ...formData, role: 2, select_role: value });
+              }              else if (value === "Penyuluh") {
+                setFormData({ ...formData, role: 3, select_role: value });
+              }              else if (value === "Distributor") {
+                setFormData({ ...formData, role: 4, select_role: value });
               }
             }}
           />

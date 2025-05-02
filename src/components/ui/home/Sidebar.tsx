@@ -15,6 +15,9 @@ import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 import { Poppins } from "next/font/google";
+import { ROLE_PERMISSIONS } from "@/types/auth";
+import useUserStore from "@/store/auth/userStore";
+import { usePermission } from "@/store/usePermission";
 
 const poppins = Poppins({
   weight: ["400", "700"],
@@ -69,6 +72,7 @@ const Sidebar = () => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const role = usePermission((state) => state.role);
 
   useEffect(() => {
     const storedSidebarState = localStorage.getItem("sidebarOpen");
@@ -96,16 +100,18 @@ const Sidebar = () => {
       icon: LayoutDashboard,
       current: true,
       link: "/home/dashboard",
+      role: ["admin", "user","penyuluh","distributor"],
     },
     {
       name: "Pengajuan",
       icon: HandHelping,
       current: false,
       link: "/home/submission",
+      role: ["admin", "user","penyuluh","distributor"]
     },
-    { name: "Distribusi", icon: Boxes, current: false, link: "/home/distribution" },
+    { name: "Distribusi", icon: Boxes, current: false, link: "/home/distribution", role: ["admin", "user","penyuluh","distributor"]},
     {
-      name: "Manajemen Tanaman", icon: Sprout, current: false, link: "/home/planting", child: [
+      name: "Manajemen Tanaman", icon: Sprout, current: false, link: "/home/planting", role: ["admin"], child: [
         {
           name: "Ajukan Tanaman",
           icon: Dot,
@@ -120,9 +126,9 @@ const Sidebar = () => {
         },
       ]
     },
-    { name: "Manajemen Website", icon: PanelsTopLeft, current: false },
+    { name: "Manajemen Website", icon: PanelsTopLeft, current: false , role: ["admin"],},
     {
-      name: "Laporan", icon: File, current: false, link: "/home/report", child: [
+      name: "Laporan", icon: File, current: false, link: "/home/report", role: ["admin","user","penyuluh","distributor"], child: [
         {
           name: "Pengajuan",
           icon: Dot,
@@ -145,6 +151,7 @@ const Sidebar = () => {
     },
     {
       name: "Manajemen Pengguna",
+      role: ["admin"],
       child: [
         {
           name: "Admin",
@@ -186,6 +193,7 @@ const Sidebar = () => {
       icon: Database,
       current: false,
       link: "/home/master",
+      role: ["admin"],
       child: [
         {
           name: "Poktan",
@@ -352,51 +360,55 @@ const Sidebar = () => {
         {/* Navigation Items */}
         <nav className="mt-8 px-4">
           <ul className="space-y-2">
-            {navigation.map((item) => (
+            {navigation
+              .filter((item) => {
+              return (role && item.role.includes(role));
+              })
+              .map((item) => (
               <li key={item.name} className="relative">
                 <button
-                  onClick={() => handleClickParent(item)}
-                  className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
+                onClick={() => handleClickParent(item)}
+                className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
                 ${(pathname.split("/")[2] == item.link?.split("/")[2] && !item.child) && item.current ? "bg-primary-default text-white" : "text-primary-default hover:bg-primary-default hover:text-white"}
                 ${pathname.startsWith(item.link ?? "") && item.child ? "bg-primary-default text-white" : ""}
                 `}
-                  aria-current={item.current ? "page" : undefined}
+                aria-current={item.current ? "page" : undefined}
                 >
-                  <item.icon
-                    className={`h-6 w-6 ${pathname.startsWith(item.link ?? "") && !item.child && item.current ? "text-white" : ""} `}
-                  />
-                  <span
-                    className={`ml-4 text-sm ${!isOpen && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
-                  >
-                    {item.name}
-                  </span>
+                <item.icon
+                  className={`h-6 w-6 ${pathname.startsWith(item.link ?? "") && !item.child && item.current ? "text-white" : ""} `}
+                />
+                <span
+                  className={`ml-4 text-sm ${!isOpen && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
+                >
+                  {item.name}
+                </span>
                 </button>
                 {item.child && item.current && (
-                  <ul className="mt-2 space-y-2 pl-5">
-                    {item.child.map((childItem) => (
-                      <li key={childItem.name}>
-                        <button
-                          onClick={() => handleClickChild(childItem)}
-                          className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
+                <ul className="mt-2 space-y-2 pl-5">
+                  {item.child.map((childItem) => (
+                  <li key={childItem.name}>
+                    <button
+                    onClick={() => handleClickChild(childItem)}
+                    className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
               ${pathname.startsWith(childItem.link) ? "font-bold text-primary-default" : "text-primary-default hover:bg-primary-default hover:text-white"}
               `}
-                          aria-current={childItem.current ? "page" : undefined}
-                        >
-                          <childItem.icon
-                            className={`h-6 w-6 ${pathname.startsWith(childItem.link) ? "text-primary-default" : ""} `}
-                          />
-                          <span
-                            className={`ml-2 text-xs ${!isOpen && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
-                          >
-                            {childItem.name}
-                          </span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                    aria-current={childItem.current ? "page" : undefined}
+                    >
+                    <childItem.icon
+                      className={`h-6 w-6 ${pathname.startsWith(childItem.link) ? "text-primary-default" : ""} `}
+                    />
+                    <span
+                      className={`ml-2 text-xs ${!isOpen && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
+                    >
+                      {childItem.name}
+                    </span>
+                    </button>
+                  </li>
+                  ))}
+                </ul>
                 )}
               </li>
-            ))}
+              ))}
           </ul>
         </nav>
       </div>

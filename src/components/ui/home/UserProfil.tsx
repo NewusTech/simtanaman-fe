@@ -5,6 +5,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import Link from "next/link";
 import { BellIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { usePermission } from "@/store/usePermission";
+import { set } from "date-fns";
 
 interface UserProfilProps {
     image?: string;
@@ -16,13 +18,15 @@ export default function UserProfil() {
         name: '',
         role: ''
     });
+    const setRole = usePermission((state) => state.setRole);
 
     useEffect(() => {
         const role = document.cookie
             .split('; ')
             .find(row => row.startsWith('role='))
             ?.split('=')[1] || '';
-
+        
+        setRole(role);
         setUserData({
             name: role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Guest',
             role: role

@@ -9,12 +9,11 @@ import useUserStore from "@/store/auth/userStore";
 import { Bounce, toast } from "react-toastify";
 import { da } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/store/usePermission";
 
 export default function LoginForm() {
   const setUser = useUserStore((state) => state.setUser);
-  const setRole = useUserStore((state) => state.setRole);
   const user = useUserStore((state) => state.user);
-  const role = useUserStore((state) => state.role);
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
   const [email, setEmail] = React.useState("");
@@ -22,6 +21,7 @@ export default function LoginForm() {
   const [error, setError] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const { setAuthToken } = useAuth();
+  const setRole = usePermission((state) => state.setRole);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +49,7 @@ export default function LoginForm() {
       console.log(data['data']);  // Lihat apakah respons sesuai ekspektasi
 
       await setUser(data['data']);
-      await setRole(data['data']['role']);
+      await setRole(data['data']['role']['name']);
 
       if (response.status === 200) {
 
