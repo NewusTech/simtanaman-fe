@@ -137,7 +137,7 @@ export default function AccessPage() {
 
   const handleOpenModal = (id: number) => {
     setIsOpen(true);
-    setStatus("Kelompok Tani");
+    setStatus("Hak Akses");
     setId(id);
   };
 
