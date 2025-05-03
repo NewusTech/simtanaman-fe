@@ -34,10 +34,12 @@ import ListRoleModal from "@/components/ui/home/(admin)/management/user/modal/Li
 import { useAuth } from "@/hooks/useAuth";
 import { HakAkses } from "@/types/management-user/hakAkses";
 import {
+  deleteHakAksesData,
   fetchHakAksesData,
   searchHakAksesData,
 } from "@/lib/management-user/hakAksesFetching";
 import { Bounce, toast } from "react-toastify";
+import ConfirmasiDeleteModal from "@/components/ui/home/(admin)/master/modal/ConfirmasiDeleteModal";
 
 /**
  * AccessPage component renders a page for managing admin users.
@@ -94,6 +96,44 @@ export default function AccessPage() {
     setTotalPages(data.total_pages);
     setLoading(false);
   };
+
+  const handleDeleteAcces = async () => {
+      setLoading(true);
+      setIsOpen(false);
+      await deleteHakAksesData(id, String(token)).then((response) => {
+        if (response.ok) {
+          fetchPage(1);
+          toast.success('Data berhasil dihapus', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+        } else {
+          toast.error('Data gagal dihapus', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+        }
+      }).catch((error) => {
+        console.error("Error deleting Poktan:", error);
+      }
+      );
+  
+      setLoading(false);
+    }
 
   const handleOpenModal = (id: number) => {
     setIsOpen(true);
@@ -209,6 +249,12 @@ export default function AccessPage() {
                         >
                           Edit
                         </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => handleOpenModal(value.id)}
+                        >
+                          Delete
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
@@ -275,6 +321,7 @@ export default function AccessPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
+      <ConfirmasiDeleteModal isOpen={isOpen} onBatal={() => { setIsOpen(false) }} onClose={() => { setIsOpen(false); }} onSimpan={handleDeleteAcces} status={status} />
     </div>
   );
 }
