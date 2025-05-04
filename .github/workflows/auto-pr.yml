@@ -1,9 +1,9 @@
-name: Auto Pull Request to Main
+name: Auto Pull Request to Main (With Diff Check)
 
 on:
   push:
     branches:
-      - '**' # Semua branch
+      - '**' # semua branch
 
 permissions:
   contents: write
@@ -11,13 +11,31 @@ permissions:
 
 jobs:
   auto-pr:
-    if: github.ref != 'refs/heads/main' # Kecuali dari branch main
+    if: github.ref != 'refs/heads/main' # skip kalau yang push ke main
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Git user
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Fetch main branch for comparison
+        run: git fetch origin main
+
+      - name: Check for changes between current branch and main
+        id: check_diff
+        run: |
+          if git diff --quiet origin/main...HEAD; then
+            echo "no_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "no_changes=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Create Pull Request to main
+        if: steps.check_diff.outputs.no_changes == 'false'
         id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
@@ -48,12 +66,12 @@ jobs:
               repo: context.repo.repo,
               body: `✅ PR ini dibuat otomatis dari branch \`${{ github.ref_name }}\`.
 
-                Mohon periksa kembali isi PR ini sebelum direview:
+              Mohon periksa kembali isi PR ini sebelum direview:
 
-                - [ ] Sudah menjalankan \`pnpm lint\`
-                - [ ] Sudah menjalankan test lokal
-                - [ ] Menggunakan Node.js 20 & pnpm 9
-                - [ ] Ringkasan perubahan sudah ditulis dengan jelas
+              - [ ] Sudah menjalankan \`pnpm lint\`
+              - [ ] Sudah menjalankan test lokal
+              - [ ] Menggunakan Node.js 20 & pnpm 9
+              - [ ] Ringkasan perubahan sudah ditulis dengan jelas
 
-                Jika semua sudah lengkap, silakan tag reviewer.`
-            })
+              Jika semua sudah lengkap, silakan tag reviewer.`
+                          })
