@@ -1,0 +1,59 @@
+name: Auto Pull Request to Main
+
+on:
+  push:
+    branches:
+      - '**' # Semua branch
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-pr:
+    if: github.ref != 'refs/heads/main' # Kecuali dari branch main
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Pull Request to main
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: auto-pr to main from ${{ github.ref_name }}'
+          branch: ${{ github.ref_name }}
+          base: main
+          title: 'Auto PR from ${{ github.ref_name }} to main'
+          body: |
+            🤖 PR ini dibuat otomatis karena ada push ke branch `${{ github.ref_name }}`.
+
+            Silakan:
+            - Edit dan lengkapi deskripsi PR ini
+            - Centang checklist PR jika sudah sesuai standar
+            - Jalankan lint dan test lokal sebelum minta review
+
+            Terima kasih 🙌
+
+      - name: Comment on the PR
+        if: steps.cpr.outputs.pull-request-operation == 'created'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.createComment({
+              issue_number: ${{ steps.cpr.outputs.pull-request-number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `✅ PR ini dibuat otomatis dari branch \`${{ github.ref_name }}\`.
+
+                Mohon periksa kembali isi PR ini sebelum direview:
+
+                - [ ] Sudah menjalankan \`pnpm lint\`
+                - [ ] Sudah menjalankan test lokal
+                - [ ] Menggunakan Node.js 20 & pnpm 9
+                - [ ] Ringkasan perubahan sudah ditulis dengan jelas
+
+                Jika semua sudah lengkap, silakan tag reviewer.`
+            })
