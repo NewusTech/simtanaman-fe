@@ -4,8 +4,15 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import FormLabel from "@/components/ui/base/form-label";
 import SubmissionStatusModal from "@/components/ui/home/(admin)/submission/modal/SubmissionStatusModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle, TriangleAlert } from "lucide-react";
+import FormInput from "@/components/ui/base/form-input";
+import { usePermission } from "@/store/usePermission";
+import FormSelect from "@/components/ui/base/form-select";
+import { Poktan } from "@/types/master/poktan";
+import { fetchPoktanData } from "@/lib/master/poktanFecthing";
+import { useAuth } from "@/hooks/useAuth";
+import FormTextArea from "@/components/ui/base/form-text-area";
 
 /**
  * ComponentPage is a React functional component that renders a submission page with various statuses.
@@ -40,159 +47,345 @@ import { CheckCircle, TriangleAlert } from "lucide-react";
  * @remarks
  * The component also includes a `SubmissionStatusModal` component to handle status changes.
  */
-export default function ComponentPage() {
+export default function ComponentPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const router = useRouter();
   const pathname = usePathname();
+  const { getToken } = useAuth();
+  const token = getToken();
 
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [status, setStatus] = useState("");
   const [changeStatus, setChangeStatus] = useState("diajukan");
+  const role = usePermission((state) => state.role);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [listKetuaPoktan, setListKetuaPoktan] = useState<Poktan[]>([]);
+  const [formData, setFormData] = useState({
+    name: "",
+    nik: "",
+    noTelepon: "",
+    email: "",
+    noKartuTani: "",
+    noRegistrasiPoktan: "",
+    namaKetuaPoktan: "",
+    Provinsi: "",
+    Kabupaten: "",
+    Kecamatan: "",
+    DesaKelurahan: "",
+    alamat: "",
+    luasLahan: 0.0,
+    jumlahTanamanHektar: 0,
+    masaTanam: "",
+    tahunMusimTanam: 0,
+    jumlahTanaman: 0,
+    alasan: "",
+    ktp: "",
+    kartuTani: "",
+    tanamanId: 0,
+    tanamanKebutuhanId: null,
+    statusLahanId: 0,
+    poktanId: 0,
+    methodId: 0,
+  });
 
   const handleClickStatus = (status: string) => {
     setIsOpenModal(true);
     setStatus(status);
   };
 
+  const fetchDataPoktan = async (page: number) => {
+    const data = await fetchPoktanData(page, String(token));
+    setListKetuaPoktan(data.items);
+  };
+
+  useEffect(() => {
+    fetchDataPoktan(currentPage);
+  }, [currentPage]);
+
   return (
     <div className="bg-white p-4 rounded-md shadow-md font-poppins">
       {/* header */}
-      {(changeStatus === "diajukan" && (
+      {role === "admin" && (
         <div>
-          <div className="flex justify-end items-center gap-4 mb-4">
-            <div className="text-sm font-medium mb-4 bg-neutral-70 rounded-lg p-2 px-10">
-              Diajukan
+          {(changeStatus === "diajukan" && (
+            <div>
+              <div className="flex justify-end items-center gap-4 mb-4">
+                <div className="text-sm font-medium mb-4 bg-neutral-70 rounded-lg p-2 px-10">
+                  Diajukan
+                </div>
+              </div>
+              <div className="flex gap-4 justify-end items-center">
+                <Button
+                  onClick={() => handleClickStatus("setujui")}
+                  className="bg-success-700 text-white px-8 tex-sm rounded-full"
+                >
+                  Setujui
+                </Button>
+                <Button
+                  onClick={() => handleClickStatus("direvisi")}
+                  className="bg-warning-500 text-white px-8 tex-sm rounded-full"
+                >
+                  Direvisi
+                </Button>
+                <Button
+                  onClick={() => handleClickStatus("ditolak")}
+                  className="bg-error-500 text-white px-8 tex-sm rounded-full"
+                >
+                  Ditolak
+                </Button>
+              </div>
             </div>
-          </div>
-          <div className="flex gap-4 justify-end items-center">
-            <Button
-              onClick={() => handleClickStatus("setujui")}
-              className="bg-success-700 text-white px-8 tex-sm rounded-full"
-            >
-              Setujui
-            </Button>
-            <Button
-              onClick={() => handleClickStatus("direvisi")}
-              className="bg-warning-500 text-white px-8 tex-sm rounded-full"
-            >
-              Direvisi
-            </Button>
-            <Button
-              onClick={() => handleClickStatus("ditolak")}
-              className="bg-error-500 text-white px-8 tex-sm rounded-full"
-            >
-              Ditolak
-            </Button>
-          </div>
+          )) ||
+            (changeStatus === "setujui" && (
+              <div className="flex items-center gap-4 p-5 bg-success-100 rounded-lg text-success-700 font-medium mb-4">
+                <CheckCircle className="h-10 w-10" />
+                Disetujui Admin
+              </div>
+            )) ||
+            (changeStatus === "direvisi" && (
+              <div className="flex flex-col gap-4 p-2 bg-warning-100 rounded-lg text-warning-500 font-medium mb-4">
+                <div className="flex items-center gap-4 p-5 bg-warning-100 rounded-lg text-warning-500 font-medium">
+                  <TriangleAlert className="h-10 w-10" />
+                  <div className="flex flex-col gap-2">
+                    <span>Perlu Revisi</span>
+                    <span className="text-sm text-black">
+                      Data yang anda berikan kurang tepat, silahkan perbaiki
+                      data anda.
+                    </span>
+                  </div>
+                </div>
+                <div className="text-sm font-medium text-black px-5">
+                  Catatan :
+                </div>
+                <div className="text-sm font-medium text-black px-5">
+                  File tidak jelas dan tidak terlihat.
+                </div>
+              </div>
+            )) ||
+            (changeStatus === "ditolak" && (
+              <div className="flex flex-col gap-4 p-2 bg-error-100 rounded-lg text-error-500 font-medium mb-4">
+                <div className="flex items-center gap-4 p-5 bg-error-100 rounded-lg text-error-500 font-medium">
+                  <TriangleAlert className="h-10 w-10" />
+                  <div className="flex flex-col gap-2">
+                    <span>Ditolak</span>
+                    <span className="text-sm text-black">
+                      Pengajuan anda ditolak.
+                    </span>
+                  </div>
+                </div>
+                <div className="text-sm font-medium text-black px-5">
+                  Catatan :
+                </div>
+                <div className="text-sm font-medium text-black px-5">
+                  Data salah semua.
+                </div>
+              </div>
+            ))}
         </div>
-      )) ||
-        (changeStatus === "setujui" && (
-          <div className="flex items-center gap-4 p-5 bg-success-100 rounded-lg text-success-700 font-medium mb-4">
-            <CheckCircle className="h-10 w-10" />
-            Disetujui Admin
-          </div>
-        )) ||
-        (changeStatus === "direvisi" && (
-          <div className="flex flex-col gap-4 p-2 bg-warning-100 rounded-lg text-warning-500 font-medium mb-4">
-            <div className="flex items-center gap-4 p-5 bg-warning-100 rounded-lg text-warning-500 font-medium">
-              <TriangleAlert className="h-10 w-10" />
-              <div className="flex flex-col gap-2">
-                <span>Perlu Revisi</span>
-                <span className="text-sm text-black">
-                  Data yang anda berikan kurang tepat, silahkan perbaiki data
-                  anda.
-                </span>
-              </div>
-            </div>
-            <div className="text-sm font-medium text-black px-5">Catatan :</div>
-            <div className="text-sm font-medium text-black px-5">
-              File tidak jelas dan tidak terlihat.
-            </div>
-          </div>
-        )) ||
-        (changeStatus === "ditolak" && (
-          <div className="flex flex-col gap-4 p-2 bg-error-100 rounded-lg text-error-500 font-medium mb-4">
-            <div className="flex items-center gap-4 p-5 bg-error-100 rounded-lg text-error-500 font-medium">
-              <TriangleAlert className="h-10 w-10" />
-              <div className="flex flex-col gap-2">
-                <span>Ditolak</span>
-                <span className="text-sm text-black">
-                  Pengajuan anda ditolak.
-                </span>
-              </div>
-            </div>
-            <div className="text-sm font-medium text-black px-5">Catatan :</div>
-            <div className="text-sm font-medium text-black px-5">
-              Data salah semua.
-            </div>
-          </div>
-        ))}
+      )}
       {/* end of header */}
 
       {/* body */}
-      <div className="flex flex-col gap-4">
-        <div className="text-lg font-medium">Data diri</div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormLabel label="Nama Lengkap" value="John Doe" required />
-          <FormLabel label="NIK" value="3201456789123456" required />
-          <FormLabel label="Nomor Telepon" value="083726487266" required />
-          <FormLabel label="Email" value="dilazzahra@gmail.com" />
-          <FormLabel label="Nomor Kartu Tani (Jika Ada)" value="-" />
-          <FormLabel
-            label="Nama Kelompok Tani (Poktan)"
-            value="Berkah Tani"
+      {(params.slug === "Tambah" && (
+        <div>
+          <span className="text-md font-semibold">Data Diri</span>
+          <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
+            <div className="flex flex-col items-center w-full gap-4">
+              <FormInput
+                label="Nama Lengkap"
+                placeholder="Masukan Nama Lengkap"
+                value={formData.name}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, name: value })
+                }
+                required
+              />
+              <FormInput
+                label="Nomor Telepon"
+                placeholder="Masukan Nomor Telepon"
+                value={formData.noTelepon}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, noTelepon: value })
+                }
+                required
+              />
+              <FormInput
+                label="Nomor Kartu Tani"
+                placeholder="Masukan Nomor Kartu Tani"
+                value={formData.noKartuTani}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, noKartuTani: value })
+                }
+                required
+              />
+              <FormInput
+                label="Nomor Registrasi Poktan"
+                placeholder="Masukan Nomor Registrasi Poktan"
+                value={formData.noRegistrasiPoktan}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, noRegistrasiPoktan: value })
+                }
+                required
+              />
+              <FormSelect
+                label="Provinsi"
+                value={["Jawa Barat", "Sulawesi Selatan"]}
+                selected={formData.Provinsi}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, Provinsi: value })
+                }
+                required
+              />
+              <FormSelect
+                label="Kecamatan"
+                value={["Cicendo", "Sukasari"]}
+                selected={formData.Provinsi}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, Provinsi: value })
+                }
+                required
+              />
+            </div>
+            <div className="flex flex-col items-center w-full gap-4">
+              <FormInput
+                label="NIK"
+                placeholder="Masukan NIK"
+                value={formData.nik}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, nik: value })
+                }
+                required
+              />
+              <FormInput
+                label="Email"
+                placeholder="Masukan Email"
+                value={formData.email}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, email: value })
+                }
+                required
+              />
+              <FormSelect
+                label="Nama Kelompok Tani (Poktan)"
+                value={listKetuaPoktan.map((poktan) => poktan.name)}
+                selected={formData.namaKetuaPoktan}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, namaKetuaPoktan: value })
+                }
+                required
+              />
+              <FormInput
+                label="Nama Ketua Poktan"
+                placeholder="Masukan Nama Ketua Poktan"
+                value={formData.namaKetuaPoktan}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, namaKetuaPoktan: value })
+                }
+                required
+              />
+              <FormSelect
+                label="Kabupaten"
+                value={["Bandung", "Ciamis"]}
+                selected={formData.Kabupaten}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, Kabupaten: value })
+                }
+                required
+              />
+              <FormSelect
+                label="Desa/Kelurahan"
+                value={["Cicendo", "Sukasari"]}
+                selected={formData.DesaKelurahan}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, DesaKelurahan: value })
+                }
+                required
+              />
+            </div>
+          </div>
+          <FormTextArea
+            label="Alamat"
+            value={formData.alamat}
+            onChange={(value: string) =>
+              setFormData({ ...formData, alamat: value })
+            }
             required
           />
-          <FormLabel label="Nomor Registrasi Poktan" value="-" />
-          <FormLabel label="Nama Ketua Poktan" value="-" />
-          <FormLabel label="Provinsi" value="Sumatra Selatan" required />
-          <FormLabel
-            label="Kabupaten"
-            value="Panukal Abab Lematang Ilit"
-            required
-          />
-          <FormLabel label="Kecamatan" value="Talang Ubi" required />
-          <FormLabel label="Desa/Kelurahan" value="Talang Ubi" required />
+          <div className="text-md font-semibold mt-10">Data Lahan dan Usaha Tani</div>
+          
         </div>
-        <FormLabel label="Alamat" value="Jl." required />
-        <div className="text-lg font-medium mt-10">
-          Data Lahan dan Usaha Tani
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormLabel label="Luas Lahan (Ha)" value="2.5 Ha" required />
-          <FormLabel label="Jenis Tanaman" value="Padi" required />
-          <FormLabel
-            label="Jumlah Tanaman dalam Satuan Hektarc(Ha)"
-            value="2.5 Ha"
-            required
-          />
-          <FormLabel label="Masa Tanam" value="Musim Tanam Ke-1" required />
-          <FormLabel label="Tahun Musim Tanam" value="2024" required />
-          <FormLabel
-            label="Status kepemilikan Lahan"
-            value="Milik Sendiri"
-            required
-          />
-        </div>
-        <div className="text-lg font-medium mt-10">Data Kebutuhan Tanaman</div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormLabel
-            label="Jenis Tanaman  yang Diajukan"
-            value="Padi"
-            required
-          />
-          <FormLabel
-            label="Jumlah Tanaman yang Diajukan"
-            value="500 Bibit Padi"
-            required
-          />
-          <FormLabel
-            label="Metode Penanaman Tanaman"
-            value="Konvensional"
-            required
-          />
-          <FormLabel label="Alasan Pengajuan Tanaman" value="-" />
-        </div>
-      </div>
+      )) ||
+        (params.slug === "Detail" && (
+          <div className="flex flex-col gap-4">
+            <div className="text-lg font-medium">Data diri</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormLabel label="Nama Lengkap" value="John Doe" required />
+              <FormLabel label="NIK" value="3201456789123456" required />
+              <FormLabel label="Nomor Telepon" value="083726487266" required />
+              <FormLabel label="Email" value="dilazzahra@gmail.com" />
+              <FormLabel label="Nomor Kartu Tani (Jika Ada)" value="-" />
+              <FormLabel
+                label="Nama Kelompok Tani (Poktan)"
+                value="Berkah Tani"
+                required
+              />
+              <FormLabel label="Nomor Registrasi Poktan" value="-" />
+              <FormLabel label="Nama Ketua Poktan" value="-" />
+              <FormLabel label="Provinsi" value="Sumatra Selatan" required />
+              <FormLabel
+                label="Kabupaten"
+                value="Panukal Abab Lematang Ilit"
+                required
+              />
+              <FormLabel label="Kecamatan" value="Talang Ubi" required />
+              <FormLabel label="Desa/Kelurahan" value="Talang Ubi" required />
+            </div>
+            <FormLabel label="Alamat" value="Jl." required />
+            <div className="text-lg font-medium mt-10">
+              Data Lahan dan Usaha Tani
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormLabel label="Luas Lahan (Ha)" value="2.5 Ha" required />
+              <FormLabel label="Jenis Tanaman" value="Padi" required />
+              <FormLabel
+                label="Jumlah Tanaman dalam Satuan Hektarc(Ha)"
+                value="2.5 Ha"
+                required
+              />
+              <FormLabel label="Masa Tanam" value="Musim Tanam Ke-1" required />
+              <FormLabel label="Tahun Musim Tanam" value="2024" required />
+              <FormLabel
+                label="Status kepemilikan Lahan"
+                value="Milik Sendiri"
+                required
+              />
+            </div>
+            <div className="text-lg font-medium mt-10">
+              Data Kebutuhan Tanaman
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormLabel
+                label="Jenis Tanaman  yang Diajukan"
+                value="Padi"
+                required
+              />
+              <FormLabel
+                label="Jumlah Tanaman yang Diajukan"
+                value="500 Bibit Padi"
+                required
+              />
+              <FormLabel
+                label="Metode Penanaman Tanaman"
+                value="Konvensional"
+                required
+              />
+              <FormLabel label="Alasan Pengajuan Tanaman" value="-" />
+            </div>
+          </div>
+        ))}
 
       {/* component */}
       <SubmissionStatusModal

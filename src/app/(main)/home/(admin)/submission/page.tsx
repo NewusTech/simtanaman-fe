@@ -19,6 +19,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAuth } from "@/hooks/useAuth";
+import { fetchPengajuanData } from "@/lib/pengajuan/pengajuanFetching";
+import { usePermission } from "@/store/usePermission";
+import { PengajuanItem } from "@/types/pengajuan/pengajuan";
 import { addDays } from "date-fns";
 import {
   ChevronDown,
@@ -26,16 +30,20 @@ import {
   ChevronRight,
   EllipsisVertical,
   Filter,
+  Plus,
   Printer,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 
 export default function SubmissionPage() {
+  const { getToken } = useAuth();
+  const token = getToken();
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const role = usePermission((state) => state.role);
   const [dateParent, setDateParent] = useState<DateRange>({
     from: new Date(),
     to: addDays(new Date(), 7),
@@ -65,44 +73,11 @@ export default function SubmissionPage() {
     },
   ]);
 
-  const [listPengajuan, setListPengajuan] = useState([
-    {
-      tanggal: "17/02/2025",
-      name: "Dila",
-      poktan: "Poktan Abadi",
-      jenis_tanaman: "Padi",
-      luas_tanah: "2.5  Ha",
-      jumlah_bibit: "500 bibit Padi",
-      status: "Diajukan",
-    },
-    {
-      tanggal: "17/02/2025",
-      name: "Dila",
-      poktan: "Poktan Abadi",
-      jenis_tanaman: "Padi",
-      luas_tanah: "2.5  Ha",
-      jumlah_bibit: "500 bibit Padi",
-      status: "Disetujui",
-    },
-    {
-      tanggal: "17/02/2025",
-      name: "Dila",
-      poktan: "Poktan Abadi",
-      jenis_tanaman: "Padi",
-      luas_tanah: "2.5  Ha",
-      jumlah_bibit: "500 bibit Padi",
-      status: "Direvisi",
-    },
-    {
-      tanggal: "17/02/2025",
-      name: "Dila",
-      poktan: "Poktan Abadi",
-      jenis_tanaman: "Padi",
-      luas_tanah: "2.5  Ha",
-      jumlah_bibit: "500 bibit Padi",
-      status: "Ditolak",
-    },
-  ]);
+  const [listPengajuan, setListPengajuan] = useState<PengajuanItem[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [items, setItems] = useState<PengajuanItem[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (value: string) => {
     setSearch(value);
@@ -113,6 +88,22 @@ export default function SubmissionPage() {
   const handleFilter = () => {
     setIsModalOpen(true);
   };
+  const fetchPage = useCallback(
+    async (page: number) => {
+      if (loading) return;
+
+      setLoading(true);
+      const data = await fetchPengajuanData(page, String(token));
+      setItems(data.items);
+      setListPengajuan(data.items);
+      setTotalPages(data.total_pages);
+      setLoading(false);
+    },
+    [loading, token]
+  );
+  useEffect(() => {
+    fetchPage(currentPage);
+  }, [currentPage]);
   return (
     <div className="bg-white p-4 rounded-lg shadow-md">
       {/* header */}
@@ -170,126 +161,179 @@ export default function SubmissionPage() {
             </button>
           ))}
         </div>
-        <button className="border border-neutral-70 text-primary-default rounded-full p-2 px-5 flex items-center gap-2">
-          <Printer className="h-6 w-6" />
-          Print
-        </button>
+        <div className="flex items-center gap-4">
+          <Button className="border border-neutral-70 text-primary-default rounded-full p-2 px-5 flex items-center gap-2">
+            <Printer className="h-6 w-6" />
+            Print
+          </Button>
+          {role === "user" && (
+            <Button
+              onClick={() => handleDetail("Tambah")}
+              className="bg-primary-default text-white rounded-full p-2 px-5 flex items-center gap-2"
+            >
+              <Plus className="h-6 w-6" />
+              Tambah
+            </Button>
+          )}
+        </div>
       </div>
       {/* end of header */}
 
       {/* body */}
-      <Table className="mt-4 overflow-hidden">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[50px] bg-gray-200">No</TableHead>
-            <TableHead className="w-[100px] bg-gray-200">Tanggal</TableHead>
-            <TableHead className="bg-gray-200">Nama</TableHead>
-            <TableHead className="bg-gray-200">Poktan</TableHead>
-            <TableHead className="text-center bg-gray-200">
-              Jenis Tanaman
-            </TableHead>
-            <TableHead className="text-center bg-gray-200">
-              Luas Tanah
-            </TableHead>
-            <TableHead className="text-center bg-gray-200">
-              Jumlah Bibit Yang Diajukan
-            </TableHead>
-            <TableHead className="text-center bg-gray-200">Status</TableHead>
-            <TableHead className="text-right bg-gray-200"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {listPengajuan.map((value) => (
-            <TableRow key={listPengajuan.indexOf(value)}>
-              <TableCell className="w-[50px]">
-                {listPengajuan.indexOf(value) + 1}
-              </TableCell>
-              <TableCell className="font-medium">{value.tanggal}</TableCell>
-              <TableCell>{value.name}</TableCell>
-              <TableCell>{value.poktan}</TableCell>
-              <TableCell className="text-center">
-                {value.jenis_tanaman}
-              </TableCell>
-              <TableCell className="text-center">{value.luas_tanah}</TableCell>
-              <TableCell className="text-center">
-                {value.jumlah_bibit}
-              </TableCell>
-              <TableCell
-                className={`text-center ${value.status === "Disetujui" ? "text-green-500" : value.status === "Diajukan" ? "text-neutral-70" : value.status === "Direvisi" ? "text-warning-500" : "text-red-500"}`}
-              >
-                {value.status}
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="border-none bg-transparent active:border-none focus:border-none">
-                      <EllipsisVertical className="cursor-pointer" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => {
-                          handleDetail("Detail");
-                        }}
+      {role === "user" && (
+        <Table className="mt-4 overflow-hidden">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[50px] bg-gray-200">No</TableHead>
+              <TableHead className="w-[100px] bg-gray-200">Tanggal</TableHead>
+              <TableHead className="text-center bg-gray-200">
+                Jenis Tanaman
+              </TableHead>
+              <TableHead className="text-center bg-gray-200">
+                Luas Tanah
+              </TableHead>
+              <TableHead className="text-center bg-gray-200">
+                Jumlah Bibit Yang Diajukan
+              </TableHead>
+              <TableHead className="text-center bg-gray-200">Status</TableHead>
+              <TableHead className="text-right bg-gray-200"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell className="w-[50px]">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : listPengajuan.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center">
+                  Tidak ada data tersedia
+                </TableCell>
+              </TableRow>
+            ) : (
+              listPengajuan.map((value) => (
+                <TableRow key={listPengajuan.indexOf(value)}>
+                  <>
+                    <TableCell className="w-[50px]">
+                      {listPengajuan.indexOf(value) + 1}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(value.createdAt).toLocaleDateString("id-ID", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {value.tanaman?.name}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {value.luasLahan}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {value.jumlahTanaman}
+                    </TableCell>
+                    <TableCell
+                      className={`text-center ${value.status === "Disetujui" ? "text-green-500" : value.status === "Diajukan" ? "text-neutral-70" : value.status === "Direvisi" ? "text-warning-500" : "text-red-500"}`}
+                    >
+                      {value.status}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className="border-none bg-transparent active:border-none focus:border-none">
+                            <EllipsisVertical className="cursor-pointer" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => {
+                                handleDetail("Detail");
+                              }}
+                            >
+                              Detail
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
+                  </>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={9} className="text-right">
+                <div className="w-full h-full flex justify-end items-center gap-5">
+                  <div className="relative text-center text-[#597445] text-sm font-poppins font-normal leading-[30px] break-words">
+                    {items.length} dari {totalPages * items.length} total data
+                  </div>
+                  <div className="flex justify-center items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={currentPage <= 1 || loading}
+                      className={`w-10 h-10 flex justify-center items-center rounded-md border ${
+                        currentPage <= 1 || loading
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white text-[#597445] border-[#BDBDC2]"
+                      }`}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    {Array.from(
+                      { length: totalPages },
+                      (_, index) => index + 1
+                    ).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-4 py-2 rounded-md ${
+                          page === currentPage
+                            ? "bg-[#597445] text-white"
+                            : "bg-white text-[#597445] border border-[#BDBDC2]"
+                        }`}
                       >
-                        Detail
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        {page}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={currentPage >= totalPages || loading}
+                      className={`w-10 h-10 flex justify-center items-center rounded-md border ${
+                        currentPage >= totalPages || loading
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white text-[#597445] border-[#BDBDC2]"
+                      }`}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={9} className="text-right">
-              <div className="w-full h-full flex justify-end items-center gap-5">
-                <div className="relative text-center text-[#597445] text-sm font-poppins font-normal leading-[30px] break-words">
-                  10 dari 230 total data
-                </div>
-                <div className="flex justify-center items-center gap-6">
-                  <div className="p-2 bg-[#FCFBFB] rounded-md border border-[#BDBDC2] flex justify-center items-center gap-2">
-                    <div className="relative text-[#597445] text-sm font-inter font-medium leading-4 break-words">
-                      1
-                    </div>
-                    <div className="w-4 h-4 relative">
-                      <ChevronDown className="w-4 h-4 text-[#597445]" />
-                    </div>
-                  </div>
-                  <div className="w-[235px] flex justify-between items-start">
-                    <div className="w-10 py-2 bg-[#FCFBFB] rounded-md border border-[#BDBDC2] flex flex-col justify-center items-center">
-                      <div className="w-4 h-4 relative">
-                        <ChevronLeft className="w-4 h-4 text-[#597445]" />
-                      </div>
-                    </div>
-                    <div className="px-4 py-2 bg-[#597445] rounded-md flex justify-center items-center gap-2">
-                      <div className="relative text-white text-sm font-inter font-medium leading-4 break-words">
-                        1
-                      </div>
-                    </div>
-                    <div className="w-10 px-4 py-2 bg-[#FCFBFB] rounded-md border border-[#BDBDC2] flex justify-center items-center gap-2">
-                      <div className="relative text-[#597445] text-sm font-inter font-medium leading-4 break-words">
-                        ...
-                      </div>
-                    </div>
-                    <div className="px-4 py-2 bg-[#FCFBFB] rounded-md border border-[#BDBDC2] flex justify-center items-center gap-2">
-                      <div className="relative text-[#597445] text-sm font-inter font-medium leading-4 break-words">
-                        5
-                      </div>
-                    </div>
-                    <div className="w-10 h-9 bg-[#FCFBFB] rounded-md border border-[#BDBDC2] flex flex-col justify-center items-center">
-                      <div className="w-4 h-4 relative">
-                        <ChevronRight className="w-4 h-4 text-[#597445]" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
+          </TableFooter>
+        </Table>
+      )}
       {/* component */}
       <SubmissionFilterModal
         isOpen={isModalOpen}
