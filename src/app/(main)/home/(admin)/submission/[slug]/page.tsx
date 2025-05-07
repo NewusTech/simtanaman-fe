@@ -17,6 +17,7 @@ import { fetchJenisTanamanData } from "@/lib/master/jenisTanamanFetching";
 import { JenisTanaman } from "@/types/master/jenisTanaman";
 import { StatusKepemilikan } from "@/types/master/statusKepemilikan";
 import { fetchStatusKepemilikanData } from "@/lib/master/statusKepemilikanFetching";
+import FileInput from "@/components/ui/base/file-input";
 
 /**
  * ComponentPage is a React functional component that renders a submission page with various statuses.
@@ -64,7 +65,7 @@ export default function ComponentPage({
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [status, setStatus] = useState("");
   const [changeStatus, setChangeStatus] = useState("diajukan");
-  const role = usePermission((state) => state.role);
+  const role = usePermission((state: { role: any; }) => state.role);
   const [currentPage, setCurrentPage] = useState(1);
   const [listKetuaPoktan, setListKetuaPoktan] = useState<Poktan[]>([]);
   const [listPlant, setListPlant] = useState<JenisTanaman[]>([]);
@@ -498,44 +499,18 @@ export default function ComponentPage({
           <div className="text-md font-semibold mt-10">Upload</div>
           <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
             <div className="flex flex-col items-start w-full gap-1">
-              <label
+            <label
                 htmlFor="ktp-file-input"
                 className="block text-sm font-medium"
               >
-                KTP (JPG/PNG/PDF) <span className="text-error-500">*</span>
+                KTP (JPG/PNG/PDF)
               </label>
-              <div className="relative w-full">
-                <input
-                  id="ktp-file-input"
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.pdf"
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    const file = e.target.files && e.target.files[0];
-                    setFormData({ ...formData, ktp: file || ("" as any) });
-                  }}
-                />
-                <label
-                  htmlFor="ktp-file-input"
-                  className="flex items-center justify-between w-full h-[42px] px-1.5 py-2 text-sm border border-neutral-300 rounded-full bg-white cursor-pointer"
-                  role="button" 
-                  aria-controls="ktp-file-input"
-                >
-                  <span
-                    className={`pl-2.5 truncate ${typeof formData.ktp === "object" && formData.ktp instanceof File ? "text-neutral-700" : "text-neutral-400"}`}
-                  >
-                    {formData.ktp instanceof File
-                      ? formData.ktp.name
-                      : "Pilih File"}
-                  </span>
-                  <div
-                    className="px-5 py-[5px] text-sm font-normal text-neutral-700 bg-neutral-300 rounded-full whitespace-nowrap"
-                    aria-hidden="true"
-                  >
-                    Pilih File
-                  </div>
-                </label>
-              </div>
+              <FileInput
+                file={formData.ktp}
+                onChange={(file: File | string) =>
+                  setFormData({ ...formData, ktp: file })
+                }
+              />
             </div>
             <div className="flex flex-col items-center w-full gap-4">
             <div className="flex flex-col items-start w-full gap-1">
@@ -545,38 +520,12 @@ export default function ComponentPage({
               >
                 Kartu Tani (JPG/PNG/PDF)
               </label>
-              <div className="relative w-full">
-                <input
-                  id="ktp-file-input"
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.pdf"
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    const file = e.target.files && e.target.files[0];
-                    setFormData({ ...formData, kartuTani: file || ("" as any) });
-                  }}
-                />
-                <label
-                  htmlFor="ktp-file-input"
-                  className="flex items-center justify-between w-full h-[42px] px-1.5 py-2 text-sm border border-neutral-300 rounded-full bg-white cursor-pointer"
-                  role="button" 
-                  aria-controls="ktp-file-input"
-                >
-                  <span
-                    className={`pl-2.5 truncate ${typeof formData.kartuTani === "object" && formData.kartuTani instanceof File ? "text-neutral-700" : "text-neutral-400"}`}
-                  >
-                    {formData.kartuTani instanceof File
-                      ? formData.kartuTani.name
-                      : "Pilih File"}
-                  </span>
-                  <div
-                    className="px-5 py-[5px] text-sm font-normal text-neutral-700 bg-neutral-300 rounded-full whitespace-nowrap"
-                    aria-hidden="true"
-                  >
-                    Pilih File
-                  </div>
-                </label>
-              </div>
+              <FileInput
+                file={formData.kartuTani}
+                onChange={(file: File | string) =>
+                  setFormData({ ...formData, kartuTani: file })
+                }
+              />
             </div>
             </div>
           </div>
