@@ -255,3 +255,9 @@ body {
 .ql-editor.ql-blank {
   min-height: 200px;
 }
+
+.popover .calendar-header { color: white !important; }
+.popover .btn.date-picker-active-date { background-color: #6d28d9 !important; border-color: #6d28d9 !important; color: white !important; }
+.popover .btn.date-picker-other-month-date { color: #9ca3af !important; }
+.popover .btn:not(.date-picker-active-date) { color: white !important; }
+.popover .btn.calendar-nav { color: white !important; }
