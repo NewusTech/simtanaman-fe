@@ -13,6 +13,10 @@ import { Poktan } from "@/types/master/poktan";
 import { fetchPoktanData } from "@/lib/master/poktanFecthing";
 import { useAuth } from "@/hooks/useAuth";
 import FormTextArea from "@/components/ui/base/form-text-area";
+import { fetchJenisTanamanData } from "@/lib/master/jenisTanamanFetching";
+import { JenisTanaman } from "@/types/master/jenisTanaman";
+import { StatusKepemilikan } from "@/types/master/statusKepemilikan";
+import { fetchStatusKepemilikanData } from "@/lib/master/statusKepemilikanFetching";
 
 /**
  * ComponentPage is a React functional component that renders a submission page with various statuses.
@@ -63,6 +67,8 @@ export default function ComponentPage({
   const role = usePermission((state) => state.role);
   const [currentPage, setCurrentPage] = useState(1);
   const [listKetuaPoktan, setListKetuaPoktan] = useState<Poktan[]>([]);
+  const [listPlant, setListPlant] = useState<JenisTanaman[]>([]);
+  const [listStatus, setlistStatus] = useState<StatusKepemilikan[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     nik: "",
@@ -82,13 +88,14 @@ export default function ComponentPage({
     tahunMusimTanam: 0,
     jumlahTanaman: 0,
     alasan: "",
-    ktp: "",
-    kartuTani: "",
+    ktp: "" as File | string,
+    kartuTani: ""as File | string,
     tanamanId: 0,
     tanamanKebutuhanId: null,
     statusLahanId: 0,
     poktanId: 0,
     methodId: 0,
+    lokasi:""
   });
 
   const handleClickStatus = (status: string) => {
@@ -106,9 +113,20 @@ export default function ComponentPage({
     [token]
   );
 
+  const fetchDataJenisTanaman = useCallback(
+    async (page: number) => {
+      const data = await fetchJenisTanamanData(page, String(token));
+      setListPlant(data.items);
+      const dataStatus = await fetchStatusKepemilikanData(page, String(token));
+      setlistStatus(dataStatus.items);
+    },
+    [token]
+  );
+
   useEffect(() => {
     fetchDataPoktan(currentPage);
-  }, [currentPage]);
+    fetchDataJenisTanaman(currentPage);
+  }, [currentPage, fetchDataPoktan, fetchDataJenisTanaman]);
 
   return (
     <div className="bg-white p-4 rounded-md shadow-md font-poppins">
@@ -319,8 +337,270 @@ export default function ComponentPage({
             }
             required
           />
-          <div className="text-md font-semibold mt-10">Data Lahan dan Usaha Tani</div>
-          
+          <div className="text-md font-semibold mt-10">
+            Data Lahan dan Usaha Tani
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
+            <div className="flex flex-col items-center w-full gap-4">
+              <FormInput
+                label="Luas Lahan (Ha)"
+                placeholder="Masukan Luas Lahan (Ha)"
+                value={String(formData.luasLahan)}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, luasLahan: Number(value) })
+                }
+                required
+              />
+              <FormInput
+                label="Jumlah Tanaman dalam Satuan Hektar (Ha) "
+                placeholder="Masukan Jumlah Tanaman dalam Satuan Hektar (Ha) "
+                value={String(formData.jumlahTanamanHektar)}
+                onChange={(value: string) =>
+                  setFormData({
+                    ...formData,
+                    jumlahTanamanHektar: Number(value),
+                  })
+                }
+                required
+                type="number"
+              />
+              <FormInput
+                label="5000"
+                placeholder="Masukan 5000"
+                value={String(formData.jumlahTanaman)}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, jumlahTanaman: Number(value) })
+                }
+                required
+                type="number"
+              />
+            </div>
+            <div className="flex flex-col items-center w-full gap-4">
+              <FormSelect
+                label="Jenis Tanaman"
+                value={listPlant.map((value) => value.name)}
+                selected={
+                  listPlant.find((plant) => plant.id === formData.tanamanId)
+                    ?.name || ""
+                }
+                onChange={(value: string) => {
+                  const selectedPlant = listPlant.find(
+                    (plant) => plant.name === value
+                  );
+                  if (selectedPlant) {
+                    setFormData({
+                      ...formData,
+                      tanamanId: selectedPlant.id,
+                    });
+                  }
+                }}
+                required
+              />
+              <FormInput
+                label="Masa Tanam"
+                placeholder="Masukan Masa Tanam"
+                value={String(formData.masaTanam)}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, masaTanam: value })
+                }
+                required
+              />
+              <FormSelect
+                label="Status kepemilikan Lahan"
+                value={listStatus.map((value) => value.name)}
+                selected={
+                  listStatus.find(
+                    (plant) => plant.id === formData.statusLahanId
+                  )?.name || ""
+                }
+                onChange={(value: string) => {
+                  const select = listStatus.find(
+                    (plant) => plant.name === value
+                  );
+                  if (select) {
+                    setFormData({
+                      ...formData,
+                      statusLahanId: select.id,
+                    });
+                  }
+                }}
+                required
+              />
+            </div>
+          </div>
+          <div className="text-md font-semibold mt-10">
+            Data Kebutuhan Tanaman
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
+            <div className="flex flex-col items-center w-full gap-4">
+              <FormSelect
+                label="Jenis Tanaman yang Diajukan"
+                value={listPlant.map((value) => value.name)}
+                selected={
+                  listPlant.find((plant) => plant.id === formData.tanamanId)
+                    ?.name || ""
+                }
+                onChange={(value: string) => {
+                  const selectedPlant = listPlant.find(
+                    (plant) => plant.name === value
+                  );
+                  if (selectedPlant) {
+                    setFormData({
+                      ...formData,
+                      tanamanId: selectedPlant.id,
+                    });
+                  }
+                }}
+                required
+              />
+              <FormSelect
+                label="Metode Penanaman Tanaman"
+                value={listPlant.map((value) => value.name)}
+                selected={
+                  listPlant.find((plant) => plant.id === formData.tanamanId)
+                    ?.name || ""
+                }
+                onChange={(value: string) => {
+                  const selectedPlant = listPlant.find(
+                    (plant) => plant.name === value
+                  );
+                  if (selectedPlant) {
+                    setFormData({
+                      ...formData,
+                      tanamanId: selectedPlant.id,
+                    });
+                  }
+                }}
+                required
+              />
+            </div>
+            <div className="flex flex-col items-center w-full gap-4">
+              <FormInput
+                label="Jumlah bibit tanaman yang Diajukan (bibit)"
+                placeholder="Masukan Jumlah bibit tanaman yang Diajukan (bibit)"
+                value={String(formData.masaTanam)}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, masaTanam: value })
+                }
+                required
+              />
+              <FormInput
+                label="Alasan Pengajuan Tanaman"
+                placeholder="Masukan Alasan Pengajuan Tanaman"
+                value={String(formData.alasan)}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, alasan: value })
+                }
+                required
+              />
+            </div>
+          </div>
+          <div className="text-md font-semibold mt-10">Upload</div>
+          <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
+            <div className="flex flex-col items-start w-full gap-1">
+              <label
+                htmlFor="ktp-file-input"
+                className="block text-sm font-medium"
+              >
+                KTP (JPG/PNG/PDF) <span className="text-error-500">*</span>
+              </label>
+              <div className="relative w-full">
+                <input
+                  id="ktp-file-input"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const file = e.target.files && e.target.files[0];
+                    setFormData({ ...formData, ktp: file || ("" as any) });
+                  }}
+                />
+                <label
+                  htmlFor="ktp-file-input"
+                  className="flex items-center justify-between w-full h-[42px] px-1.5 py-2 text-sm border border-neutral-300 rounded-full bg-white cursor-pointer"
+                  role="button" 
+                  aria-controls="ktp-file-input"
+                >
+                  <span
+                    className={`pl-2.5 truncate ${typeof formData.ktp === "object" && formData.ktp instanceof File ? "text-neutral-700" : "text-neutral-400"}`}
+                  >
+                    {formData.ktp instanceof File
+                      ? formData.ktp.name
+                      : "Pilih File"}
+                  </span>
+                  <div
+                    className="px-5 py-[5px] text-sm font-normal text-neutral-700 bg-neutral-300 rounded-full whitespace-nowrap"
+                    aria-hidden="true"
+                  >
+                    Pilih File
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div className="flex flex-col items-center w-full gap-4">
+            <div className="flex flex-col items-start w-full gap-1">
+              <label
+                htmlFor="ktp-file-input"
+                className="block text-sm font-medium"
+              >
+                Kartu Tani (JPG/PNG/PDF)
+              </label>
+              <div className="relative w-full">
+                <input
+                  id="ktp-file-input"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const file = e.target.files && e.target.files[0];
+                    setFormData({ ...formData, kartuTani: file || ("" as any) });
+                  }}
+                />
+                <label
+                  htmlFor="ktp-file-input"
+                  className="flex items-center justify-between w-full h-[42px] px-1.5 py-2 text-sm border border-neutral-300 rounded-full bg-white cursor-pointer"
+                  role="button" 
+                  aria-controls="ktp-file-input"
+                >
+                  <span
+                    className={`pl-2.5 truncate ${typeof formData.kartuTani === "object" && formData.kartuTani instanceof File ? "text-neutral-700" : "text-neutral-400"}`}
+                  >
+                    {formData.kartuTani instanceof File
+                      ? formData.kartuTani.name
+                      : "Pilih File"}
+                  </span>
+                  <div
+                    className="px-5 py-[5px] text-sm font-normal text-neutral-700 bg-neutral-300 rounded-full whitespace-nowrap"
+                    aria-hidden="true"
+                  >
+                    Pilih File
+                  </div>
+                </label>
+              </div>
+            </div>
+            </div>
+          </div>
+          <div className="text-md font-semibold mt-10">Lokasi</div>
+            <div className="flex items-center w-full gap-4">
+              <FormInput
+                label=""
+                placeholder="Cari Lokasi"
+                value={formData.lokasi}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, lokasi: value })
+                }
+              />
+              <Button
+                className="bg-primary-default text-white px-8 tex-sm rounded-full"
+                onClick={() => {
+                  // Handle location search
+                }}
+              >
+                Cari Lokasi
+              </Button>
+            </div>
+            {/* <Map /> */}
+
         </div>
       )) ||
         (params.slug === "Detail" && (
