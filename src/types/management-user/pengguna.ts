@@ -27,3 +27,17 @@ export interface ApiResponse {
         links: PaginationLinks;
     };
 }
+
+export interface ApiResponseById {
+    status: number;
+    message: string;
+    data: {
+        id: number;
+        name: string;
+        email: string;
+        password: string;
+        roleId: number;
+        jenisKelamin: string;
+        status: boolean;
+    };
+}
