@@ -4,6 +4,7 @@ import FormInput from "@/components/ui/base/form-input";
 import FormSelect from "@/components/ui/base/form-select";
 import FormTextArea from "@/components/ui/base/form-text-area";
 import ImageUploader from "@/components/ui/base/image-upload";
+import { DateCalendar } from "@/components/ui/date-calendar";
 import DatePicker from "@/components/ui/date-picker";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -63,7 +64,12 @@ export default function AddAdminPage() {
             value={formData.name}
             required
           />
-          <DatePicker
+          {/* <DatePicker
+            label="Tanggal Lahir"
+            date={formData.date}
+            onSelect={(date: Date) => setFormData({ ...formData, date })}
+          /> */}
+          <DateCalendar
             label="Tanggal Lahir"
             date={formData.date}
             onSelect={(date: Date) => setFormData({ ...formData, date })}

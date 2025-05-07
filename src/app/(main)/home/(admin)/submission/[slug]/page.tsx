@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import FormLabel from "@/components/ui/base/form-label";
 import SubmissionStatusModal from "@/components/ui/home/(admin)/submission/modal/SubmissionStatusModal";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CheckCircle, TriangleAlert } from "lucide-react";
 import FormInput from "@/components/ui/base/form-input";
 import { usePermission } from "@/store/usePermission";
@@ -96,10 +96,15 @@ export default function ComponentPage({
     setStatus(status);
   };
 
-  const fetchDataPoktan = async (page: number) => {
-    const data = await fetchPoktanData(page, String(token));
-    setListKetuaPoktan(data.items);
-  };
+  const fetchDataPoktan = useCallback(
+    async (page: number) => {
+      if (token) {
+        const data = await fetchPoktanData(page, token);
+        setListKetuaPoktan(data.items);
+      }
+    },
+    [token]
+  );
 
   useEffect(() => {
     fetchDataPoktan(currentPage);

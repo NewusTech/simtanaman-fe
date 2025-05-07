@@ -26,9 +26,12 @@ import {
   Filter,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import AdminFilterModal from "@/components/ui/home/(admin)/management/user/modal/AdminFilterModal";
+import { useAuth } from "@/hooks/useAuth";
+import { Pengguna } from "@/types/management-user/pengguna";
+import { fetchPenggunaData } from "@/lib/management-user/penggunaFetching";
 
 /**
  * AdminPage component renders a page for managing admin users.
@@ -42,32 +45,16 @@ import AdminFilterModal from "@/components/ui/home/(admin)/management/user/modal
  * @returns {JSX.Element} The rendered AdminPage component.
  */
 export default function AdminPage() {
+  const { getToken } = useAuth();
+  const token = getToken();
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [listUser, setListUser] = useState([
-    {
-      nama: "Robi",
-      email: "robi@email.com",
-      role: "admin",
-      jenisKelamin: "Laki-Laki",
-      status: false,
-    },
-    {
-      nama: "Robi",
-      email: "robi@email.com",
-      role: "admin",
-      jenisKelamin: "Laki-Laki",
-      status: false,
-    },
-    {
-      nama: "Robi",
-      email: "robi@email.com",
-      role: "admin",
-      jenisKelamin: "Laki-Laki",
-      status: false,
-    },
-  ]);
+  const [listUser, setListUser] = useState<Pengguna[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [items, setItems] = useState<Pengguna[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (value: string) => {
     setSearch(value);
@@ -80,6 +67,24 @@ export default function AdminPage() {
   const handleFilter = () => {
     setIsModalOpen(true);
   };
+
+  const fetchPage = useCallback(
+    async (page: number) => {
+      if (loading) return;
+
+      setLoading(true);
+      const data = await fetchPenggunaData(page, String(token), "admin");
+      setItems(data.items);
+      setListUser(data.items);
+      setTotalPages(data.total_pages);
+      setLoading(false);
+    },
+    [loading, token]
+  );
+
+  useEffect(() => {
+    fetchPage(currentPage);
+  }, [currentPage]);
 
   return (
     <div className="bg-white p-4 rounded-md shadow-md font-poppins">
@@ -135,14 +140,43 @@ export default function AdminPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {listUser.map((value) => (
+        {loading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <TableRow key={index}>
+                <TableCell className="w-[50px]">
+                  <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+                <TableCell className="w-[50px]">
+                  <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : listUser.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={3} className="text-center">
+                Tidak ada data tersedia
+              </TableCell>
+            </TableRow>
+          ) : (listUser.map((value) => (
             <TableRow key={listUser.indexOf(value)}>
               <TableCell className="w-[50px]">
                 {listUser.indexOf(value) + 1}
               </TableCell>
-              <TableCell className="font-medium">{value.nama}</TableCell>
+              <TableCell className="font-medium">{value.name}</TableCell>
               <TableCell>{value.email}</TableCell>
-              <TableCell>{value.role}</TableCell>
+              <TableCell>{value.role?.name}</TableCell>
               <TableCell className="text-right">{value.jenisKelamin}</TableCell>
               <TableCell className="text-right">
                 <Switch
@@ -182,7 +216,9 @@ export default function AdminPage() {
                 </div>
               </TableCell>
             </TableRow>
-          ))}
+          )))
+          }
+          
         </TableBody>
         <TableFooter>
           <TableRow>
