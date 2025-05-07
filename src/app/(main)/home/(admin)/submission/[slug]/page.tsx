@@ -18,6 +18,8 @@ import { JenisTanaman } from "@/types/master/jenisTanaman";
 import { StatusKepemilikan } from "@/types/master/statusKepemilikan";
 import { fetchStatusKepemilikanData } from "@/lib/master/statusKepemilikanFetching";
 import FileInput from "@/components/ui/base/file-input";
+import dynamic from "next/dynamic";
+const Map = dynamic(() => import("@/components/ui/base/map"), { ssr: false });
 
 /**
  * ComponentPage is a React functional component that renders a submission page with various statuses.
@@ -65,11 +67,12 @@ export default function ComponentPage({
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [status, setStatus] = useState("");
   const [changeStatus, setChangeStatus] = useState("diajukan");
-  const role = usePermission((state: { role: any; }) => state.role);
+  const role = usePermission((state: { role: any }) => state.role);
   const [currentPage, setCurrentPage] = useState(1);
   const [listKetuaPoktan, setListKetuaPoktan] = useState<Poktan[]>([]);
   const [listPlant, setListPlant] = useState<JenisTanaman[]>([]);
   const [listStatus, setlistStatus] = useState<StatusKepemilikan[]>([]);
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     nik: "",
@@ -90,13 +93,15 @@ export default function ComponentPage({
     jumlahTanaman: 0,
     alasan: "",
     ktp: "" as File | string,
-    kartuTani: ""as File | string,
+    kartuTani: "" as File | string,
     tanamanId: 0,
     tanamanKebutuhanId: null,
     statusLahanId: 0,
     poktanId: 0,
     methodId: 0,
-    lokasi:""
+    lokasi: "",
+    latitude: -6.9175, // Default latitude (e.g., Jakarta)
+    longitude: 107.6191, // Default longitude (e.g., Jakarta)
   });
 
   const handleClickStatus = (status: string) => {
@@ -499,7 +504,7 @@ export default function ComponentPage({
           <div className="text-md font-semibold mt-10">Upload</div>
           <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
             <div className="flex flex-col items-start w-full gap-1">
-            <label
+              <label
                 htmlFor="ktp-file-input"
                 className="block text-sm font-medium"
               >
@@ -513,43 +518,121 @@ export default function ComponentPage({
               />
             </div>
             <div className="flex flex-col items-center w-full gap-4">
-            <div className="flex flex-col items-start w-full gap-1">
-              <label
-                htmlFor="ktp-file-input"
-                className="block text-sm font-medium"
-              >
-                Kartu Tani (JPG/PNG/PDF)
-              </label>
-              <FileInput
-                file={formData.kartuTani}
-                onChange={(file: File | string) =>
-                  setFormData({ ...formData, kartuTani: file })
-                }
-              />
-            </div>
+              <div className="flex flex-col items-start w-full gap-1">
+                <label
+                  htmlFor="ktp-file-input"
+                  className="block text-sm font-medium"
+                >
+                  Kartu Tani (JPG/PNG/PDF)
+                </label>
+                <FileInput
+                  file={formData.kartuTani}
+                  onChange={(file: File | string) =>
+                    setFormData({ ...formData, kartuTani: file })
+                  }
+                />
+              </div>
             </div>
           </div>
           <div className="text-md font-semibold mt-10">Lokasi</div>
-            <div className="flex items-center w-full gap-4">
-              <FormInput
-                label=""
-                placeholder="Cari Lokasi"
-                value={formData.lokasi}
-                onChange={(value: string) =>
-                  setFormData({ ...formData, lokasi: value })
+          <div className="flex items-center w-full gap-4">
+            <FormInput
+              label=""
+              placeholder="Cari Lokasi"
+              value={formData.lokasi}
+              onChange={(value: string) =>
+                setFormData({ ...formData, lokasi: value })
+              }
+            />
+            <Button
+              className="bg-primary-default text-white px-8 tex-sm rounded-full"
+              onClick={async () => {
+                if (formData.lokasi.trim() !== "") {
+                  setIsLoadingSearch(true);
+                  await fetch(
+                    `https://nominatim.openstreetmap.org/search?q=${formData.lokasi}&format=json`
+                  )
+                    .then((response) => response.json())
+                    .then((data) => {
+                      if (data.length > 0) {
+                        const { lat, lon } = data[0];
+                        setFormData({
+                          ...formData,
+                          latitude: parseFloat(lat),
+                          longitude: parseFloat(lon),
+                        });
+                      } else {
+                        console.error("Location not found");
+                      }
+                    })
+                    .catch((error) => {
+                      console.error("Error fetching location:", error);
+                    });
+                  setIsLoadingSearch(false);
+                } else {
+                  console.error("Lokasi is empty");
                 }
-              />
-              <Button
-                className="bg-primary-default text-white px-8 tex-sm rounded-full"
+              }}
+            >
+              {isLoadingSearch ? "Loading..." : "Cari Lokasi"}
+            </Button>
+          </div>
+          <div className="mt-4">
+            <Map
+              onLocationSelect={(lat: number, lng: number) => {
+                setFormData({ ...formData, latitude: lat, longitude: lng });
+              }}
+              center={[formData.latitude, formData.longitude]} // Update center dynamically when latitude or longitude changes
+            />
+          </div>
+          <div className="flex justify-between items-center mt-10 gap-4">
+            <FormInput
+              label="Latitude"
+              placeholder="Masukan Latitude"
+              value={String(formData.latitude)}
+              onChange={(value: string) =>
+                setFormData({ ...formData, lokasi: value })
+              }
+            />
+            <FormInput
+              label="Longitude"
+              placeholder="Masukan Longitude"
+              value={String(formData.longitude)}
+              onChange={(value: string) =>
+                setFormData({ ...formData, lokasi: value })
+              }
+            />
+          </div>
+          <div className="flex items-center gap-2 mt-10">
+            <input
+              type="checkbox"
+              id="agreement"
+              className="h-5 w-5 rounded border-gray-300 text-primary-default focus:ring-primary-default"
+              required
+            />
+            <label htmlFor="agreement" className="text-sm text-gray-700">
+              Saya menyatakan bahwa data yang diberikan benar dan siap
+              diverifikasi sesuai peraturan pemerintah.
+            </label>
+          </div>
+          <div className="flex justify-end mt-4">
+            <div className="flex gap-4">
+              <button
                 onClick={() => {
-                  // Handle location search
+                  router.back();
                 }}
+                className="border border-primary-default text-primary-default rounded-full py-2 px-4"
               >
-                Cari Lokasi
-              </Button>
+                Batal
+              </button>
+              <button
+                className="bg-primary-500 text-white rounded-full py-2 px-4"
+                onClick={()=>{}}
+              >
+                Simpan
+              </button>
             </div>
-            {/* <Map /> */}
-
+          </div>
         </div>
       )) ||
         (params.slug === "Detail" && (

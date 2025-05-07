@@ -9,7 +9,6 @@ import { fetchPoktanDataById, postPoktanData, putPoktanData } from "@/lib/master
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Bounce, toast } from "react-toastify";
-import { number } from "zod";
 
 /**
  * ComponentPage is a React functional component that renders a form for managing Poktan data.
