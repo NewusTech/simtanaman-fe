@@ -47,7 +47,7 @@ export const DateCalendar = ({
             <CalendarIcon className="h-4 w-4 absolute right-3" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 bg-white shadow-md rounded-md opacity-100">
+        <PopoverContent className="w-auto p-0 bg-white shadow-md rounded-md">
           {/* <Calendar
             mode="single"
             selected={date}
