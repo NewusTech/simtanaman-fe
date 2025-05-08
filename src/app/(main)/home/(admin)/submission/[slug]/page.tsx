@@ -19,6 +19,12 @@ import { StatusKepemilikan } from "@/types/master/statusKepemilikan";
 import { fetchStatusKepemilikanData } from "@/lib/master/statusKepemilikanFetching";
 import FileInput from "@/components/ui/base/file-input";
 import dynamic from "next/dynamic";
+import { addPengajuanData } from "@/lib/pengajuan/pengajuanFetching";
+import { Bounce, toast } from "react-toastify";
+import { set } from "date-fns";
+import { Penanaman } from "@/types/master/metodePenanaman";
+import { fetchMetodePenanamanData } from "@/lib/master/metodePenanamanFetching";
+import { se } from "date-fns/locale";
 const Map = dynamic(() => import("@/components/ui/base/map"), { ssr: false });
 
 /**
@@ -72,7 +78,74 @@ export default function ComponentPage({
   const [listKetuaPoktan, setListKetuaPoktan] = useState<Poktan[]>([]);
   const [listPlant, setListPlant] = useState<JenisTanaman[]>([]);
   const [listStatus, setlistStatus] = useState<StatusKepemilikan[]>([]);
+  const [listMetode, setListMetode] = useState<Penanaman[]>([]);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [messageError, setMessageError] = useState<
+    Record<keyof typeof formData, string | null>
+  >({
+    name: null,
+    nik: null,
+    noTelepon: null,
+    email: null,
+    noKartuTani: null,
+    noRegistrasiPoktan: null,
+    namaKetuaPoktan: null,
+    Provinsi: null,
+    Kabupaten: null,
+    Kecamatan: null,
+    DesaKelurahan: null,
+    alamat: null,
+    luasLahan: null,
+    jumlahTanamanHektar: null,
+    masaTanam: null,
+    tahunMusimTanam: null,
+    jumlahTanaman: null,
+    alasan: null,
+    ktp: null,
+    kartuTani: null,
+    tanamanId: null,
+    tanamanKebutuhanId: null,
+    statusLahanId: null,
+    poktanId: null,
+    methodId: null,
+    lokasi: null,
+    latitude: null,
+    longitude: null,
+  });
+
+  const clearMessageError = () => {
+    setMessageError({
+      name: null,
+      nik: null,
+      noTelepon: null,
+      email: null,
+      noKartuTani: null,
+      noRegistrasiPoktan: null,
+      namaKetuaPoktan: null,
+      Provinsi: null,
+      Kabupaten: null,
+      Kecamatan: null,
+      DesaKelurahan: null,
+      alamat: null,
+      luasLahan: null,
+      jumlahTanamanHektar: null,
+      masaTanam: null,
+      tahunMusimTanam: null,
+      jumlahTanaman: null,
+      alasan: null,
+      ktp: null,
+      kartuTani: null,
+      tanamanId: null,
+      tanamanKebutuhanId: null,
+      statusLahanId: null,
+      poktanId: null,
+      methodId: null,
+      lokasi: null,
+      latitude: null,
+      longitude: null,
+    });
+  };
   const [formData, setFormData] = useState({
     name: "",
     nik: "",
@@ -108,6 +181,116 @@ export default function ComponentPage({
     setIsOpenModal(true);
     setStatus(status);
   };
+  const clearFormData = () => {
+    setFormData({
+      name: "",
+      nik: "",
+      noTelepon: "",
+      email: "",
+      noKartuTani: "",
+      noRegistrasiPoktan: "",
+      namaKetuaPoktan: "",
+      Provinsi: "",
+      Kabupaten: "",
+      Kecamatan: "",
+      DesaKelurahan: "",
+      alamat: "",
+      luasLahan: 0.0,
+      jumlahTanamanHektar: 0,
+      masaTanam: "",
+      tahunMusimTanam: 0,
+      jumlahTanaman: 0,
+      alasan: "",
+      ktp: "" as File | string,
+      kartuTani: "" as File | string,
+      tanamanId: 0,
+      tanamanKebutuhanId: null,
+      statusLahanId: 0,
+      poktanId: 0,
+      methodId: 0,
+      lokasi: "",
+      latitude: -6.9175, // Default latitude (e.g., Jakarta)
+      longitude: 107.6191, // Default longitude (e.g., Jakarta)
+    });
+  };
+  const handleSimpan = async () => {
+    if (params.slug === "Tambah") {
+      setIsLoading(true);
+      const currentYear = new Date().getFullYear();
+      const ktpFileName = formData.ktp instanceof File ? formData.ktp.name : formData.ktp;
+      const kartuTaniFileName = formData.kartuTani instanceof File ? formData.kartuTani.name : formData.kartuTani;
+      
+      const payload = {
+        nik: formData.nik,
+        noTelepon: formData.noTelepon,
+        email: formData.email,
+        noKartuTani: formData.noKartuTani,
+        noRegistrasiPoktan: formData.noRegistrasiPoktan,
+        namaKetuaPoktan: formData.namaKetuaPoktan,
+        Provinsi: formData.Provinsi,
+        Kabupaten: formData.Kabupaten,
+        Kecamatan: formData.Kecamatan,
+        DesaKelurahan: formData.DesaKelurahan,
+        alamat: formData.alamat,
+        luasLahan: formData.luasLahan,
+        jumlahTanamanHektar: formData.jumlahTanamanHektar,
+        masaTanam: formData.masaTanam,
+        tahunMusimTanam: currentYear,
+        jumlahTanaman: formData.jumlahTanaman,
+        alasan: formData.alasan,
+        ktp: ktpFileName,
+        kartuTani: kartuTaniFileName,
+        tanamanId: formData.tanamanId,
+        tanamanKebutuhanId: formData.tanamanKebutuhanId,
+        statusLahanId: formData.statusLahanId,
+        poktanId: formData.poktanId,
+        methodId: formData.methodId,
+      };
+      await addPengajuanData(payload, String(token))
+        .then((response) => {
+          if (!response.ok) {
+            response.json().then((errorData) => {
+              setMessageError(errorData.data);
+            });
+
+            throw new Error("Failed to save data");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          toast.success("Data berhasil disimpan", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+
+          clearFormData();
+          setIsLoading(false);
+          router.push("/home/submission");
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          console.error("Error:", error);
+          toast.error(`${error}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+        });
+    }
+  };
 
   const fetchDataPoktan = useCallback(
     async (page: number) => {
@@ -125,6 +308,8 @@ export default function ComponentPage({
       setListPlant(data.items);
       const dataStatus = await fetchStatusKepemilikanData(page, String(token));
       setlistStatus(dataStatus.items);
+      const metode = await fetchMetodePenanamanData(page, String(token));
+      setListMetode(metode.items);
     },
     [token]
   );
@@ -230,6 +415,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, name: value })
                 }
+                errorMessage={messageError.name}
                 required
               />
               <FormInput
@@ -239,6 +425,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, noTelepon: value })
                 }
+                errorMessage={messageError.noTelepon}
                 required
               />
               <FormInput
@@ -248,6 +435,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, noKartuTani: value })
                 }
+                errorMessage={messageError.noKartuTani}
                 required
               />
               <FormInput
@@ -257,6 +445,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, noRegistrasiPoktan: value })
                 }
+                errorMessage={messageError.noRegistrasiPoktan}
                 required
               />
               <FormSelect
@@ -266,15 +455,17 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, Provinsi: value })
                 }
+                errorMessage={messageError.Provinsi}
                 required
               />
               <FormSelect
                 label="Kecamatan"
                 value={["Cicendo", "Sukasari"]}
-                selected={formData.Provinsi}
+                selected={formData.Kecamatan}
                 onChange={(value: string) =>
-                  setFormData({ ...formData, Provinsi: value })
+                  setFormData({ ...formData, Kecamatan: value })
                 }
+                errorMessage={messageError.Kecamatan}
                 required
               />
             </div>
@@ -286,6 +477,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, nik: value })
                 }
+                errorMessage={messageError.nik}
                 required
               />
               <FormInput
@@ -295,15 +487,29 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, email: value })
                 }
+                errorMessage={messageError.email}
                 required
               />
               <FormSelect
                 label="Nama Kelompok Tani (Poktan)"
                 value={listKetuaPoktan.map((poktan) => poktan.name)}
-                selected={formData.namaKetuaPoktan}
-                onChange={(value: string) =>
-                  setFormData({ ...formData, namaKetuaPoktan: value })
+                selected={
+                  listKetuaPoktan.find(
+                    (poktan) => poktan.id === formData.poktanId
+                  )?.name || ""
                 }
+                onChange={(value: string) =>
+                  listKetuaPoktan.find((poktan) => poktan.name === value)
+                    ? setFormData({
+                        ...formData,
+                        poktanId:
+                          listKetuaPoktan.find(
+                            (poktan) => poktan.name === value
+                          )?.id || 0,
+                      })
+                    : setFormData({ ...formData, poktanId: 0 })
+                }
+                errorMessage={messageError.poktanId}
                 required
               />
               <FormInput
@@ -313,6 +519,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, namaKetuaPoktan: value })
                 }
+                errorMessage={messageError.namaKetuaPoktan}
                 required
               />
               <FormSelect
@@ -322,6 +529,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, Kabupaten: value })
                 }
+                errorMessage={messageError.Kabupaten}
                 required
               />
               <FormSelect
@@ -331,6 +539,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, DesaKelurahan: value })
                 }
+                errorMessage={messageError.DesaKelurahan}
                 required
               />
             </div>
@@ -341,6 +550,8 @@ export default function ComponentPage({
             onChange={(value: string) =>
               setFormData({ ...formData, alamat: value })
             }
+            errorMessage={messageError.alamat}
+            placeholder="Masukan Alamat"
             required
           />
           <div className="text-md font-semibold mt-10">
@@ -355,6 +566,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, luasLahan: Number(value) })
                 }
+                errorMessage={messageError.luasLahan}
                 required
               />
               <FormInput
@@ -367,6 +579,7 @@ export default function ComponentPage({
                     jumlahTanamanHektar: Number(value),
                   })
                 }
+                errorMessage={messageError.jumlahTanamanHektar}
                 required
                 type="number"
               />
@@ -377,6 +590,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, jumlahTanaman: Number(value) })
                 }
+                errorMessage={messageError.jumlahTanaman}
                 required
                 type="number"
               />
@@ -400,6 +614,7 @@ export default function ComponentPage({
                     });
                   }
                 }}
+                errorMessage={messageError.tanamanId}
                 required
               />
               <FormInput
@@ -409,6 +624,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, masaTanam: value })
                 }
+                errorMessage={messageError.masaTanam}
                 required
               />
               <FormSelect
@@ -430,6 +646,7 @@ export default function ComponentPage({
                     });
                   }
                 }}
+                errorMessage={messageError.statusLahanId}
                 required
               />
             </div>
@@ -457,26 +674,28 @@ export default function ComponentPage({
                     });
                   }
                 }}
+                errorMessage={messageError.tanamanId}
                 required
               />
               <FormSelect
                 label="Metode Penanaman Tanaman"
-                value={listPlant.map((value) => value.name)}
+                value={listMetode.map((value) => value.name)}
                 selected={
-                  listPlant.find((plant) => plant.id === formData.tanamanId)
+                  listMetode.find((plant) => plant.id === formData.methodId)
                     ?.name || ""
                 }
                 onChange={(value: string) => {
-                  const selectedPlant = listPlant.find(
+                  const selectedPlant = listMetode.find(
                     (plant) => plant.name === value
                   );
                   if (selectedPlant) {
                     setFormData({
                       ...formData,
-                      tanamanId: selectedPlant.id,
+                      methodId: selectedPlant.id,
                     });
                   }
                 }}
+                errorMessage={messageError.methodId}
                 required
               />
             </div>
@@ -484,10 +703,11 @@ export default function ComponentPage({
               <FormInput
                 label="Jumlah bibit tanaman yang Diajukan (bibit)"
                 placeholder="Masukan Jumlah bibit tanaman yang Diajukan (bibit)"
-                value={String(formData.masaTanam)}
+                value={String(formData.jumlahTanaman)}
                 onChange={(value: string) =>
-                  setFormData({ ...formData, masaTanam: value })
+                  setFormData({ ...formData, jumlahTanaman: Number(value) })
                 }
+                errorMessage={messageError.jumlahTanaman}
                 required
               />
               <FormInput
@@ -497,6 +717,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, alasan: value })
                 }
+                errorMessage={messageError.alasan}
                 required
               />
             </div>
@@ -512,9 +733,9 @@ export default function ComponentPage({
               </label>
               <FileInput
                 file={formData.ktp}
-                onChange={(file: File | string) =>
-                  setFormData({ ...formData, ktp: file })
-                }
+                onChange={(file: File | string) => {
+                    setFormData({ ...formData, ktp: file});
+                }}
               />
             </div>
             <div className="flex flex-col items-center w-full gap-4">
@@ -527,9 +748,11 @@ export default function ComponentPage({
                 </label>
                 <FileInput
                   file={formData.kartuTani}
-                  onChange={(file: File | string) =>
-                    setFormData({ ...formData, kartuTani: file })
-                  }
+                  onChange={(file: File | string) => {
+                    if (file instanceof File) {
+                      setFormData({ ...formData, kartuTani: file.name });
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -591,16 +814,20 @@ export default function ComponentPage({
               placeholder="Masukan Latitude"
               value={String(formData.latitude)}
               onChange={(value: string) =>
-                setFormData({ ...formData, lokasi: value })
+                setFormData({ ...formData, latitude: Number(value) })
               }
+              errorMessage={messageError.latitude}
+              required
             />
             <FormInput
               label="Longitude"
               placeholder="Masukan Longitude"
               value={String(formData.longitude)}
               onChange={(value: string) =>
-                setFormData({ ...formData, lokasi: value })
+                setFormData({ ...formData, longitude: Number(value) })
               }
+              errorMessage={messageError.longitude}
+              required
             />
           </div>
           <div className="flex items-center gap-2 mt-10">
@@ -627,9 +854,9 @@ export default function ComponentPage({
               </button>
               <button
                 className="bg-primary-500 text-white rounded-full py-2 px-4"
-                onClick={()=>{}}
+                onClick={() => handleSimpan()}
               >
-                Simpan
+                {isLoading ? "Loading..." : "Simpan"}
               </button>
             </div>
           </div>
