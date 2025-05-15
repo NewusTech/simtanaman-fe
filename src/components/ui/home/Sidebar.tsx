@@ -328,8 +328,9 @@ const Sidebar = () => {
       <div
         id="sidebar"
         className={`fixed top-0 left-0 h-screen bg-white transition-all duration-300 ease-in-out z-40 py-4 shadow-lg
-        ${isOpen ? "w-64" : "w-20"} 
+        ${(isOpen || isMobile) ? "w-64" : "w-20"} 
         ${isMobile && !isOpen && "-translate-x-full"}
+        ${!isMobile && "md:w-64"}
         ${isMobile && "w-64"}
         overflow-y-auto`}
         style={{ scrollbarWidth: "thin", scrollbarColor: "#ccc #f5f5f5" }}
@@ -337,78 +338,78 @@ const Sidebar = () => {
         {/* Logo Section */}
         <div className="flex flex-col items-center justify-center h-40 px-4 md:px-0">
           <div
-            className={`flex font-bold text-xl ${!isOpen && "hidden"} ${isMobile && isOpen && "block"}`}
+        className={`flex font-bold text-xl ${!isOpen && isMobile && "hidden"} ${isMobile && isOpen && "block"}`}
           >
-            <img
-              src="/assets/images/LogoPali.svg"
-              alt="Logo"
-              className="w-16 h-16 md:w-20 md:h-20"
-            />
+        <img
+          src="/assets/images/LogoPali.svg"
+          alt="Logo"
+          className="w-16 h-16 md:w-20 md:h-20"
+        />
           </div>
           <div
-            className={`text-primary-default text-sm font-semibold my-3 ${!isOpen && "hidden"} ${isMobile && isOpen && "block"}`}
+        className={`text-primary-default text-sm font-semibold my-3 ${!isOpen && isMobile && "hidden"} ${isMobile && isOpen && "block"}`}
           >
-            SiPUTANI
+        SiPUTANI
           </div>
           <div
-            className={`text-primary-default text-xs ${!isOpen && "hidden"} ${isMobile && isOpen && "block"}`}
+        className={`text-primary-default text-xs ${!isOpen && isMobile && "hidden"} ${isMobile && isOpen && "block"}`}
           >
-            Sistem Informasi Pupuk Tani
+        Sistem Informasi Pupuk Tani
           </div>
         </div>
 
         {/* Navigation Items */}
         <nav className="mt-8 px-4">
           <ul className="space-y-2">
-            {navigation
-              .filter((item) => {
-              return (role && item.role.includes(role));
-              })
-              .map((item) => (
-              <li key={item.name} className="relative">
-                <button
-                onClick={() => handleClickParent(item)}
-                className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
-                ${(pathname.split("/")[2] == item.link?.split("/")[2] && !item.child) && item.current ? "bg-primary-default text-white" : "text-primary-default hover:bg-primary-default hover:text-white"}
-                ${pathname.startsWith(item.link ?? "") && item.child ? "bg-primary-default text-white" : ""}
-                `}
-                aria-current={item.current ? "page" : undefined}
-                >
-                <item.icon
-                  className={`h-6 w-6 ${pathname.startsWith(item.link ?? "") && !item.child && item.current ? "text-white" : ""} `}
-                />
-                <span
-                  className={`ml-4 text-sm ${!isOpen && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
-                >
-                  {item.name}
-                </span>
-                </button>
-                {item.child && item.current && (
-                <ul className="mt-2 space-y-2 pl-5">
-                  {item.child.map((childItem) => (
-                  <li key={childItem.name}>
-                    <button
-                    onClick={() => handleClickChild(childItem)}
-                    className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
-              ${pathname.startsWith(childItem.link) ? "font-bold text-primary-default" : "text-primary-default hover:bg-primary-default hover:text-white"}
-              `}
-                    aria-current={childItem.current ? "page" : undefined}
-                    >
-                    <childItem.icon
-                      className={`h-6 w-6 ${pathname.startsWith(childItem.link) ? "text-primary-default" : ""} `}
-                    />
-                    <span
-                      className={`ml-2 text-xs ${!isOpen && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
-                    >
-                      {childItem.name}
-                    </span>
-                    </button>
-                  </li>
-                  ))}
-                </ul>
-                )}
-              </li>
-              ))}
+        {navigation
+          .filter((item) => {
+        return (role && item.role.includes(role));
+          })
+          .map((item) => (
+        <li key={item.name} className="relative">
+          <button
+        onClick={() => handleClickParent(item)}
+        className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
+        ${(pathname.split("/")[2] == item.link?.split("/")[2] && !item.child) && item.current ? "bg-primary-default text-white" : "text-primary-default hover:bg-primary-default hover:text-white"}
+        ${pathname.startsWith(item.link ?? "") && item.child ? "bg-primary-default text-white" : ""}
+        `}
+        aria-current={item.current ? "page" : undefined}
+          >
+        <item.icon
+          className={`h-6 w-6 ${pathname.startsWith(item.link ?? "") && !item.child && item.current ? "text-white" : ""} `}
+        />
+        <span
+          className={`ml-4 text-sm ${!isOpen && isMobile && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
+        >
+          {item.name}
+        </span>
+          </button>
+          {item.child && item.current && (
+        <ul className="mt-2 space-y-2 pl-5">
+          {item.child.map((childItem) => (
+        <li key={childItem.name}>
+          <button
+            onClick={() => handleClickChild(childItem)}
+            className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200
+            ${pathname.startsWith(childItem.link) ? "font-bold text-primary-default" : "text-primary-default hover:bg-primary-default hover:text-white"}
+            `}
+            aria-current={childItem.current ? "page" : undefined}
+          >
+            <childItem.icon
+          className={`h-6 w-6 ${pathname.startsWith(childItem.link) ? "text-primary-default" : ""} `}
+            />
+            <span
+          className={`ml-2 text-xs ${!isOpen && isMobile && "hidden"} ${isMobile && isOpen && "block"} text-start text-sm`}
+            >
+          {childItem.name}
+            </span>
+          </button>
+        </li>
+          ))}
+        </ul>
+          )}
+        </li>
+          ))}
           </ul>
         </nav>
       </div>
