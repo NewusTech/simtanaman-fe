@@ -14,7 +14,6 @@ import Search from "@/components/ui/search";
 
 export default function SubmissionPlantPage() {
     const router = useRouter();
-    const { hasPermission, role } = usePermission('admin');
     const [search, setSearch] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [dateParent, setDateParent] = useState<DateRange>({
