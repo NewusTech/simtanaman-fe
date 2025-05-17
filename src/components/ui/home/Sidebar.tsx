@@ -349,12 +349,12 @@ const Sidebar = () => {
           <div
         className={`text-primary-default text-sm font-semibold my-3 ${!isOpen && isMobile && "hidden"} ${isMobile && isOpen && "block"}`}
           >
-        SiPUTANI
+        SiTANAM
           </div>
           <div
         className={`text-primary-default text-xs ${!isOpen && isMobile && "hidden"} ${isMobile && isOpen && "block"}`}
           >
-        Sistem Informasi Pupuk Tani
+        Sistem Informasi Tanaman
           </div>
         </div>
 

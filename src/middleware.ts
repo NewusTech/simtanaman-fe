@@ -34,38 +34,6 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    // const roleRoutes = {
-    //     admin: [
-    //         '/home/dashboard',
-    //         '/home/submission',
-    //         '/home/(admin)/users',
-    //         '/home/(admin)/monitoring'
-    //     ],
-    //     penyuluh: [
-    //         '/home/(penyuluh)/dashboard',
-    //         '/home/(penyuluh)/monitoring',
-    //         '/home/(penyuluh)/reports'
-    //     ],
-    //     distributor: [
-    //         '/home/(distributor)/dashboard',
-    //         '/home/(distributor)/products',
-    //         '/home/(distributor)/orders'
-    //     ],
-    //     user: [
-    //         '/home/(user)/dashboard',
-    //         '/home/(user)/profile',
-    //         '/home/(user)/plants'
-    //     ]
-    // }
-
-    // const hasAccess = Object.entries(ROLE_ROUTES).some(([userRole, paths]) => {
-    //     return role === userRole && paths.some(p => path.startsWith(p))
-    // })
-
-    // if (!hasAccess) {
-    //     return NextResponse.redirect(new URL('/home', request.url))
-    // }
-
     return NextResponse.next()
 }
 

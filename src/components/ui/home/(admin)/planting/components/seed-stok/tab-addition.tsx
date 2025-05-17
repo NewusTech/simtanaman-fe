@@ -1,46 +1,60 @@
 "use client";
 
-import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
-export default function TabAddition() {
-    const [listPenambahan, setListUser] = useState([
-        {
-            tanggal_pembahan: "03/03/2025",
-            jumlah_bibit: "100 Bibit Padi"
-        },
-        {
-            tanggal_pembahan: "03/03/2025",
-            jumlah_bibit: "100 Bibit Padi"
-        },
-        {
-            tanggal_pembahan: "03/03/2025",
-            jumlah_bibit: "100 Bibit Padi"
-        },
-    ]);
-    return (
-        <div>
-            <Table className="mt-4 overflow-hidden">
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[50px] bg-gray-200">No</TableHead>
-                        <TableHead className="bg-gray-200 text-center">Tanggal Penambahan</TableHead>
-                        <TableHead className="bg-gray-200 text-center">Jumlah Bibit Tanaman yang Ditambahkan</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {listPenambahan.map((value) => (
-                        <TableRow key={listPenambahan.indexOf(value)}>
-                            <TableCell className="w-[50px]">
-                                {listPenambahan.indexOf(value) + 1}
-                            </TableCell>
-                            <TableCell className="text-center">{value.tanggal_pembahan}</TableCell>
-                            <TableCell className="text-center">{value.jumlah_bibit}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-                <TableFooter>
+interface TabAddition {
+  listPenambahan: {
+    tanggal_pembahan: string;
+    jumlah_bibit: string;
+  }[];
+}
+
+export default function TabAddition(props: TabAddition) {
+  const { listPenambahan } = props;
+  return (
+    <div>
+      <Table className="mt-4 overflow-hidden">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[50px] bg-gray-200">No</TableHead>
+            <TableHead className="bg-gray-200 text-center">
+              Tanggal Penambahan
+            </TableHead>
+            <TableHead className="bg-gray-200 text-center">
+              Jumlah Bibit Tanaman yang Ditambahkan
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {listPenambahan.map((value) => (
+            <TableRow key={listPenambahan.indexOf(value)}>
+              <TableCell className="w-[50px]">
+                {listPenambahan.indexOf(value) + 1}
+              </TableCell>
+              <TableCell className="text-center">
+                {new Date(value.tanggal_pembahan).toLocaleDateString("id-ID", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })}
+              </TableCell>
+              <TableCell className="text-center">
+                {value.jumlah_bibit}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+        {/* <TableFooter>
                     <TableRow>
                         <TableCell colSpan={8} className="text-right">
                             <div className="w-full h-full flex justify-end items-center gap-5">
@@ -87,8 +101,8 @@ export default function TabAddition() {
                             </div>
                         </TableCell>
                     </TableRow>
-                </TableFooter>
-            </Table>
-        </div>
-    );
+                </TableFooter> */}
+      </Table>
+    </div>
+  );
 }
