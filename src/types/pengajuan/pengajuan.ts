@@ -61,6 +61,9 @@ export interface PengajuanItem {
     createdAt: string; // Consider using Date type if you parse it
     updatedAt: string; // Consider using Date type if you parse it
     tanaman: Tanaman;
+    namaLengkap: string;
+    latitude: number;
+    longitude: number;
     methodTanam: MethodTanam;
     poktan: PoktanDetail;
     statusLahan: StatusLahan;

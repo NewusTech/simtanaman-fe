@@ -82,8 +82,8 @@ export default function SubmissionPage() {
   const handleChange = (value: string) => {
     setSearch(value);
   };
-  const handleDetail = (value: String) => {
-    router.push("/home/submission/" + value);
+  const handleDetail = (slug: string, params?: Object) => {
+    router.push("/home/submission/" + slug + (params ? `?${new URLSearchParams(params as any)}` : ""));
   };
   const handleFilter = () => {
     setIsModalOpen(true);
@@ -267,10 +267,18 @@ export default function SubmissionPage() {
                             <DropdownMenuItem
                               className="cursor-pointer"
                               onClick={() => {
-                                handleDetail("Detail");
+                                handleDetail("Detail", {id:value.id});
                               }}
                             >
                               Detail
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => {
+                                handleDetail("Edit", {id:value.id});
+                              }}
+                            >
+                              Edit
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

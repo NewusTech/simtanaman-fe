@@ -19,12 +19,13 @@ import { StatusKepemilikan } from "@/types/master/statusKepemilikan";
 import { fetchStatusKepemilikanData } from "@/lib/master/statusKepemilikanFetching";
 import FileInput from "@/components/ui/base/file-input";
 import dynamic from "next/dynamic";
-import { addPengajuanData } from "@/lib/pengajuan/pengajuanFetching";
+import { addPengajuanData, editPengajuanData } from "@/lib/pengajuan/pengajuanFetching";
 import { Bounce, toast } from "react-toastify";
 import { set } from "date-fns";
 import { Penanaman } from "@/types/master/metodePenanaman";
 import { fetchMetodePenanamanData } from "@/lib/master/metodePenanamanFetching";
 import { se } from "date-fns/locale";
+import { fetchDistributionDataById } from "@/lib/distribution/distributionFetching";
 const Map = dynamic(() => import("@/components/ui/base/map"), { ssr: false });
 
 /**
@@ -84,7 +85,7 @@ export default function ComponentPage({
   const [messageError, setMessageError] = useState<
     Record<keyof typeof formData, string | null>
   >({
-    name: null,
+    namaLengkap: null,
     nik: null,
     noTelepon: null,
     email: null,
@@ -116,7 +117,7 @@ export default function ComponentPage({
 
   const clearMessageError = () => {
     setMessageError({
-      name: null,
+      namaLengkap: null,
       nik: null,
       noTelepon: null,
       email: null,
@@ -147,7 +148,7 @@ export default function ComponentPage({
     });
   };
   const [formData, setFormData] = useState({
-    name: "",
+    namaLengkap: "",
     nik: "",
     noTelepon: "",
     email: "",
@@ -168,7 +169,7 @@ export default function ComponentPage({
     ktp: "" as File | string,
     kartuTani: "" as File | string,
     tanamanId: 0,
-    tanamanKebutuhanId: null,
+    tanamanKebutuhanId: 0,
     statusLahanId: 0,
     poktanId: 0,
     methodId: 0,
@@ -183,7 +184,7 @@ export default function ComponentPage({
   };
   const clearFormData = () => {
     setFormData({
-      name: "",
+      namaLengkap: "",
       nik: "",
       noTelepon: "",
       email: "",
@@ -204,7 +205,7 @@ export default function ComponentPage({
       ktp: "" as File | string,
       kartuTani: "" as File | string,
       tanamanId: 0,
-      tanamanKebutuhanId: null,
+      tanamanKebutuhanId: 0,
       statusLahanId: 0,
       poktanId: 0,
       methodId: 0,
@@ -217,10 +218,15 @@ export default function ComponentPage({
     if (params.slug === "Tambah") {
       setIsLoading(true);
       const currentYear = new Date().getFullYear();
-      const ktpFileName = formData.ktp instanceof File ? formData.ktp.name : formData.ktp;
-      const kartuTaniFileName = formData.kartuTani instanceof File ? formData.kartuTani.name : formData.kartuTani;
-      
+      const ktpFileName =
+        formData.ktp instanceof File ? formData.ktp.name : formData.ktp;
+      const kartuTaniFileName =
+        formData.kartuTani instanceof File
+          ? formData.kartuTani.name
+          : formData.kartuTani;
+
       const payload = {
+        namaLengkap: formData.namaLengkap,
         nik: formData.nik,
         noTelepon: formData.noTelepon,
         email: formData.email,
@@ -241,10 +247,12 @@ export default function ComponentPage({
         ktp: ktpFileName,
         kartuTani: kartuTaniFileName,
         tanamanId: formData.tanamanId,
-        tanamanKebutuhanId: formData.tanamanKebutuhanId,
+        tanamanKebutuhanId: formData.tanamanId,
         statusLahanId: formData.statusLahanId,
         poktanId: formData.poktanId,
         methodId: formData.methodId,
+        latitude: Number(formData.latitude),
+        longitude: Number(formData.longitude),
       };
       await addPengajuanData(payload, String(token))
         .then((response) => {
@@ -259,6 +267,90 @@ export default function ComponentPage({
         })
         .then((data) => {
           toast.success("Data berhasil disimpan", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+
+          clearFormData();
+          setIsLoading(false);
+          router.push("/home/submission");
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          console.error("Error:", error);
+          toast.error(`${error}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+        });
+    } else if (params.slug === "Edit") {
+      const id = Number(new URLSearchParams(window.location.search).get("id"));
+        setIsLoading(true);
+      const currentYear = new Date().getFullYear();
+      const ktpFileName =
+        formData.ktp instanceof File ? formData.ktp.name : formData.ktp;
+      const kartuTaniFileName =
+        formData.kartuTani instanceof File
+          ? formData.kartuTani.name
+          : formData.kartuTani;
+
+      const payload = {
+        namaLengkap: formData.namaLengkap,
+        nik: formData.nik,
+        noTelepon: formData.noTelepon,
+        email: formData.email,
+        noKartuTani: formData.noKartuTani,
+        noRegistrasiPoktan: formData.noRegistrasiPoktan,
+        namaKetuaPoktan: formData.namaKetuaPoktan,
+        Provinsi: formData.Provinsi,
+        Kabupaten: formData.Kabupaten,
+        Kecamatan: formData.Kecamatan,
+        DesaKelurahan: formData.DesaKelurahan,
+        alamat: formData.alamat,
+        luasLahan: formData.luasLahan,
+        jumlahTanamanHektar: formData.jumlahTanamanHektar,
+        masaTanam: formData.masaTanam,
+        tahunMusimTanam: currentYear,
+        jumlahTanaman: formData.jumlahTanaman,
+        alasan: formData.alasan,
+        ktp: ktpFileName,
+        kartuTani: kartuTaniFileName,
+        tanamanId: formData.tanamanId,
+        tanamanKebutuhanId: formData.tanamanId,
+        statusLahanId: formData.statusLahanId,
+        poktanId: formData.poktanId,
+        methodId: formData.methodId,
+        latitude: Number(formData.latitude),
+        longitude: Number(formData.longitude),
+      };
+
+      await editPengajuanData(payload, String(id),String(token))
+        .then((response) => {
+          if (!response.ok) {
+            response.json().then((errorData) => {
+              setMessageError(errorData.data);
+            });
+
+            throw new Error("Failed to save data");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          toast.success("Data berhasil diUbah", {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -314,9 +406,47 @@ export default function ComponentPage({
     [token]
   );
 
+  const fetchDataDetail = useCallback(async () => {
+    const id = Number(new URLSearchParams(window.location.search).get("id"));
+    const data = await fetchDistributionDataById(id, String(token));
+    setFormData({
+      namaLengkap: data.namaLengkap ?? "",
+      nik: data.nik,
+      noTelepon: data.noTelepon,
+      email: data.email,
+      noKartuTani: data.noKartuTani ?? "",
+      noRegistrasiPoktan: data.noRegistrasiPoktan,
+      namaKetuaPoktan: data.namaKetuaPoktan ?? "",
+      Provinsi: data.Provinsi,
+      Kabupaten: data.Kabupaten,
+      Kecamatan: data.Kecamatan,
+      DesaKelurahan: data.DesaKelurahan,
+      alamat: data.alamat,
+      luasLahan: data.luasLahan,
+      jumlahTanamanHektar: data.jumlahTanamanHektar,
+      masaTanam: data.masaTanam,
+      tahunMusimTanam: data.tahunMusimTanam,
+      jumlahTanaman: data.jumlahTanaman,
+      alasan: data.alasan,
+      ktp: data.ktp ?? ("" as File | string),
+      kartuTani: data.kartuTani ?? ("" as File | string),
+      tanamanId: data.tanamanId,
+      tanamanKebutuhanId: Number(data.tanamanKebutuhanId ?? 0),
+      statusLahanId: data.statusLahanId,
+      poktanId: data.poktanId,
+      methodId: data.methodId,
+      lokasi: "",
+      latitude: Number(data.latitude ?? -6.9175), // Default latitude (e.g., Jakarta)
+      longitude: Number(data.longitude ??  107.6191), // Default longitude (e.g., Jakarta)
+    });
+  }, [token]);
+
   useEffect(() => {
     fetchDataPoktan(currentPage);
     fetchDataJenisTanaman(currentPage);
+    if (params.slug == "Detail" || params.slug == "Edit") {
+      fetchDataDetail();
+    }
   }, [currentPage, fetchDataPoktan, fetchDataJenisTanaman]);
 
   return (
@@ -403,7 +533,7 @@ export default function ComponentPage({
       {/* end of header */}
 
       {/* body */}
-      {(params.slug === "Tambah" && (
+      {(params.slug === "Tambah" || params.slug ==="Edit" && (
         <div>
           <span className="text-md font-semibold">Data Diri</span>
           <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
@@ -411,11 +541,11 @@ export default function ComponentPage({
               <FormInput
                 label="Nama Lengkap"
                 placeholder="Masukan Nama Lengkap"
-                value={formData.name}
+                value={formData.namaLengkap}
                 onChange={(value: string) =>
-                  setFormData({ ...formData, name: value })
+                  setFormData({ ...formData, namaLengkap: value })
                 }
-                errorMessage={messageError.name}
+                errorMessage={messageError?.namaLengkap ?? ''}
                 required
               />
               <FormInput
@@ -425,7 +555,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, noTelepon: value })
                 }
-                errorMessage={messageError.noTelepon}
+                errorMessage={messageError?.noTelepon}
                 required
               />
               <FormInput
@@ -435,7 +565,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, noKartuTani: value })
                 }
-                errorMessage={messageError.noKartuTani}
+                errorMessage={messageError?.noKartuTani}
                 required
               />
               <FormInput
@@ -445,7 +575,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, noRegistrasiPoktan: value })
                 }
-                errorMessage={messageError.noRegistrasiPoktan}
+                errorMessage={messageError?.noRegistrasiPoktan}
                 required
               />
               <FormSelect
@@ -455,7 +585,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, Provinsi: value })
                 }
-                errorMessage={messageError.Provinsi}
+                errorMessage={messageError?.Provinsi}
                 required
               />
               <FormSelect
@@ -465,7 +595,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, Kecamatan: value })
                 }
-                errorMessage={messageError.Kecamatan}
+                errorMessage={messageError?.Kecamatan}
                 required
               />
             </div>
@@ -477,7 +607,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, nik: value })
                 }
-                errorMessage={messageError.nik}
+                errorMessage={messageError?.nik}
                 required
               />
               <FormInput
@@ -487,7 +617,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, email: value })
                 }
-                errorMessage={messageError.email}
+                errorMessage={messageError?.email}
                 required
               />
               <FormSelect
@@ -509,7 +639,7 @@ export default function ComponentPage({
                       })
                     : setFormData({ ...formData, poktanId: 0 })
                 }
-                errorMessage={messageError.poktanId}
+                errorMessage={messageError?.poktanId}
                 required
               />
               <FormInput
@@ -519,7 +649,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, namaKetuaPoktan: value })
                 }
-                errorMessage={messageError.namaKetuaPoktan}
+                errorMessage={messageError?.namaKetuaPoktan}
                 required
               />
               <FormSelect
@@ -529,7 +659,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, Kabupaten: value })
                 }
-                errorMessage={messageError.Kabupaten}
+                errorMessage={messageError?.Kabupaten}
                 required
               />
               <FormSelect
@@ -539,7 +669,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, DesaKelurahan: value })
                 }
-                errorMessage={messageError.DesaKelurahan}
+                errorMessage={messageError?.DesaKelurahan}
                 required
               />
             </div>
@@ -550,7 +680,7 @@ export default function ComponentPage({
             onChange={(value: string) =>
               setFormData({ ...formData, alamat: value })
             }
-            errorMessage={messageError.alamat}
+            errorMessage={messageError?.alamat}
             placeholder="Masukan Alamat"
             required
           />
@@ -566,7 +696,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, luasLahan: Number(value) })
                 }
-                errorMessage={messageError.luasLahan}
+                errorMessage={messageError?.luasLahan}
                 required
               />
               <FormInput
@@ -579,7 +709,7 @@ export default function ComponentPage({
                     jumlahTanamanHektar: Number(value),
                   })
                 }
-                errorMessage={messageError.jumlahTanamanHektar}
+                errorMessage={messageError?.jumlahTanamanHektar}
                 required
                 type="number"
               />
@@ -590,7 +720,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, jumlahTanaman: Number(value) })
                 }
-                errorMessage={messageError.jumlahTanaman}
+                errorMessage={messageError?.jumlahTanaman}
                 required
                 type="number"
               />
@@ -614,7 +744,7 @@ export default function ComponentPage({
                     });
                   }
                 }}
-                errorMessage={messageError.tanamanId}
+                errorMessage={messageError?.tanamanId}
                 required
               />
               <FormInput
@@ -624,7 +754,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, masaTanam: value })
                 }
-                errorMessage={messageError.masaTanam}
+                errorMessage={messageError?.masaTanam}
                 required
               />
               <FormSelect
@@ -646,7 +776,7 @@ export default function ComponentPage({
                     });
                   }
                 }}
-                errorMessage={messageError.statusLahanId}
+                errorMessage={messageError?.statusLahanId}
                 required
               />
             </div>
@@ -674,7 +804,7 @@ export default function ComponentPage({
                     });
                   }
                 }}
-                errorMessage={messageError.tanamanId}
+                errorMessage={messageError?.tanamanId}
                 required
               />
               <FormSelect
@@ -695,7 +825,7 @@ export default function ComponentPage({
                     });
                   }
                 }}
-                errorMessage={messageError.methodId}
+                errorMessage={messageError?.methodId}
                 required
               />
             </div>
@@ -707,7 +837,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, jumlahTanaman: Number(value) })
                 }
-                errorMessage={messageError.jumlahTanaman}
+                errorMessage={messageError?.jumlahTanaman}
                 required
               />
               <FormInput
@@ -717,7 +847,7 @@ export default function ComponentPage({
                 onChange={(value: string) =>
                   setFormData({ ...formData, alasan: value })
                 }
-                errorMessage={messageError.alasan}
+                errorMessage={messageError?.alasan}
                 required
               />
             </div>
@@ -734,7 +864,7 @@ export default function ComponentPage({
               <FileInput
                 file={formData.ktp}
                 onChange={(file: File | string) => {
-                    setFormData({ ...formData, ktp: file});
+                  setFormData({ ...formData, ktp: file });
                 }}
               />
             </div>
@@ -816,7 +946,7 @@ export default function ComponentPage({
               onChange={(value: string) =>
                 setFormData({ ...formData, latitude: Number(value) })
               }
-              errorMessage={messageError.latitude}
+              errorMessage={messageError?.latitude}
               required
             />
             <FormInput
@@ -826,7 +956,7 @@ export default function ComponentPage({
               onChange={(value: string) =>
                 setFormData({ ...formData, longitude: Number(value) })
               }
-              errorMessage={messageError.longitude}
+              errorMessage={messageError?.longitude}
               required
             />
           </div>
@@ -866,44 +996,88 @@ export default function ComponentPage({
           <div className="flex flex-col gap-4">
             <div className="text-lg font-medium">Data diri</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormLabel label="Nama Lengkap" value="John Doe" required />
-              <FormLabel label="NIK" value="3201456789123456" required />
-              <FormLabel label="Nomor Telepon" value="083726487266" required />
-              <FormLabel label="Email" value="dilazzahra@gmail.com" />
-              <FormLabel label="Nomor Kartu Tani (Jika Ada)" value="-" />
+              <FormLabel label="Nama Lengkap" value={formData.namaLengkap} required />
+              <FormLabel label="NIK" value={formData.nik} required />
+              <FormLabel
+                label="Nomor Telepon"
+                value={formData.noTelepon}
+                required
+              />
+              <FormLabel label="Email" value={formData.email} />
+              <FormLabel
+                label="Nomor Kartu Tani (Jika Ada)"
+                value={formData.noKartuTani}
+              />
               <FormLabel
                 label="Nama Kelompok Tani (Poktan)"
-                value="Berkah Tani"
+                value={formData.namaKetuaPoktan}
                 required
               />
-              <FormLabel label="Nomor Registrasi Poktan" value="-" />
-              <FormLabel label="Nama Ketua Poktan" value="-" />
-              <FormLabel label="Provinsi" value="Sumatra Selatan" required />
+              <FormLabel
+                label="Nomor Registrasi Poktan"
+                value={formData.noRegistrasiPoktan}
+              />
+              <FormLabel
+                label="Nama Ketua Poktan"
+                value={formData.namaKetuaPoktan}
+              />
+              <FormLabel label="Provinsi" value={formData.Provinsi} required />
               <FormLabel
                 label="Kabupaten"
-                value="Panukal Abab Lematang Ilit"
+                value={formData.Kabupaten}
                 required
               />
-              <FormLabel label="Kecamatan" value="Talang Ubi" required />
-              <FormLabel label="Desa/Kelurahan" value="Talang Ubi" required />
+              <FormLabel
+                label="Kecamatan"
+                value={formData.Kecamatan}
+                required
+              />
+              <FormLabel
+                label="Desa/Kelurahan"
+                value={formData.DesaKelurahan}
+                required
+              />
             </div>
-            <FormLabel label="Alamat" value="Jl." required />
+            <FormLabel label="Alamat" value={formData.alamat} required />
             <div className="text-lg font-medium mt-10">
               Data Lahan dan Usaha Tani
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormLabel label="Luas Lahan (Ha)" value="2.5 Ha" required />
-              <FormLabel label="Jenis Tanaman" value="Padi" required />
               <FormLabel
-                label="Jumlah Tanaman dalam Satuan Hektarc(Ha)"
-                value="2.5 Ha"
+                label="Luas Lahan (Ha)"
+                value={String(formData.luasLahan)}
                 required
               />
-              <FormLabel label="Masa Tanam" value="Musim Tanam Ke-1" required />
-              <FormLabel label="Tahun Musim Tanam" value="2024" required />
+              <FormLabel
+                label="Jenis Tanaman"
+                value={
+                  listPlant.find((plant) => plant.id === formData.tanamanId)
+                    ?.name || "-"
+                }
+                required
+              />
+              <FormLabel
+                label="Jumlah Tanaman dalam Satuan Hektar (Ha)"
+                value={String(formData.jumlahTanamanHektar)}
+                required
+              />
+              <FormLabel
+                label="Masa Tanam"
+                value={formData.masaTanam}
+                required
+              />
+              <FormLabel
+                label="Tahun Musim Tanam"
+                value={String(formData.tahunMusimTanam)}
+                required
+              />
               <FormLabel
                 label="Status kepemilikan Lahan"
-                value="Milik Sendiri"
+                value={
+                  listStatus.find(
+                    (status) => status.id === formData.statusLahanId
+                  )?.name || "-"
+                }
                 required
               />
             </div>
@@ -913,20 +1087,41 @@ export default function ComponentPage({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormLabel
                 label="Jenis Tanaman  yang Diajukan"
-                value="Padi"
+                value={
+                  listPlant.find((plant) => plant.id === formData.tanamanId)
+                    ?.name || "-"
+                }
                 required
               />
               <FormLabel
                 label="Jumlah Tanaman yang Diajukan"
-                value="500 Bibit Padi"
+                value={String(formData.jumlahTanaman)}
                 required
               />
               <FormLabel
                 label="Metode Penanaman Tanaman"
-                value="Konvensional"
+                value={
+                  listMetode.find((method) => method.id === formData.methodId)
+                    ?.name || "-"
+                }
                 required
               />
-              <FormLabel label="Alasan Pengajuan Tanaman" value="-" />
+              <FormLabel
+                label="Alasan Pengajuan Tanaman"
+                value={formData.alasan}
+              />
+              <FormLabel label="Latitude" value={String(formData.latitude)} />
+              <FormLabel label="Longitude" value={String(formData.longitude)} />
+            </div>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => {
+                  router.back();
+                }}
+                className="border border-primary-default text-primary-default rounded-full py-2 px-4"
+              >
+                Kembali
+              </button>
             </div>
           </div>
         ))}
