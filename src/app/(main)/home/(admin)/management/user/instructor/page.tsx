@@ -125,7 +125,7 @@ export default function InstructorPage() {
       const data = await fetchPenggunaData(page, String(token), "penyuluh");
       setItems(data.items);
       setListUser(data.items);
-      setTotalPages(data.total_pages);
+      setTotalPages(data.current_page);
       setLoading(false);
     },
     [loading, token]

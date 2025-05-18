@@ -4,7 +4,7 @@ import FormLabel from "@/components/ui/base/form-label";
 import { useEffect, useState } from "react";
 import TabAddition from "./seed-stok/tab-addition";
 import TabExpenditure from "./seed-stok/tab-expenditure";
-import { SeedStock } from "@/types/planting/seed-stock";
+import { SeedStock } from "@/types/planting/seedStock";
 import {
   fetchSeedStockDataAdditionById,
   fetchSeedStockDataReleaseById,

@@ -96,7 +96,7 @@ export default function SubmissionPage() {
       const data = await fetchPengajuanData(page, String(token));
       setItems(data.items);
       setListPengajuan(data.items);
-      setTotalPages(data.total_pages);
+      setTotalPages(data.current_page);
       setLoading(false);
     },
     [loading, token]

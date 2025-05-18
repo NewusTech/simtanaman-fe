@@ -101,7 +101,7 @@ export default function PoktanPage() {
     const data = await searchPoktanData(search, String(token));
     setItems(data.items);
     setListPoktan(data.items);
-    setTotalPages(data.total_pages);
+    setTotalPages(data.current_page);
     setLoading(false);
   };
 
@@ -156,7 +156,7 @@ export default function PoktanPage() {
     const data = await fetchPoktanData(page, String(token));
     setItems(data.items);
     setListPoktan(data.items);
-    setTotalPages(data.total_pages);
+    setTotalPages(data.current_page);
     setLoading(false);
   }, [loading, token]);
 

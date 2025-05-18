@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/table";
 import Search from "@/components/ui/search";
 import { useAuth } from "@/hooks/useAuth";
-import { SeedStock } from "@/types/planting/seed-stock";
+import { SeedStock } from "@/types/planting/seedStock";
 import { fetchSeedStockData } from "@/lib/planting/seedStockFetching";
 
 export default function SeedStokPage() {
@@ -49,11 +49,8 @@ export default function SeedStokPage() {
     to: addDays(new Date(), 7),
   });
   const [currentPage, setCurrentPage] = useState(1);
-const [totalPages, setTotalPages] = useState(0);
-const [loading, setLoading] = useState(false);
-const [isOpen, setIsOpen] = useState(false);
-const [status, setStatus] = useState("");
-const [id, setId] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const [listStokBibit, setlistStokBibit] = useState<SeedStock[]>([]);
 
@@ -61,25 +58,31 @@ const [id, setId] = useState(0);
     setSearch(value);
   };
   const handleDetail = (slug: string, params?: Object) => {
-    router.push("/home/planting/seed-stock/" + slug + (params ? `?${new URLSearchParams(params as any)}` : ""));
+    router.push(
+      "/home/planting/seed-stock/" +
+        slug +
+        (params ? `?${new URLSearchParams(params as any)}` : "")
+    );
   };
   const handleFilter = () => {
     setIsModalOpen(true);
   };
-  const fetchPage = useCallback(async (page: number) => {
+  const fetchPage = useCallback(
+    async (page: number) => {
       if (loading) return;
-  
+
       setLoading(true);
       const data = await fetchSeedStockData(page, String(token));
       setlistStokBibit(data.items);
-      setTotalPages(data.total_pages);
+      setTotalPages(data.current_page);
       setLoading(false);
-    }, [loading, token]);
-  
-    useEffect(() => {
-      fetchPage(currentPage);
-    }, [currentPage]);
+    },
+    [loading, token]
+  );
 
+  useEffect(() => {
+    fetchPage(currentPage);
+  }, [currentPage]);
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md">
@@ -171,64 +174,73 @@ const [id, setId] = useState(0);
               </TableCell>
             </TableRow>
           ) : (
-          listStokBibit.map((value) => (
-            <TableRow key={listStokBibit.indexOf(value)}>
-              <TableCell className="w-[50px]">
-                {listStokBibit.indexOf(value) + 1}
-              </TableCell>
-              <TableCell className="text-left">{value.plant.name}</TableCell>
-              <TableCell className="text-center">
-                {value.jumlah}
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="border-none bg-transparent active:border-none focus:border-none">
-                      <EllipsisVertical className="cursor-pointer" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => {
-                          handleDetail("Detail",  { id: value.id, jenisTanaman: value.plant.name, jumlah: value.jumlah });
-                        }}
-                      >
-                        <Eye className="mr-2" />
-                        Detail
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </TableCell>
-            </TableRow>
-          )))}
+            listStokBibit.map((value) => (
+              <TableRow key={listStokBibit.indexOf(value)}>
+                <TableCell className="w-[50px]">
+                  {listStokBibit.indexOf(value) + 1}
+                </TableCell>
+                <TableCell className="text-left">{value.plant.name}</TableCell>
+                <TableCell className="text-center">{value.jumlah}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="border-none bg-transparent active:border-none focus:border-none">
+                        <EllipsisVertical className="cursor-pointer" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => {
+                            handleDetail("Detail", {
+                              id: value.id,
+                              jenisTanaman: value.plant.name,
+                              jumlah: value.jumlah,
+                            });
+                          }}
+                        >
+                          <Eye className="mr-2" />
+                          Detail
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
         <TableFooter>
           <TableRow>
             <TableCell colSpan={9} className="text-right">
               <div className="w-full h-full flex justify-end items-center gap-5">
                 <div className="relative text-center text-[#597445] text-sm font-poppins font-normal leading-[30px] break-words">
-                  {listStokBibit.length} dari {totalPages * listStokBibit.length} total data
+                  {listStokBibit.length} dari{" "}
+                  {totalPages * listStokBibit.length} total data
                 </div>
                 <div className="flex justify-center items-center gap-2">
                   <button
                     onClick={() => setCurrentPage(currentPage - 1)}
                     disabled={currentPage <= 1 || loading}
-                    className={`w-10 h-10 flex justify-center items-center rounded-md border ${currentPage <= 1 || loading
-                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      : "bg-white text-[#597445] border-[#BDBDC2]"
-                      }`}
+                    className={`w-10 h-10 flex justify-center items-center rounded-md border ${
+                      currentPage <= 1 || loading
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-[#597445] border-[#BDBDC2]"
+                    }`}
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
-                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                  {Array.from(
+                    { length: totalPages },
+                    (_, index) => index + 1
+                  ).map((page) => (
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`px-4 py-2 rounded-md ${page === currentPage
-                        ? "bg-[#597445] text-white"
-                        : "bg-white text-[#597445] border border-[#BDBDC2]"
-                        }`}
+                      className={`px-4 py-2 rounded-md ${
+                        page === currentPage
+                          ? "bg-[#597445] text-white"
+                          : "bg-white text-[#597445] border border-[#BDBDC2]"
+                      }`}
                     >
                       {page}
                     </button>
@@ -236,10 +248,11 @@ const [id, setId] = useState(0);
                   <button
                     onClick={() => setCurrentPage(currentPage + 1)}
                     disabled={currentPage >= totalPages || loading}
-                    className={`w-10 h-10 flex justify-center items-center rounded-md border ${currentPage >= totalPages || loading
-                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      : "bg-white text-[#597445] border-[#BDBDC2]"
-                      }`}
+                    className={`w-10 h-10 flex justify-center items-center rounded-md border ${
+                      currentPage >= totalPages || loading
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-[#597445] border-[#BDBDC2]"
+                    }`}
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>

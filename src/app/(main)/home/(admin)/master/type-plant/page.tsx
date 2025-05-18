@@ -124,7 +124,7 @@ export default function TypePlantPage() {
     const data = await fetchJenisTanamanData(page, String(token));
     setItems(data.items);
     setListPlant(data.items);
-    setTotalPages(data.total_pages);
+    setTotalPages(data.current_page);
     setLoading(false);
   }, [loading, token]);
 
@@ -133,7 +133,7 @@ export default function TypePlantPage() {
     const data = await searchJenisTanamanData(search, String(token));
     setItems(data.items);
     setListPlant(data.items);
-    setTotalPages(data.total_pages);
+    setTotalPages(data.current_page);
     setLoading(false);
   };
 

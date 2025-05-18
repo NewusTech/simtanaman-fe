@@ -103,7 +103,7 @@ export default function DistributionMethodPage() {
       const data = await fetchDistribusiData(page, String(token));
       setItems(data.items);
       setListDistribusi(data.items);
-      setTotalPages(data.total_pages);
+      setTotalPages(data.current_page);
       setLoading(false);
     },
     [loading, token]
@@ -114,7 +114,7 @@ export default function DistributionMethodPage() {
     const data = await searchDistribusiData(search, String(token));
     setItems(data.items);
     setListDistribusi(data.items);
-    setTotalPages(data.total_pages);
+    setTotalPages(data.current_page);
     setLoading(false);
   };
 
