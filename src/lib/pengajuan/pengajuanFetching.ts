@@ -25,9 +25,22 @@ export const addPengajuanData = async (payload: Object, token: string): Promise<
     return data;
 }
 
-// Fungsi untuk menambahkan data ke API
+// Fungsi untuk edit data ke API
 export const editPengajuanData = async (payload: Object, id:string,token: string): Promise<Response> => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}submissions/tanaman/${id}`, {
+        method: 'PUT',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+    });
+    const data = await res;
+    return data;
+}
+
+export const updateStatusPengajuanData = async (payload: Object, id:string,token: string): Promise<Response> => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}submissions/tanaman/status/${id}`, {
         method: 'PUT',
         headers: {
             Authorization: `Bearer ${token}`,

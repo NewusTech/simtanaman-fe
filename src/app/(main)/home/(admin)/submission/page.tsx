@@ -180,7 +180,7 @@ export default function SubmissionPage() {
       {/* end of header */}
 
       {/* body */}
-      {role === "user" && (
+      {(role === "user" || role === "penyuluh") && (
         <Table className="mt-4 overflow-hidden">
           <TableHeader>
             <TableRow>
@@ -253,7 +253,7 @@ export default function SubmissionPage() {
                       {value.jumlahTanaman}
                     </TableCell>
                     <TableCell
-                      className={`text-center ${value.status === "Disetujui" ? "text-green-500" : value.status === "Diajukan" ? "text-neutral-70" : value.status === "Direvisi" ? "text-warning-500" : "text-red-500"}`}
+                       className={`text-center ${value.status.includes('Disetujui') ? "text-green-500" : value.status.includes('Diajukan') ? "text-neutral-70" : value.status.includes('Direvisi') ? "text-warning-500" : "text-red-500"}`}
                     >
                       {value.status}
                     </TableCell>
@@ -272,13 +272,171 @@ export default function SubmissionPage() {
                             >
                               Detail
                             </DropdownMenuItem>
-                            <DropdownMenuItem
+                            {role === "user" && (
+                              <DropdownMenuItem
                               className="cursor-pointer"
                               onClick={() => {
                                 handleDetail("Edit", {id:value.id});
                               }}
                             >
                               Edit
+                            </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
+                  </>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={9} className="text-right">
+                <div className="w-full h-full flex justify-end items-center gap-5">
+                  <div className="relative text-center text-[#597445] text-sm font-poppins font-normal leading-[30px] break-words">
+                    {items.length} dari {totalPages * items.length} total data
+                  </div>
+                  <div className="flex justify-center items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={currentPage <= 1 || loading}
+                      className={`w-10 h-10 flex justify-center items-center rounded-md border ${
+                        currentPage <= 1 || loading
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white text-[#597445] border-[#BDBDC2]"
+                      }`}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    {Array.from(
+                      { length: totalPages },
+                      (_, index) => index + 1
+                    ).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-4 py-2 rounded-md ${
+                          page === currentPage
+                            ? "bg-[#597445] text-white"
+                            : "bg-white text-[#597445] border border-[#BDBDC2]"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={currentPage >= totalPages || loading}
+                      className={`w-10 h-10 flex justify-center items-center rounded-md border ${
+                        currentPage >= totalPages || loading
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white text-[#597445] border-[#BDBDC2]"
+                      }`}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        </Table>
+      ) || role === "admin" && (
+        <Table className="mt-4 overflow-hidden">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[50px] bg-gray-200">No</TableHead>
+              <TableHead className="w-[300px] bg-gray-200">Nama</TableHead>
+              <TableHead className="w-[100px] bg-gray-200">Poktan</TableHead>
+              <TableHead className="text-center bg-gray-200">
+                Jenis Tanaman
+              </TableHead>
+              <TableHead className="text-center bg-gray-200">
+                Luas Tanah
+              </TableHead>
+              <TableHead className="text-center bg-gray-200">
+                Jumlah Bibit Yang Diajukan
+              </TableHead>
+              <TableHead className="text-center bg-gray-200">Status</TableHead>
+              <TableHead className="text-right bg-gray-200"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell className="w-[50px]">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : listPengajuan.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center">
+                  Tidak ada data tersedia
+                </TableCell>
+              </TableRow>
+            ) : (
+              listPengajuan.map((value) => (
+                <TableRow key={listPengajuan.indexOf(value)}>
+                  <>
+                    <TableCell className="w-[50px]">
+                      {listPengajuan.indexOf(value) + 1}
+                    </TableCell>
+                    <TableCell>
+                      {value.namaLengkap ?? '-'}
+                    </TableCell>
+                    <TableCell>
+                      {value.poktan?.name}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {value.tanaman?.name}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {value.luasLahan}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {value.jumlahTanaman}
+                    </TableCell>
+                    <TableCell
+                      className={`text-center ${value.status.includes('Disetujui') ? "text-green-500" : value.status.includes('Diajukan') ? "text-neutral-70" : value.status.includes('Direvisi') ? "text-warning-500" : "text-red-500"}`}
+                    >
+                      {value.status}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className="border-none bg-transparent active:border-none focus:border-none">
+                            <EllipsisVertical className="cursor-pointer" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => {
+                                handleDetail("Detail", {id:value.id});
+                              }}
+                            >
+                              Detail
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
