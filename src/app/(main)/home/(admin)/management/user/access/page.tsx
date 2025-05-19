@@ -93,7 +93,7 @@ export default function AccessPage() {
     const data = await searchHakAksesData(search, String(token));
     setItems(data.items);
     setListUser(data.items);
-    setTotalPages(data.total_pages);
+    setTotalPages(data.current_page);
     setLoading(false);
   };
 
@@ -149,7 +149,7 @@ export default function AccessPage() {
       const data = await fetchHakAksesData(page, String(token));
       setItems(data.items);
       setListUser(data.items);
-      setTotalPages(data.total_pages);
+      setTotalPages(data.current_page);
       setLoading(false);
     },
     [loading, token]

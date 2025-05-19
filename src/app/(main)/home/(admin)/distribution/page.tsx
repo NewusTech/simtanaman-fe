@@ -95,7 +95,7 @@ export default function DistributionPage() {
       const data = await fetchDistributionData(page, String(token));
       setItems(data.items);
       setListDistribution(data.items);
-      setTotalPages(data.total_pages);
+      setTotalPages(data.current_page);
       setLoading(false);
     },
     [loading, token]

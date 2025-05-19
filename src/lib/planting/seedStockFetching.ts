@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/types/planting/seed-stock";
+import { ApiResponse } from "@/types/planting/seedStock";
 
 // Fungsi untuk mengambil data dari API
 export const fetchSeedStockData = async (page: number, token: string): Promise<ApiResponse['data']> => {

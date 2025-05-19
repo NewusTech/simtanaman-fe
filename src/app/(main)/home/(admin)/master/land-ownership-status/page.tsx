@@ -123,7 +123,7 @@ export default function LandOwnershipStatusPage() {
     const data = await fetchStatusKepemilikanData(page, String(token));
     setItems(data.items);
     setlistStatus(data.items);
-    setTotalPages(data.total_pages);
+    setTotalPages(data.current_page);
     setLoading(false);
   }, [loading, token]);
 
@@ -132,7 +132,7 @@ export default function LandOwnershipStatusPage() {
     const data = await searchstatusKepemilikanData(search, String(token));
     setItems(data.items);
     setlistStatus(data.items);
-    setTotalPages(data.total_pages);
+    setTotalPages(data.current_page);
     setLoading(false);
   };
 
