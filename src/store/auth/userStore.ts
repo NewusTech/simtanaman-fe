@@ -38,4 +38,7 @@ const useUserStore = create<UserStore>((set) => ({
   clearRole: () => set({ role: null })
 }));
 
+export const getUser = () => useUserStore.getState().user;
+export const getRole = () => useUserStore.getState().role;
+
 export default useUserStore;

@@ -12,7 +12,7 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   status: string;
-  setStatus: (status: string) => void;
+  setStatus: (status: string, alasan:string) => void;
 }
 
 /**
@@ -25,13 +25,17 @@ interface ModalProps {
  *
  * @returns {JSX.Element | null} The rendered modal component or null if not open.
  */
-const SubmissionStatusModal: React.FC<ModalProps> = ({
+const SubmissionStatusModal: React.FC<ModalProps & { setFormData?: (data: any) => void }> = ({
   isOpen,
   onClose,
   status,
-  setStatus,
+  setStatus
 }) => {
   if (!isOpen) return null;
+  const [formData, setFormData] = React.useState({
+    alasanRevisi: "",
+    alasanDitolak: ""
+  });
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       {(status === "setujui" && (
@@ -56,7 +60,7 @@ const SubmissionStatusModal: React.FC<ModalProps> = ({
               Batal
             </Button>
             <Button
-              onClick={() => setStatus("setujui")}
+              onClick={() => setStatus("Disetujui",  "")}
               className="bg-success-700 rounded-full text-white"
             >
               Setujui
@@ -81,8 +85,14 @@ const SubmissionStatusModal: React.FC<ModalProps> = ({
             <div className="m-5">
               <FormTextArea
                 label="Alasan Revisi"
-                value=""
+                value={formData.alasanRevisi || ""}
                 placeholder="Masukan Catatan"
+                onChange={(e: string) =>
+                  setFormData({
+                    ...formData,
+                    alasanRevisi: e
+                  })
+                }
                 required
               />
             </div>
@@ -95,7 +105,7 @@ const SubmissionStatusModal: React.FC<ModalProps> = ({
                 Batal
               </Button>
               <Button
-                onClick={() => setStatus("setujui")}
+                onClick={() => setStatus("Direvisi", formData.alasanRevisi || "")}
                 className="bg-warning-500 rounded-full text-white"
               >
                 Revisi
@@ -121,8 +131,14 @@ const SubmissionStatusModal: React.FC<ModalProps> = ({
             <div className="m-5">
               <FormTextArea
                 label="Alasan Ditolak"
-                value=""
+                value={formData.alasanDitolak || ""}
                 placeholder="Masukan Catatan"
+                onChange={(e: string) =>
+                  setFormData({
+                    ...formData,
+                    alasanDitolak: e
+                  })
+                }
                 required
               />
             </div>
@@ -135,7 +151,7 @@ const SubmissionStatusModal: React.FC<ModalProps> = ({
                 Batal
               </Button>
               <Button
-                onClick={() => setStatus("setujui")}
+                onClick={() => setStatus("Ditolak", formData.alasanDitolak || "")}
                 className="bg-error-500 rounded-full text-white"
               >
                 Tolak

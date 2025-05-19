@@ -55,6 +55,7 @@ export default function LoginForm() {
 
         // Set cookies
         document.cookie = `token=${data['data']['token']}; path=/`;
+        document.cookie = `userId=${data['data']['id']}; path=/`;
         document.cookie = `role=${data['data']['role']['name']}; path=/`;
         setAuthToken(data['data']['token']);
 
