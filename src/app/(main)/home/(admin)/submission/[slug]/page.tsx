@@ -594,9 +594,7 @@ export default function ComponentPage({
       {/* )} */}
       {/* end of header */}
 
-      {/* body */}
-      {params.slug === "Tambah" ||
-        (params.slug === "Edit" && (
+        {(params.slug === "Tambah" || params.slug === "Edit") && (
           <div>
             <span className="text-md font-semibold">Data Diri</span>
             <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
@@ -1054,7 +1052,7 @@ export default function ComponentPage({
               </div>
             </div>
           </div>
-        )) ||
+        ) ||
         (params.slug === "Detail" && (
           <div className="flex flex-col gap-4">
             <div className="text-lg font-medium">Data diri</div>
