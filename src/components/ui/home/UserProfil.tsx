@@ -53,11 +53,11 @@ export default function UserProfil() {
       name: data?.name || "",
       role: role || "",
     });
-  }, []);
+  }, [setRole]);
 
   useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [fetchUserData]);
 
   const handleProfile = () => {
     console.log("Profile");
