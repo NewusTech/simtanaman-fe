@@ -120,12 +120,21 @@ export default function SubmissionReportPage() {
       if (loading) return;
       setListLaporan([]);
       setLoading(true);
+      const formatDate = (dateStr: string) => {
+        if (!dateStr) return "";
+        const date = new Date(dateStr);
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const dd = String(date.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
+      };
+
       const data = await fetchLaporanPengajuanData(
         page,
         {
-          startDate: startDate,
-          endDate: endDate,
-          tanamanId: tanamanId,
+          startDate: formatDate(startDate),
+          endDate: formatDate(endDate),
+          tanamanId: Number(tanamanId) === 0 ? "" : tanamanId,
         },
         String(token)
       );

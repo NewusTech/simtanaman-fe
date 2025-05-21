@@ -1,207 +1,375 @@
 "use client";
 import FormSelect from "@/components/ui/base/form-select";
 import DatePicker from "@/components/ui/date-picker";
-import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { EllipsisVertical, Eye, CalendarRange, ChevronDown, ChevronLeft, ChevronRight, Printer } from "lucide-react";
-import { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import {
+  EllipsisVertical,
+  Eye,
+  CalendarRange,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Printer,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Search from "@/components/ui/search";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { DateRange } from "react-day-picker";
+import { addDays } from "date-fns/addDays";
+import { LaporanDistributor } from "@/types/report/laporanDistributor";
+import { JenisTanaman } from "@/types/master/jenisTanaman";
+import { Poktan } from "@/types/master/poktan";
+import { fetchLaporanDistributorData } from "@/lib/report/laporanDistributorFetching";
+import { fetchJenisTanamanData } from "@/lib/master/jenisTanamanFetching";
+import { fetchPoktanData } from "@/lib/master/poktanFecthing";
+import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 
 export default function DistributionReportPage() {
-    const router = useRouter();
-    const [search, setSearch] = useState("");
-    const [formData, setFormData] = useState({
-        tanggal: new Date(),
-        jenis_tanaman: "",
-    });
-    const [listLaporan, setListLaporan] = useState([
+  const { getToken } = useAuth();
+  const token = getToken();
+  const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [dateParent, setDateParent] = useState<DateRange>({
+    from: new Date(),
+    to: addDays(new Date(), 7),
+  });
+  const [formData, setFormData] = useState({
+    tanamanId: 0,
+    poktanId: 0,
+    status: "",
+  });
+  const [listLaporan, setListLaporan] = useState<LaporanDistributor[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [items, setItems] = useState<LaporanDistributor[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [listPlant, setListPlant] = useState<JenisTanaman[]>([]);
+  const [listPoktan, setListPoktan] = useState<Poktan[]>([]);
+  const handleChange = (value: string) => {
+    setSearch(value);
+  };
+  const handleDetail = (value: String) => {
+    // router.push("/home/distribution/" + value);
+  };
+
+  const fetchPage = useCallback(
+    async (
+      page: number,
+      startDate: string,
+      endDate: string,
+      tanamanId: string
+    ) => {
+      await fetchDataJenisTanaman();
+      if (loading) return;
+      setListLaporan([]);
+      setLoading(true);
+      // Format startDate and endDate to yyyy-MM-dd if they exist
+      const formatDate = (dateStr: string) => {
+        if (!dateStr) return "";
+        const date = new Date(dateStr);
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const dd = String(date.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
+      };
+
+      const data = await fetchLaporanDistributorData(
+        page,
         {
-            tanggal: "17/02/2025",
-            name: "Dila",
-            poktan: "Poktan Abadi",
-            jenis_tanaman: "Padi",
-            jumlah_bibit: "500 bibit Padi",
-            status: "Menunggu",
+          startDate: formatDate(startDate),
+          endDate: formatDate(endDate),
+          tanamanId: Number(tanamanId) === 0 ? "" : tanamanId,
         },
-        {
-            tanggal: "17/02/2025",
-            name: "Dila",
-            poktan: "Poktan Abadi",
-            jenis_tanaman: "Padi",
-            jumlah_bibit: "500 bibit Padi",
-            status: "Dijadwalkan",
-        },
-        {
-            tanggal: "17/02/2025",
-            name: "Dila",
-            poktan: "Poktan Abadi",
-            jenis_tanaman: "Padi",
-            jumlah_bibit: "500 bibit Padi",
-            status: "Selesai",
-        },
-    ]);
+        String(token)
+      );
+      if (data) {
+        setItems(data.items);
+        setListLaporan(data.items);
+        setTotalPages(data.current_page);
+      }
+      setLoading(false);
+    },
+    [loading, token]
+  );
 
-    const handleChange = (value: string) => {
-        setSearch(value);
-    };
-    const handleDetail = (value: String) => {
-        // router.push("/home/distribution/" + value);
-    };
+  const fetchDataJenisTanaman = useCallback(async () => {
+    const data = await fetchJenisTanamanData(1, String(token));
+    setListPlant(data.items);
+    const dataPoktan = await fetchPoktanData(1, String(token));
+    setListPoktan(dataPoktan.items);
+  }, [token]);
 
-    return (
-        <div>
-            {/* header */}
-            <div className="bg-white shadow-md rounded-lg p-4 mb-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <DatePicker
-                        label="Tanggal"
-                        date={formData.tanggal}
-                        onSelect={(date: Date) => setFormData({ ...formData, tanggal: date })}
-                    />
-                    <FormSelect
-                        label="Jenis Tanaman"
-                        value={["Laki-laki", "Perempuan"]}
-                        selected={formData.jenis_tanaman}
-                    />
-                </div>
-            </div>
-            {/* end header */}
+  useEffect(() => {
+    fetchPage(currentPage, "", "", "");
+  }, [currentPage]);
 
-            {/* body */}
-            <div className="bg-white shadow-md rounded-lg p-4 mb-4">
-                <div className="flex items-center justify-center font-medium">Laporan  Distribusi</div>
-                <div className="flex items-center justify-between mt-4 mb-4 gap-4">
-                    <Search value={search} onChange={handleChange} />
-                    <Button
-                        className="border border-gray-300 flex text-blue-950 px-5 py-2 text-nowrap rounded-full"
-                    >
-                        <Printer className="mr-2" />
-                        Print
-                    </Button>
-                </div>
-                <Table className="mt-4 overflow-hidden">
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[50px] bg-gray-200">No</TableHead>
-                            <TableHead className="w-[100px] bg-gray-200">Tanggal</TableHead>
-                            <TableHead className="bg-gray-200">Nama</TableHead>
-                            <TableHead className="bg-gray-200 text-center">Poktan</TableHead>
-                            <TableHead className="text-center bg-gray-200">
-                                Jenis Tanaman
-                            </TableHead>
-                            <TableHead className="text-center bg-gray-200">
-                                Jumlah Bibit Yang Diajukan
-                            </TableHead>
-                            <TableHead className="text-center bg-gray-200">Status</TableHead>
-                            <TableHead className="text-right bg-gray-200"></TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {listLaporan.map((value) => (
-                            <TableRow key={listLaporan.indexOf(value)}>
-                                <TableCell className="w-[50px]">
-                                    {listLaporan.indexOf(value) + 1}
-                                </TableCell>
-                                <TableCell className="font-medium">{value.tanggal}</TableCell>
-                                <TableCell>{value.name}</TableCell>
-                                <TableCell className="text-center">{value.poktan}</TableCell>
-                                <TableCell className="text-center">
-                                    {value.jenis_tanaman}
-                                </TableCell>
-                                <TableCell className="text-center">
-                                    {value.jumlah_bibit}
-                                </TableCell>
-                                <TableCell
-                                    className={`text-center ${value.status === "Selesai" ? "text-green-500" : value.status === "Dijadwalkan" ? "text-info-500" : "text-black"}`}
-                                >
-                                    {value.status}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <div className="flex justify-end">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger className="border-none bg-transparent active:border-none focus:border-none">
-                                                <EllipsisVertical className="cursor-pointer" />
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
-                                                <DropdownMenuItem
-                                                    className="cursor-pointer"
-                                                    onClick={() => {
-                                                        handleDetail("Detail");
-                                                    }}
-                                                >
-                                                    <Eye className="mr-2" />
-                                                    Lihat
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    className="cursor-pointer"
-                                                    onClick={() => {
-                                                        handleDetail("Jadwalkan");
-                                                    }}
-                                                >
-                                                    <CalendarRange className="mr-2" />
-                                                    Jadwalkan Distribusi
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                    <TableFooter>
-                        <TableRow>
-                            <TableCell colSpan={9} className="text-right">
-                                <div className="w-full h-full flex justify-end items-center gap-5">
-                                    <div className="relative text-center text-[#597445] text-sm font-poppins font-normal leading-[30px] break-words">
-                                        10 dari 230 total data
-                                    </div>
-                                    <div className="flex justify-center items-center gap-6">
-                                        <div className="p-2 bg-[#FCFBFB] rounded-md border border-[#BDBDC2] flex justify-center items-center gap-2">
-                                            <div className="relative text-[#597445] text-sm font-inter font-medium leading-4 break-words">
-                                                1
-                                            </div>
-                                            <div className="w-4 h-4 relative">
-                                                <ChevronDown className="w-4 h-4 text-[#597445]" />
-                                            </div>
-                                        </div>
-                                        <div className="w-[235px] flex justify-between items-start">
-                                            <div className="w-10 py-2 bg-[#FCFBFB] rounded-md border border-[#BDBDC2] flex flex-col justify-center items-center">
-                                                <div className="w-4 h-4 relative">
-                                                    <ChevronLeft className="w-4 h-4 text-[#597445]" />
-                                                </div>
-                                            </div>
-                                            <div className="px-4 py-2 bg-[#597445] rounded-md flex justify-center items-center gap-2">
-                                                <div className="relative text-white text-sm font-inter font-medium leading-4 break-words">
-                                                    1
-                                                </div>
-                                            </div>
-                                            <div className="w-10 px-4 py-2 bg-[#FCFBFB] rounded-md border border-[#BDBDC2] flex justify-center items-center gap-2">
-                                                <div className="relative text-[#597445] text-sm font-inter font-medium leading-4 break-words">
-                                                    ...
-                                                </div>
-                                            </div>
-                                            <div className="px-4 py-2 bg-[#FCFBFB] rounded-md border border-[#BDBDC2] flex justify-center items-center gap-2">
-                                                <div className="relative text-[#597445] text-sm font-inter font-medium leading-4 break-words">
-                                                    5
-                                                </div>
-                                            </div>
-                                            <div className="w-10 h-9 bg-[#FCFBFB] rounded-md border border-[#BDBDC2] flex flex-col justify-center items-center">
-                                                <div className="w-4 h-4 relative">
-                                                    <ChevronRight className="w-4 h-4 text-[#597445]" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    </TableFooter>
-                </Table>
-            </div>
-            {/* end body */}
-
+  return (
+    <div>
+      {/* header */}
+      <div className="bg-white shadow-md rounded-lg p-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="flex flex-col items-start gap-2 w-full">
+            <span className="text-sm font-medium text-gray-700">Tanggal</span>
+            <DatePickerWithRange date={dateParent} onSelect={setDateParent} />
+          </div>
+          <FormSelect
+            label="Jenis Tanaman"
+            value={listPlant.map((value) => value.name)}
+            selected={
+              listPlant.find((plant) => plant.id === formData.tanamanId)
+                ?.name || ""
+            }
+            onChange={(value: string) => {
+              const selectedPlant = listPlant.find(
+                (plant) => plant.name === value
+              );
+              if (selectedPlant) {
+                setFormData({
+                  ...formData,
+                  tanamanId: selectedPlant.id,
+                });
+              }
+            }}
+          />
         </div>
-    );
+        <div className="flex items-center justify-end mt-4">
+          <div className="flex gap-4">
+            <button
+              onClick={() => {
+                // clearFormData();
+                // router.back();
+                fetchPage(1, "", "", "");
+                setDateParent({
+                  from: new Date(),
+                  to: addDays(new Date(), 7),
+                });
+                setFormData({
+                  tanamanId: 0,
+                  poktanId: 0,
+                  status: "",
+                });
+                setSearch("");
+              }}
+              className="border border-primary-default text-primary-default rounded-full py-2 px-10 text-md"
+            >
+              Reset
+            </button>
+            <button
+              className="bg-primary-500 text-white rounded-full py-2 px-10 text-md"
+              onClick={() => {
+                fetchPage(
+                  1,
+                  dateParent.from ? dateParent.from.toString() : "",
+                  dateParent.to ? dateParent.to.toString() : "",
+                  formData.tanamanId.toString()
+                );
+              }}
+            >
+              Cari
+            </button>
+          </div>
+        </div>
+      </div>
+      {/* end header */}
+
+      {/* body */}
+      <div className="bg-white shadow-md rounded-lg p-4 mb-4">
+        <div className="flex items-center justify-center font-medium">
+          Laporan Distribusi
+        </div>
+        <div className="flex items-center justify-between mt-4 mb-4 gap-4">
+          <Search value={search} onChange={handleChange} />
+          <Button className="border border-gray-300 flex text-blue-950 px-5 py-2 text-nowrap rounded-full">
+            <Printer className="mr-2" />
+            Print
+          </Button>
+        </div>
+        <Table className="mt-4 overflow-hidden">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[50px] bg-gray-200">No</TableHead>
+              <TableHead className="w-[100px] bg-gray-200">Tanggal</TableHead>
+              <TableHead className="bg-gray-200">Nama</TableHead>
+              <TableHead className="bg-gray-200 text-center">Poktan</TableHead>
+              <TableHead className="text-center bg-gray-200">
+                Jenis Tanaman
+              </TableHead>
+              <TableHead className="text-center bg-gray-200">
+                Jumlah Bibit Yang Diajukan
+              </TableHead>
+              <TableHead className="text-center bg-gray-200">Status</TableHead>
+              <TableHead className="text-right bg-gray-200"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell className="w-[50px]">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="w-[50px]">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : listLaporan.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center">
+                  Tidak ada data tersedia
+                </TableCell>
+              </TableRow>
+            ) : (
+              listLaporan.map((value) => (
+                <TableRow key={listLaporan.indexOf(value)}>
+                  <TableCell className="w-[50px]">
+                    {listLaporan.indexOf(value) + 1}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {value.createdAt
+                      ? new Date(value.createdAt).toLocaleDateString("id-ID", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })
+                      : ""}
+                  </TableCell>
+                  <TableCell>{value.namaLengkap ?? "-"}</TableCell>
+                  <TableCell className="text-center">
+                    {value.poktan ?? "-"}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {value.tanaman?.name ?? "-"}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {value.jumlahTanaman ?? "-"}
+                  </TableCell>
+                  <TableCell
+                    className={`text-center ${value.status.includes("Disetujui") ? "text-green-500" : value.status.includes("Direvisi") ? "text-warning-600" : value.status.includes("Ditolak") ? "text-error-500" : "text-black"}`}
+                  >
+                    {value.status}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end">
+                      {/* <DropdownMenu>
+                      <DropdownMenuTrigger className="border-none bg-transparent active:border-none focus:border-none">
+                        <EllipsisVertical className="cursor-pointer" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => {
+                            handleDetail("Detail");
+                          }}
+                        >
+                          <Eye className="mr-2" />
+                          Lihat
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => {
+                            handleDetail("Jadwalkan");
+                          }}
+                        >
+                          <CalendarRange className="mr-2" />
+                          Jadwalkan Distribusi
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu> */}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={9} className="text-right">
+                <div className="w-full h-full flex justify-end items-center gap-5">
+                  <div className="relative text-center text-[#597445] text-sm font-poppins font-normal leading-[30px] break-words">
+                    {items.length} dari {totalPages * items.length} total data
+                  </div>
+                  <div className="flex justify-center items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={currentPage <= 1 || loading}
+                      className={`w-10 h-10 flex justify-center items-center rounded-md border ${
+                        currentPage <= 1 || loading
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white text-[#597445] border-[#BDBDC2]"
+                      }`}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    {Array.from(
+                      { length: totalPages },
+                      (_, index) => index + 1
+                    ).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-4 py-2 rounded-md ${
+                          page === currentPage
+                            ? "bg-[#597445] text-white"
+                            : "bg-white text-[#597445] border border-[#BDBDC2]"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={currentPage >= totalPages || loading}
+                      className={`w-10 h-10 flex justify-center items-center rounded-md border ${
+                        currentPage >= totalPages || loading
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-white text-[#597445] border-[#BDBDC2]"
+                      }`}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </div>
+      {/* end body */}
+    </div>
+  );
 }
