@@ -19,7 +19,7 @@ export interface Chart {
     distribusiBulanan: ChartDistribusiBulanan[];
     pengajuanStokBulanan: ChartPengajuanStokBulanan[];
 }
-export interface ApiResponse {
+export interface ApiResponseDistributorDashboard {
     status: number;
     message: string;
     data: {

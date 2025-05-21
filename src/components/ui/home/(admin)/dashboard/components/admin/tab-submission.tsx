@@ -1,8 +1,43 @@
 "use client";
 import { BadgeX, CircleCheckBig, CircleX, Send } from "lucide-react";
 import { LineChartInfo } from "../../line-chart-info";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect, useState } from "react";
+import {
+  CardsAdmin,
+  ChartPengajuanStokBulanan,
+  StokBibit,
+} from "@/types/dashboard/adminDashboard";
+import { fetchAdminDashboard } from "@/lib/dashboard/dashboardFetching";
 
 export default function TabSubmission() {
+  const { getToken } = useAuth();
+  const token = getToken();
+  const [card, setCard] = useState<CardsAdmin>(() => ({
+    pengajuan: {
+      sedangDiproses: 0,
+      disetujui: 0,
+      diperbaiki: 0,
+      direvisi: 0,
+    },
+  }));
+  const [chartDistribusiBulanan, setChartDistribusiBulanan] = useState<
+    ChartPengajuanStokBulanan[]
+  >([]);
+  const [listStokBibit, setListStokBibit] = useState<StokBibit[]>([]);
+
+  const fetchPage = async () => {
+    const res = await fetchAdminDashboard(String(token));
+    if (res) {
+      setCard(res.cards);
+      setChartDistribusiBulanan(res.chart.pengajuanStokBulanan);
+      setListStokBibit(res.stokBibit);
+    }
+  };
+
+  useEffect(() => {
+    fetchPage();
+  }, []);
   return (
     <div>
       <div>
@@ -11,22 +46,26 @@ export default function TabSubmission() {
             <div className="flex flex-col items-center gap-4 h-auto bg-primary-100 rounded-md p-4">
               <Send className="h-8 w-8 text-primary-default" />
               <div className="text-primary-default">Dalam Proses</div>
-              <div className="text-black font-medium text-2xl">05</div>
+              <div className="text-black font-medium text-2xl">
+                {card.pengajuan?.sedangDiproses ?? 0}
+              </div>
             </div>
             <div className="flex flex-col items-center gap-4 h-auto bg-primary-100 rounded-md p-4">
               <CircleCheckBig className="h-8 w-8 text-success-600" />
               <div className="text-primary-default">Disetujui</div>
-              <div className="text-black font-medium text-2xl">05</div>
+              <div className="text-black font-medium text-2xl">
+                {card.pengajuan?.disetujui ?? 0}
+              </div>
             </div>
             <div className="flex flex-col items-center gap-4 h-auto bg-primary-100 rounded-md p-4">
               <BadgeX className="h-8 w-8 text-warning-600" />
               <div className="text-primary-default">Direvisi</div>
-              <div className="text-black font-medium text-2xl">05</div>
+              <div className="text-black font-medium text-2xl">{card.pengajuan?.direvisi??0}</div>
             </div>
             <div className="flex flex-col items-center gap-4 h-auto bg-primary-100 rounded-md p-4">
               <CircleX className="h-8 w-8 text-danger-600" />
               <div className="text-primary-default">Ditolak</div>
-              <div className="text-black font-medium text-2xl">05</div>
+              <div className="text-black font-medium text-2xl">{card.pengajuan?.diperbaiki ?? 0}</div>
             </div>
           </div>
         </div>
@@ -35,7 +74,15 @@ export default function TabSubmission() {
           <div className="text-lg font-medium mb-4">
             Total Keseluruhan Pengajuan
           </div>
-          <LineChartInfo />
+          <LineChartInfo chartData={
+            chartDistribusiBulanan.map((item) => ({
+                month: item.bulan,
+                diajukan: item.jumlah,
+                disetujui: item.jumlah,
+                ditolak: item.jumlah,
+                direvisi: item.jumlah,
+              }))
+          }/>
           <div className="flex justify-center items-center gap-4 mt-4">
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 bg-[#858590] rounded-full " />

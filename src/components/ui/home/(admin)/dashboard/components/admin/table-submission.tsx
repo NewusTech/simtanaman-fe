@@ -22,7 +22,14 @@ import {
   EllipsisVertical,
   Printer,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  CardsAdmin,
+  ChartPengajuanStokBulanan,
+  StokBibit,
+} from "@/types/dashboard/adminDashboard";
+import { fetchAdminDashboard } from "@/lib/dashboard/dashboardFetching";
 
 export default function TableSubmission() {
   const [listTabFilter, setSelectTabFilter] = useState<
@@ -60,6 +67,24 @@ export default function TableSubmission() {
       status: "Disetujui",
     },
   ]);
+  const { getToken } = useAuth();
+  const token = getToken();
+  const [chartDistribusiBulanan, setChartDistribusiBulanan] = useState<
+    ChartPengajuanStokBulanan[]
+  >([]);
+  const [listStokBibit, setListStokBibit] = useState<StokBibit[]>([]);
+
+  const fetchPage = async () => {
+    const res = await fetchAdminDashboard(String(token));
+    if (res) {
+      setChartDistribusiBulanan(res.chart.pengajuanStokBulanan);
+      setListStokBibit(res.stokBibit);
+    }
+  };
+
+  useEffect(() => {
+    fetchPage();
+  }, []);
   return (
     <div className="bg-white p-4 rounded-md shadow-md font-poppins mt-4">
       <div className="flex justify-between items-center gap-4 mb-4">
