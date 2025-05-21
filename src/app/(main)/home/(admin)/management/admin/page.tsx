@@ -28,12 +28,13 @@ import {
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import AdminFilterModal from "@/components/ui/home/(admin)/management/user/modal/AdminFilterModal";
+// import AdminFilterModal from "@/components/ui/home/(admin)/management/modal/AdminFilterModal";
 import { useAuth } from "@/hooks/useAuth";
 import { Pengguna } from "@/types/management-user/pengguna";
 import { deletePenggunaData, fetchPenggunaData } from "@/lib/management-user/penggunaFetching";
 import ConfirmasiDeleteModal from "@/components/ui/home/(admin)/master/modal/ConfirmasiDeleteModal";
 import { Bounce, toast } from "react-toastify";
+import AdminFilterModal from "@/components/ui/home/(admin)/management/user/modal/AdminFilterModal";
 
 /**
  * AdminPage component renders a page for managing admin users.
@@ -72,7 +73,7 @@ export default function AdminPage() {
   };
 
   const handleAddAdmin = (slug: string, params?: Object) => {
-    router.push("/home/management/user/admin/" + slug + (params ? `?${new URLSearchParams(params as any)}` : ""));
+    router.push("/home/management/admin/" + slug + (params ? `?${new URLSearchParams(params as any)}` : ""));
   };
 
   const handleDelete = async () => {
@@ -167,7 +168,7 @@ export default function AdminPage() {
           </div>
         </div>
         <button
-          onClick={() => handleAddAdmin("Tambah")}
+          onClick={() => handleAddAdmin("Tambah Admin")}
           className="bg-primary-500 flex text-white px-5 py-2 text-nowrap rounded-full"
         >
           <Plus className="mr-2" />
@@ -250,13 +251,13 @@ export default function AdminPage() {
                     <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => handleAddAdmin("Detail", { id: value.id })}
+                        onClick={() => handleAddAdmin("Detail Admin", { id: value.id })}
                       >
                         Detail
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => handleAddAdmin("Edit", { id: value.id })}
+                        onClick={() => handleAddAdmin("Edit Admin", { id: value.id })}
                       >
                         Edit
                       </DropdownMenuItem>

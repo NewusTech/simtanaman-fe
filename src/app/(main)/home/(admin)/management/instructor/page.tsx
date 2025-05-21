@@ -28,12 +28,13 @@ import {
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import AdminFilterModal from "@/components/ui/home/(admin)/management/user/modal/AdminFilterModal";
+// import AdminFilterModal from "@/components/ui/home/(admin)/management/modal/AdminFilterModal";
 import { useAuth } from "@/hooks/useAuth";
 import { Pengguna } from "@/types/management-user/pengguna";
 import { deletePenggunaData, fetchPenggunaData } from "@/lib/management-user/penggunaFetching";
 import ConfirmasiDeleteModal from "@/components/ui/home/(admin)/master/modal/ConfirmasiDeleteModal";
 import { Bounce, toast } from "react-toastify";
+import AdminFilterModal from "@/components/ui/home/(admin)/management/user/modal/AdminFilterModal";
 
 /**
  * AdminPage component renders a page for managing admin users.
@@ -46,7 +47,7 @@ import { Bounce, toast } from "react-toastify";
  *
  * @returns {JSX.Element} The rendered AdminPage component.
  */
-export default function DistributorPage() {
+export default function InstructorPage() {
   const { getToken } = useAuth();
   const token = getToken();
   const router = useRouter();
@@ -67,12 +68,12 @@ export default function DistributorPage() {
 
   const handleOpenModal = (id: number) => {
     setIsOpen(true);
-    setStatus("Pengguna Distributor");
+    setStatus("Pengguna Penyuluh");
     setId(id);
   };
 
   const handleAddAdmin = (slug: string, params?: Object) => {
-    router.push("/home/management/user/distribution/" + slug + (params ? `?${new URLSearchParams(params as any)}` : ""));
+    router.push("/home/management/instructor/" + slug + (params ? `?${new URLSearchParams(params as any)}` : ""));
   };
 
   const handleDelete = async () => {
@@ -122,7 +123,7 @@ export default function DistributorPage() {
       if (loading) return;
 
       setLoading(true);
-      const data = await fetchPenggunaData(page, String(token), "distributor");
+      const data = await fetchPenggunaData(page, String(token), "penyuluh");
       setItems(data.items);
       setListUser(data.items);
       setTotalPages(data.current_page);
@@ -137,7 +138,7 @@ export default function DistributorPage() {
 
   return (
     <div className="bg-white p-4 rounded-md shadow-md font-poppins">
-      <div className="text-lg font-medium">Distributor</div>
+      <div className="text-lg font-medium">Penyuluh</div>
       <div className="mt-4 flex items-center justify-between w-full gap-4">
         <div className="flex items-center w-full gap-4">
           <div className="flex items-center gap-4">
@@ -167,11 +168,11 @@ export default function DistributorPage() {
           </div>
         </div>
         <button
-          onClick={() => handleAddAdmin("Tambah")}
+          onClick={() => handleAddAdmin("Tambah Penyuluh")}
           className="bg-primary-500 flex text-white px-5 py-2 text-nowrap rounded-full"
         >
           <Plus className="mr-2" />
-          Tambah Distributor
+          Tambah Penyuluh
         </button>
       </div>
       <Table className="mt-4 overflow-hidden">
@@ -234,7 +235,7 @@ export default function DistributorPage() {
                   checked={value.active_status}
                   // onCheckedChange={(checked) => {
                   //   const updatedList = [...listUser];
-                  //   updatedList[listUser.indexOf(value)].active_status = checked;
+                  //   updatedList[listUser.indexOf(value)].status = checked;
                   //   setListUser(updatedList);
                   // }}
                 >
@@ -250,13 +251,13 @@ export default function DistributorPage() {
                     <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => handleAddAdmin("Detail", { id: value.id })}
+                        onClick={() => handleAddAdmin("Detail Penyuluh", { id: value.id })}
                       >
                         Detail
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => handleAddAdmin("Edit", { id: value.id })}
+                        onClick={() => handleAddAdmin("Edit Penyuluh", { id: value.id })}
                       >
                         Edit
                       </DropdownMenuItem>

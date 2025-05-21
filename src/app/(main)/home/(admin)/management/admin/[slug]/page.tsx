@@ -103,7 +103,7 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
     setIsLoading(true);
     clearMessageError();
 
-    if (params.slug === "Tambah") {
+    if (params.slug.includes("Tambah")) {
       var data = {
         name: formData.name,
         email: formData.email,
@@ -139,7 +139,7 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
 
           clearFormData();
           setIsLoading(false);
-          router.push("/home/management/user/admin");
+          router.push("/home/management/admin");
         })
         .catch((error) => {
           setIsLoading(false);
@@ -193,7 +193,7 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
 
           clearFormData();
           setIsLoading(false);
-          router.push("/home/management/user/admin");
+          router.push("/home/management/admin");
         })
         .catch((error) => {
           setIsLoading(false);
@@ -224,7 +224,7 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
   );
 
   useEffect(() => {
-    if (params.slug === "Edit" || params.slug === "Detail") {
+    if (params.slug.includes("Edit") || params.slug.includes("Detail")) {
       const id = Number(new URLSearchParams(window.location.search).get("id"));
       fetchPenggunaById(id, String(token))
         .then((data) => {
@@ -246,9 +246,9 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
   return (
     <div className="bg-white p-4 rounded-md shadow-md">
       <div className="text-lg font-medium">
-        {pathname.split("/").pop()} Admin
+        {(decodeURIComponent(pathname.split("/").pop() || "")).replace(/%20/g, " ")}
       </div>
-      {(pathname.split("/").pop() !== "Detail" && (
+      {(!pathname.split("/").pop()?.includes("Detail") && (
         <div>
           <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
             <div className="flex flex-col items-center w-full gap-4">
@@ -443,7 +443,7 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
           }
         />
       </div>
-      {(pathname.split("/").pop() !== "Detail" && (
+      {(!pathname.split("/").pop()?.includes("Detail") && (
         <div className="flex justify-end mt-4">
           <div className="flex gap-4">
             <button

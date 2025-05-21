@@ -210,7 +210,7 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
     setIsLoading(true);
     clearMessageError();
 
-    if (params.slug === "Tambah") {
+    if (params.slug.includes("Tambah")) {
       await postHakAksesData(formData, String(token))
         .then((response) => {
           if (!response.ok) {
@@ -237,7 +237,7 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
 
           clearFormData();
           setIsLoading(false);
-          router.push("/home/management/user/access");
+          router.push("/home/management/access");
         })
         .catch((error) => {
           setIsLoading(false);
@@ -282,7 +282,7 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
 
           clearFormData();
           setIsLoading(false);
-          router.push("/home/management/user/access");
+          router.push("/home/management/access");
         })
         .catch((error) => {
           setIsLoading(false);
@@ -302,7 +302,7 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
     }
   };
   useEffect(() => {
-    if (params.slug !== "Tambah") {
+    if (params.slug.includes("Tambah")) {
       const id = Number(new URLSearchParams(window.location.search).get("id"));
       fetchHakAksesDataById(id, String(token))
         .then((data) => {
@@ -318,7 +318,7 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
   return (
     <div className="bg-white p-4 rounded-md shadow-md">
       <div className="text-lg font-medium">
-        {pathname.split("/").pop()} Role
+        {(decodeURIComponent(pathname.split("/").pop() || "")).replace(/%20/g, " ")}
       </div>
       <div className="flex flex-col items-start mt-4 w-full gap-4 mb-4">
         {params.slug !== "Detail" && (
@@ -386,7 +386,7 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
           ))}
         </div>
       </div>
-      {pathname.split("/").pop() !== "Detail" && (
+      {!pathname.split("/").pop()?.includes("Detail") && (
         <div className="flex justify-center mt-4">
           <div className="flex gap-4">
             <button
@@ -407,7 +407,7 @@ export default function AddAdminPage({ params }: { params: { slug: string } }) {
           </div>
         </div>
       )}
-      { pathname.split("/").pop() === "Detail" &&
+      { pathname.split("/").pop()?.includes('Detail') &&
         <div className="flex justify-end mt-4">
           <div className="flex gap-4">
             <button

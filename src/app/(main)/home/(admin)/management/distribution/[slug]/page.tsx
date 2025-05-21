@@ -19,18 +19,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Bounce, toast } from "react-toastify";
 
-/**
- * AddAdminPage component renders a form for adding a new farmer.
- *
- * @component
- * @example
- * return (
- *   <AddAdminPage />
- * )
- *
- * @returns {JSX.Element} The rendered AddAdminPage component.
- */
-export default function AddInstructorPage({ params }: { params: { slug: string } }) {
+export default function AddDistributorPage({ params }: { params: { slug: string } }) {
   const { getToken } = useAuth();
   const token = getToken();
   const router = useRouter();
@@ -103,7 +92,7 @@ export default function AddInstructorPage({ params }: { params: { slug: string }
     setIsLoading(true);
     clearMessageError();
 
-    if (params.slug === "Tambah") {
+    if (params.slug.includes("Tambah")) {
       var data = {
         name: formData.name,
         email: formData.email,
@@ -139,7 +128,7 @@ export default function AddInstructorPage({ params }: { params: { slug: string }
 
           clearFormData();
           setIsLoading(false);
-          router.push("/home/management/user/instructor");
+          router.push("/home/management/distribution");
         })
         .catch((error) => {
           setIsLoading(false);
@@ -193,7 +182,7 @@ export default function AddInstructorPage({ params }: { params: { slug: string }
 
           clearFormData();
           setIsLoading(false);
-          router.push("/home/management/user/instructor");
+          router.push("/home/management/distribution");
         })
         .catch((error) => {
           setIsLoading(false);
@@ -224,7 +213,7 @@ export default function AddInstructorPage({ params }: { params: { slug: string }
   );
 
   useEffect(() => {
-    if (params.slug === "Edit" || params.slug === "Detail") {
+    if (params.slug.includes("Edit") || params.slug.includes("Detail")) {
       const id = Number(new URLSearchParams(window.location.search).get("id"));
       fetchPenggunaById(id, String(token))
         .then((data) => {
@@ -246,9 +235,9 @@ export default function AddInstructorPage({ params }: { params: { slug: string }
   return (
     <div className="bg-white p-4 rounded-md shadow-md">
       <div className="text-lg font-medium">
-        {pathname.split("/").pop()} Penyuluh
+        {(decodeURIComponent(pathname.split("/").pop() || "")).replace(/%20/g, " ")}
       </div>
-      {(pathname.split("/").pop() !== "Detail" && (
+      {(!pathname.split("/").pop()?.includes("Detail") && (
         <div>
           <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
             <div className="flex flex-col items-center w-full gap-4">
@@ -443,7 +432,7 @@ export default function AddInstructorPage({ params }: { params: { slug: string }
           }
         />
       </div>
-      {(pathname.split("/").pop() !== "Detail" && (
+      {(!pathname.split("/").pop()?.includes("Detail") && (
         <div className="flex justify-end mt-4">
           <div className="flex gap-4">
             <button

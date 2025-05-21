@@ -29,8 +29,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import AdminFilterModal from "@/components/ui/home/(admin)/management/user/modal/AdminFilterModal";
-import ListRoleModal from "@/components/ui/home/(admin)/management/user/modal/ListRoleModal";
+// import AdminFilterModal from "@/components/ui/home/(admin)/management/modal/AdminFilterModal";
+// import ListRoleModal from "@/components/ui/home/(admin)/management/modal/ListRoleModal";
 import { useAuth } from "@/hooks/useAuth";
 import { HakAkses } from "@/types/management-user/hakAkses";
 import {
@@ -40,6 +40,7 @@ import {
 } from "@/lib/management-user/hakAksesFetching";
 import { Bounce, toast } from "react-toastify";
 import ConfirmasiDeleteModal from "@/components/ui/home/(admin)/master/modal/ConfirmasiDeleteModal";
+import ListRoleModal from "@/components/ui/home/(admin)/management/user/modal/ListRoleModal";
 
 /**
  * AccessPage component renders a page for managing admin users.
@@ -82,7 +83,7 @@ export default function AccessPage() {
 
   const handleAddAccess = (slug: string, params?: Object) => {
     router.push(
-      "/home/management/user/access/" +
+      "/home/management/access/" +
         slug +
         (params ? `?${new URLSearchParams(params as any)}` : "")
     );
@@ -169,7 +170,7 @@ export default function AccessPage() {
           </div>
         </div>
         <button
-          onClick={() => handleAddAccess("Tambah")}
+          onClick={() => handleAddAccess("Tambah Hak Akses")}
           className="bg-primary-500 flex text-white px-5 py-2 text-nowrap rounded-full"
         >
           <Plus className="mr-2" />
@@ -236,7 +237,7 @@ export default function AccessPage() {
                         <DropdownMenuItem
                           className="cursor-pointer"
                           onClick={() =>
-                            handleAddAccess("Detail", { id: value.id })
+                            handleAddAccess("Detail Hak Akse", { id: value.id })
                           }
                         >
                           Detail
@@ -244,7 +245,7 @@ export default function AccessPage() {
                         <DropdownMenuItem
                           className="cursor-pointer"
                           onClick={() =>
-                            handleAddAccess("Edit", { id: value.id })
+                            handleAddAccess("Edit Hak Akse", { id: value.id })
                           }
                         >
                           Edit
