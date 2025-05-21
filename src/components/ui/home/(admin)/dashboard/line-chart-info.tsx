@@ -17,14 +17,13 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  { month: "January", diajukan: 186, disetujui: 80 },
-  { month: "February", diajukan: 305, disetujui: 200 },
-  { month: "March", diajukan: 237, disetujui: 120 },
-  { month: "April", diajukan: 73, disetujui: 190 },
-  { month: "May", diajukan: 209, disetujui: 130 },
-  { month: "June", diajukan: 214, disetujui: 140 },
-];
+type ChartDataItem = {
+  month: string;
+  diajukan: number;
+  disetujui: number;
+  direvisi: number;
+  ditolak: number;
+};
 
 const chartConfig = {
   diajukan: {
@@ -35,17 +34,21 @@ const chartConfig = {
     label: "Disetujui",
     color: "#388E3C",
   },
-  // direvisi: {
-  //     label: "Direvisi",
-  //     color: "#D39C55",
-  // },
+  direvisi: {
+    label: "Direvisi",
+    color: "#D39C55",
+  },
   ditolak: {
-      label: "Ditolak",
-      color: '#F54444',
+    label: "Ditolak",
+    color: "#F54444",
   },
 } satisfies ChartConfig;
 
-export function LineChartInfo() {
+type LineChartInfoProps = {
+  chartData: ChartDataItem[];
+};
+
+export function LineChartInfo({ chartData }: LineChartInfoProps) {
   return (
     <ChartContainer config={chartConfig}>
       <LineChart

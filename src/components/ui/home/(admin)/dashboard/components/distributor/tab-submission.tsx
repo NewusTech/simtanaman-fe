@@ -3,10 +3,10 @@ import { BadgeX, CircleCheckBig, CircleX, Clock, Send } from "lucide-react";
 import { LineChartInfo } from "../../line-chart-info";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
-import { fetchDistributorDashboard } from "@/lib/dashboard/distributorDashboardFetching";
 import { CardsDistribusi, ChartDistribusiBulanan, StokBibit } from "@/types/dashboard/distributorDashboard";
 import { BarChartInfo } from "../../bar-chart-info";
 import { TinyBarChart } from "../../tiny-chart-info";
+import { fetchDistributorDashboard } from "@/lib/dashboard/dashboardFetching";
 
 export default function TabSubmission() {
   const { getToken } = useAuth();

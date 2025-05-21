@@ -23,7 +23,7 @@ import {
   Printer,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { fetchDistributorDashboard } from "@/lib/dashboard/distributorDashboardFetching";
+import { fetchDistributorDashboard } from "@/lib/dashboard/dashboardFetching";
 import { StokBibit } from "@/types/dashboard/distributorDashboard";
 import { useAuth } from "@/hooks/useAuth";
 
