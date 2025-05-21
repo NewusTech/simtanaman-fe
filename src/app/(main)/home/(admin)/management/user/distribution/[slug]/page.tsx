@@ -19,17 +19,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Bounce, toast } from "react-toastify";
 
-/**
- * AddAdminPage component renders a form for adding a new farmer.
- *
- * @component
- * @example
- * return (
- *   <AddAdminPage />
- * )
- *
- * @returns {JSX.Element} The rendered AddAdminPage component.
- */
 export default function AddDistributorPage({ params }: { params: { slug: string } }) {
   const { getToken } = useAuth();
   const token = getToken();

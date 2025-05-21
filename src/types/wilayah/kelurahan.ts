@@ -7,7 +7,7 @@ export interface Kelurahan {
     kecamatan_id: number;
 }
 
-export interface ApiResponse {
+export interface ApiResponseKelurahan {
     status: number;
     message: string;
     data: Kelurahan[];

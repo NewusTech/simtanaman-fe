@@ -7,7 +7,7 @@ export interface Kabupaten {
     provinsi_id: number;
 }
 
-export interface ApiResponse {
+export interface ApiResponseKabupaten {
     status: number;
     message: string;
     data: Kabupaten[];

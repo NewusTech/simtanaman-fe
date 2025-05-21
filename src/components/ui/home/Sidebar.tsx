@@ -107,11 +107,11 @@ const Sidebar = () => {
       icon: HandHelping,
       current: false,
       link: "/home/submission",
-      role: ["admin", "user","penyuluh","distributor"]
+      role: ["admin", "user","penyuluh"]
     },
     { name: "Distribusi", icon: Boxes, current: false, link: "/home/distribution", role: ["admin", "user","penyuluh","distributor"]},
     {
-      name: "Manajemen Tanaman", icon: Sprout, current: false, link: "/home/planting", role: ["admin"], child: [
+      name: "Manajemen Tanaman", icon: Sprout, current: false, link: "/home/planting", role: ["admin" ,"distributor"], child: [
         {
           name: "Ajukan Tanaman",
           icon: Dot,
@@ -349,7 +349,7 @@ const Sidebar = () => {
           <div
         className={`text-primary-default text-sm font-semibold my-3 ${!isOpen && isMobile && "hidden"} ${isMobile && isOpen && "block"}`}
           >
-        SiTANAM
+        SimTANAM
           </div>
           <div
         className={`text-primary-default text-xs ${!isOpen && isMobile && "hidden"} ${isMobile && isOpen && "block"}`}

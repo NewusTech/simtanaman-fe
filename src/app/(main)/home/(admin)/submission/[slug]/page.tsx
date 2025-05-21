@@ -30,6 +30,17 @@ import { Penanaman } from "@/types/master/metodePenanaman";
 import { fetchMetodePenanamanData } from "@/lib/master/metodePenanamanFetching";
 import { se } from "date-fns/locale";
 import { fetchDistributionDataById } from "@/lib/distribution/distributionFetching";
+import { Provinsi } from "@/types/wilayah/provinsi";
+import {
+  fetchKabupatenData,
+  fetchKecamatanData,
+  fetchKelurahanData,
+  fetchProvinsiData,
+} from "@/lib/wilayah/wilayahFetching";
+import { Kabupaten } from "@/types/wilayah/kabupaten";
+import { Kecamatan } from "@/types/wilayah/kecamatan";
+import { Kelurahan } from "@/types/wilayah/kelurahan";
+import DatePicker from "@/components/ui/date-picker";
 const Map = dynamic(() => import("@/components/ui/base/map"), { ssr: false });
 
 /**
@@ -74,7 +85,7 @@ export default function ComponentPage({
   const pathname = usePathname();
   const { getToken } = useAuth();
   const token = getToken();
-
+  const [selectTabChild, setSelectTabChild] = useState(0);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [status, setStatus] = useState("");
   const [changeStatus, setChangeStatus] = useState("diajukan");
@@ -86,6 +97,10 @@ export default function ComponentPage({
   const [listMetode, setListMetode] = useState<Penanaman[]>([]);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [listProvinsi, setListProvinsi] = useState<Provinsi[]>([]);
+  const [listKabupaten, setListKabupaten] = useState<Kabupaten[]>([]);
+  const [listKecamatan, setListKecamatan] = useState<Kecamatan[]>([]);
+  const [listDesaKelurahan, setListDesaKelurahan] = useState<Kelurahan[]>([]);
   const [messageError, setMessageError] = useState<
     Record<keyof typeof formData, string | null>
   >({
@@ -182,6 +197,12 @@ export default function ComponentPage({
     longitude: 107.6191, // Default longitude (e.g., Jakarta)
   });
 
+  const [formDataPenyuluh, setFormDataPenyuluh] = useState({
+    tanggal: new Date(),
+    upload: "" as File | string,
+    file: "" as File | string,
+  });
+
   const handleClickStatus = (status: string) => {
     setIsOpenModal(true);
     setStatus(status);
@@ -222,7 +243,7 @@ export default function ComponentPage({
     setIsLoading(true);
     const id = String(new URLSearchParams(window.location.search).get("id"));
     const payload = {
-      status: status + " " +role,
+      status: status + " " + role,
       alasan: alasan,
     };
     await updateStatusPengajuanData(payload, id, String(token))
@@ -391,7 +412,7 @@ export default function ComponentPage({
         methodId: formData.methodId,
         latitude: Number(formData.latitude),
         longitude: Number(formData.longitude),
-        status: 'Diajukan Kembali'
+        status: "Diajukan Kembali",
       };
 
       await editPengajuanData(payload, String(id), String(token))
@@ -458,6 +479,8 @@ export default function ComponentPage({
       setlistStatus(dataStatus.items);
       const metode = await fetchMetodePenanamanData(page, String(token));
       setListMetode(metode.items);
+      const provinsi = await fetchProvinsiData(String(token));
+      setListProvinsi(provinsi);
     },
     [token]
   );
@@ -510,10 +533,9 @@ export default function ComponentPage({
     <div className="bg-white p-4 rounded-md shadow-md font-poppins">
       {/* header */}
       {/* {role === "admin" && ( */}
-        {
-          params.slug === "Detail" &&(
-            <div>
-          {(changeStatus.includes('Diajukan') && role === "admin"  && (
+      {params.slug === "Detail" && (
+        <div>
+          {(changeStatus.includes("Diajukan") && role === "admin" && (
             <div>
               <div className="flex justify-end items-center gap-4 mb-4">
                 <div className="text-sm font-medium mb-4 bg-neutral-70 rounded-lg p-2 px-10">
@@ -542,14 +564,13 @@ export default function ComponentPage({
               </div>
             </div>
           )) ||
-            (changeStatus.includes('Disetujui')&& (
+            (changeStatus.includes("Disetujui") && role !== "penyuluh" && (
               <div className="flex items-center gap-4 p-5 bg-success-100 rounded-lg text-success-700 font-medium mb-4">
                 <CheckCircle className="h-10 w-10" />
                 Disetujui Admin
               </div>
             )) ||
-            (changeStatus.includes('Direvisi') && (
-              
+            (changeStatus.includes("Direvisi") && role !== "penyuluh" && (
               <div className="flex flex-col gap-4 p-2 bg-warning-100 rounded-lg text-warning-500 font-medium mb-4">
                 <div className="flex items-center gap-4 p-5 bg-warning-100 rounded-lg text-warning-500 font-medium">
                   <TriangleAlert className="h-10 w-10" />
@@ -569,7 +590,7 @@ export default function ComponentPage({
                 </div>
               </div>
             )) ||
-            (changeStatus.includes('Ditolak') && (
+            (changeStatus.includes("Ditolak") && role !== "penyuluh" && (
               <div className="flex flex-col gap-4 p-2 bg-error-100 rounded-lg text-error-500 font-medium mb-4">
                 <div className="flex items-center gap-4 p-5 bg-error-100 rounded-lg text-error-500 font-medium">
                   <TriangleAlert className="h-10 w-10" />
@@ -584,476 +605,584 @@ export default function ComponentPage({
                   Catatan :
                 </div>
                 <div className="text-sm font-medium text-black px-5">
-                 {formData.alasan || "Tidak Ada Catatan"}
+                  {formData.alasan || "Tidak Ada Catatan"}
                 </div>
               </div>
             ))}
+          {role === "penyuluh" && (
+            <div>
+              <div className="flex justify-end items-center gap-4 mb-4">
+                <div className="text-sm font-medium mb-4 bg-neutral-70 rounded-lg p-2 px-10">
+                  Dalam Proses
+                </div>
+              </div>
+              <div className="flex gap-4 justify-end items-center">
+                <Button
+                  onClick={() => handleClickStatus("setujui")}
+                  className="bg-success-700 text-white px-8 tex-sm rounded-full"
+                >
+                  Setujui
+                </Button>
+                <Button
+                  onClick={() => handleClickStatus("direvisi")}
+                  className="bg-warning-500 text-white px-8 tex-sm rounded-full"
+                >
+                  Direvisi
+                </Button>
+                <Button
+                  onClick={() => handleClickStatus("perbaiki")}
+                  className="bg-info-500 text-white px-8 tex-sm rounded-full"
+                >
+                  Perbaiki
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
-          )
-        }
+      )}
       {/* )} */}
       {/* end of header */}
 
-        {(params.slug === "Tambah" || params.slug === "Edit") && (
-          <div>
-            <span className="text-md font-semibold">Data Diri</span>
-            <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
-              <div className="flex flex-col items-center w-full gap-4">
-                <FormInput
-                  label="Nama Lengkap"
-                  placeholder="Masukan Nama Lengkap"
-                  value={formData.namaLengkap}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, namaLengkap: value })
-                  }
-                  errorMessage={messageError?.namaLengkap ?? ""}
-                  required
-                />
-                <FormInput
-                  label="Nomor Telepon"
-                  placeholder="Masukan Nomor Telepon"
-                  value={formData.noTelepon}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, noTelepon: value })
-                  }
-                  errorMessage={messageError?.noTelepon}
-                  required
-                />
-                <FormInput
-                  label="Nomor Kartu Tani"
-                  placeholder="Masukan Nomor Kartu Tani"
-                  value={formData.noKartuTani}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, noKartuTani: value })
-                  }
-                  errorMessage={messageError?.noKartuTani}
-                  required
-                />
-                <FormInput
-                  label="Nomor Registrasi Poktan"
-                  placeholder="Masukan Nomor Registrasi Poktan"
-                  value={formData.noRegistrasiPoktan}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, noRegistrasiPoktan: value })
-                  }
-                  errorMessage={messageError?.noRegistrasiPoktan}
-                  required
-                />
-                <FormSelect
-                  label="Provinsi"
-                  value={["Jawa Barat", "Sulawesi Selatan"]}
-                  selected={formData.Provinsi}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, Provinsi: value })
-                  }
-                  errorMessage={messageError?.Provinsi}
-                  required
-                />
-                <FormSelect
-                  label="Kecamatan"
-                  value={["Cicendo", "Sukasari"]}
-                  selected={formData.Kecamatan}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, Kecamatan: value })
-                  }
-                  errorMessage={messageError?.Kecamatan}
-                  required
-                />
-              </div>
-              <div className="flex flex-col items-center w-full gap-4">
-                <FormInput
-                  label="NIK"
-                  placeholder="Masukan NIK"
-                  value={formData.nik}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, nik: value })
-                  }
-                  errorMessage={messageError?.nik}
-                  required
-                />
-                <FormInput
-                  label="Email"
-                  placeholder="Masukan Email"
-                  value={formData.email}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, email: value })
-                  }
-                  errorMessage={messageError?.email}
-                  required
-                />
-                <FormSelect
-                  label="Nama Kelompok Tani (Poktan)"
-                  value={listKetuaPoktan.map((poktan) => poktan.name)}
-                  selected={
-                    listKetuaPoktan.find(
-                      (poktan) => poktan.id === formData.poktanId
-                    )?.name || ""
-                  }
-                  onChange={(value: string) =>
-                    listKetuaPoktan.find((poktan) => poktan.name === value)
-                      ? setFormData({
-                          ...formData,
-                          poktanId:
-                            listKetuaPoktan.find(
-                              (poktan) => poktan.name === value
-                            )?.id || 0,
-                        })
-                      : setFormData({ ...formData, poktanId: 0 })
-                  }
-                  errorMessage={messageError?.poktanId}
-                  required
-                />
-                <FormInput
-                  label="Nama Ketua Poktan"
-                  placeholder="Masukan Nama Ketua Poktan"
-                  value={formData.namaKetuaPoktan}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, namaKetuaPoktan: value })
-                  }
-                  errorMessage={messageError?.namaKetuaPoktan}
-                  required
-                />
-                <FormSelect
-                  label="Kabupaten"
-                  value={["Bandung", "Ciamis"]}
-                  selected={formData.Kabupaten}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, Kabupaten: value })
-                  }
-                  errorMessage={messageError?.Kabupaten}
-                  required
-                />
-                <FormSelect
-                  label="Desa/Kelurahan"
-                  value={["Cicendo", "Sukasari"]}
-                  selected={formData.DesaKelurahan}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, DesaKelurahan: value })
-                  }
-                  errorMessage={messageError?.DesaKelurahan}
-                  required
-                />
-              </div>
+      {((params.slug === "Tambah" || params.slug === "Edit") && (
+        <div>
+          <span className="text-md font-semibold">Data Diri</span>
+          <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
+            <div className="flex flex-col items-center w-full gap-4">
+              <FormInput
+                label="Nama Lengkap"
+                placeholder="Masukan Nama Lengkap"
+                value={formData.namaLengkap}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, namaLengkap: value })
+                }
+                errorMessage={messageError?.namaLengkap ?? ""}
+                required
+              />
+              <FormInput
+                label="Nomor Telepon"
+                placeholder="Masukan Nomor Telepon"
+                value={formData.noTelepon}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, noTelepon: value })
+                }
+                errorMessage={messageError?.noTelepon}
+                required
+              />
+              <FormInput
+                label="Nomor Kartu Tani"
+                placeholder="Masukan Nomor Kartu Tani"
+                value={formData.noKartuTani}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, noKartuTani: value })
+                }
+                errorMessage={messageError?.noKartuTani}
+                required
+              />
+              <FormInput
+                label="Nomor Registrasi Poktan"
+                placeholder="Masukan Nomor Registrasi Poktan"
+                value={formData.noRegistrasiPoktan}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, noRegistrasiPoktan: value })
+                }
+                errorMessage={messageError?.noRegistrasiPoktan}
+                required
+              />
+              <FormSelect
+                label="Provinsi"
+                value={(listProvinsi ?? []).map((value) => value.name)}
+                selected={
+                  (listProvinsi ?? []).find(
+                    (value) => value.name === formData.Provinsi
+                  )?.name || ""
+                }
+                onChange={async (value: string) => {
+                  (listProvinsi ?? []).find(
+                    (provinsi) => provinsi.name === value
+                  )
+                    ? setFormData({
+                        ...formData,
+                        Provinsi:
+                          (listProvinsi ?? []).find(
+                            (provinsi) => provinsi.name === value
+                          )?.name || "",
+                      })
+                    : setFormData({ ...formData, Provinsi: "" });
+                  const selectedProvinsiId = (listProvinsi ?? []).find(
+                    (provinsi) => provinsi.name === value
+                  )?.id;
+                  const data = await fetchKabupatenData(
+                    selectedProvinsiId ? String(selectedProvinsiId) : "",
+                    String(token)
+                  );
+                  setListKabupaten(data);
+                }}
+                errorMessage={messageError?.Provinsi}
+                required
+              />
+              <FormSelect
+                label="Kecamatan"
+                value={(listKecamatan ?? []).map((value) => value.name)}
+                selected={
+                  (listKecamatan ?? []).find(
+                    (value) => value.name === formData.Kecamatan
+                  )?.name || ""
+                }
+                onChange={async (value: string) => {
+                  (listKecamatan ?? []).find(
+                    (kecamatan) => kecamatan.name === value
+                  )
+                    ? setFormData({
+                        ...formData,
+                        Kecamatan:
+                          (listKecamatan ?? []).find(
+                            (kecamatan) => kecamatan.name === value
+                          )?.name || "",
+                      })
+                    : setFormData({ ...formData, Kecamatan: "" });
+                  const selectedKecamatanId = (listKecamatan ?? []).find(
+                    (kecamatan) => kecamatan.name === value
+                  )?.id;
+                  const data = await fetchKelurahanData(
+                    selectedKecamatanId ? String(selectedKecamatanId) : "",
+                    String(token)
+                  );
+                  setListDesaKelurahan(data);
+                }}
+                errorMessage={messageError?.Kecamatan}
+                required
+              />
             </div>
-            <FormTextArea
-              label="Alamat"
-              value={formData.alamat}
-              onChange={(value: string) =>
-                setFormData({ ...formData, alamat: value })
-              }
-              errorMessage={messageError?.alamat}
-              placeholder="Masukan Alamat"
-              required
-            />
-            <div className="text-md font-semibold mt-10">
-              Data Lahan dan Usaha Tani
+            <div className="flex flex-col items-center w-full gap-4">
+              <FormInput
+                label="NIK"
+                placeholder="Masukan NIK"
+                value={formData.nik}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, nik: value })
+                }
+                errorMessage={messageError?.nik}
+                required
+              />
+              <FormInput
+                label="Email"
+                placeholder="Masukan Email"
+                value={formData.email}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, email: value })
+                }
+                errorMessage={messageError?.email}
+                required
+              />
+              <FormSelect
+                label="Nama Kelompok Tani (Poktan)"
+                value={listKetuaPoktan.map((poktan) => poktan.name)}
+                selected={
+                  listKetuaPoktan.find(
+                    (poktan) => poktan.id === formData.poktanId
+                  )?.name || ""
+                }
+                onChange={(value: string) =>
+                  listKetuaPoktan.find((poktan) => poktan.name === value)
+                    ? setFormData({
+                        ...formData,
+                        poktanId:
+                          listKetuaPoktan.find(
+                            (poktan) => poktan.name === value
+                          )?.id || 0,
+                      })
+                    : setFormData({ ...formData, poktanId: 0 })
+                }
+                errorMessage={messageError?.poktanId}
+                required
+              />
+              <FormInput
+                label="Nama Ketua Poktan"
+                placeholder="Masukan Nama Ketua Poktan"
+                value={formData.namaKetuaPoktan}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, namaKetuaPoktan: value })
+                }
+                errorMessage={messageError?.namaKetuaPoktan}
+                required
+              />
+              <FormSelect
+                label="Kabupaten"
+                value={(listKabupaten ?? []).map((value) => value.name)}
+                selected={
+                  (listKabupaten ?? []).find(
+                    (value) => value.name === formData.Kabupaten
+                  )?.name || ""
+                }
+                onChange={async (value: string) => {
+                  (listKabupaten ?? []).find(
+                    (kabupaten) => kabupaten.name === value
+                  )
+                    ? setFormData({
+                        ...formData,
+                        Kabupaten:
+                          (listKabupaten ?? []).find(
+                            (kabupaten) => kabupaten.name === value
+                          )?.name || "",
+                      })
+                    : setFormData({ ...formData, Kabupaten: "" });
+                  const selectedKabupatenId = (listKabupaten ?? []).find(
+                    (kabupaten) => kabupaten.name === value
+                  )?.id;
+                  const data = await fetchKecamatanData(
+                    selectedKabupatenId ? String(selectedKabupatenId) : "",
+                    String(token)
+                  );
+                  setListKecamatan(data);
+                }}
+                errorMessage={messageError?.Kabupaten}
+                required
+              />
+              <FormSelect
+                label="Desa/Kelurahan"
+                value={(listDesaKelurahan ?? []).map((value) => value.name)}
+                selected={
+                  (listDesaKelurahan ?? []).find(
+                    (value) => value.name === formData.DesaKelurahan
+                  )?.name || ""
+                }
+                onChange={async (value: string) => {
+                  (listDesaKelurahan ?? []).find(
+                    (kelurahan) => kelurahan.name === value
+                  )
+                    ? setFormData({
+                        ...formData,
+                        DesaKelurahan:
+                          (listDesaKelurahan ?? []).find(
+                            (kelurahan) => kelurahan.name === value
+                          )?.name || "",
+                      })
+                    : setFormData({ ...formData, DesaKelurahan: "" });
+                }}
+                errorMessage={messageError?.DesaKelurahan}
+                required
+              />
             </div>
-            <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
-              <div className="flex flex-col items-center w-full gap-4">
-                <FormInput
-                  label="Luas Lahan (Ha)"
-                  placeholder="Masukan Luas Lahan (Ha)"
-                  value={String(formData.luasLahan)}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, luasLahan: Number(value) })
-                  }
-                  errorMessage={messageError?.luasLahan}
-                  required
-                />
-                <FormInput
-                  label="Jumlah Tanaman dalam Satuan Hektar (Ha) "
-                  placeholder="Masukan Jumlah Tanaman dalam Satuan Hektar (Ha) "
-                  value={String(formData.jumlahTanamanHektar)}
-                  onChange={(value: string) =>
+          </div>
+          <FormTextArea
+            label="Alamat"
+            value={formData.alamat}
+            onChange={(value: string) =>
+              setFormData({ ...formData, alamat: value })
+            }
+            errorMessage={messageError?.alamat}
+            placeholder="Masukan Alamat"
+            required
+          />
+          <div className="text-md font-semibold mt-10">
+            Data Lahan dan Usaha Tani
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
+            <div className="flex flex-col items-center w-full gap-4">
+              <FormInput
+                label="Luas Lahan (Ha)"
+                placeholder="Masukan Luas Lahan (Ha)"
+                value={String(formData.luasLahan)}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, luasLahan: Number(value) })
+                }
+                errorMessage={messageError?.luasLahan}
+                required
+              />
+              <FormInput
+                label="Jumlah Tanaman dalam Satuan Hektar (Ha) "
+                placeholder="Masukan Jumlah Tanaman dalam Satuan Hektar (Ha) "
+                value={String(formData.jumlahTanamanHektar)}
+                onChange={(value: string) =>
+                  setFormData({
+                    ...formData,
+                    jumlahTanamanHektar: Number(value),
+                  })
+                }
+                errorMessage={messageError?.jumlahTanamanHektar}
+                required
+                type="number"
+              />
+              <FormInput
+                label="5000"
+                placeholder="Masukan 5000"
+                value={String(formData.jumlahTanaman)}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, jumlahTanaman: Number(value) })
+                }
+                errorMessage={messageError?.jumlahTanaman}
+                required
+                type="number"
+              />
+            </div>
+            <div className="flex flex-col items-center w-full gap-4">
+              <FormSelect
+                label="Jenis Tanaman"
+                value={listPlant.map((value) => value.name)}
+                selected={
+                  listPlant.find((plant) => plant.id === formData.tanamanId)
+                    ?.name || ""
+                }
+                onChange={(value: string) => {
+                  const selectedPlant = listPlant.find(
+                    (plant) => plant.name === value
+                  );
+                  if (selectedPlant) {
                     setFormData({
                       ...formData,
-                      jumlahTanamanHektar: Number(value),
-                    })
+                      tanamanId: selectedPlant.id,
+                    });
                   }
-                  errorMessage={messageError?.jumlahTanamanHektar}
-                  required
-                  type="number"
-                />
-                <FormInput
-                  label="5000"
-                  placeholder="Masukan 5000"
-                  value={String(formData.jumlahTanaman)}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, jumlahTanaman: Number(value) })
+                }}
+                errorMessage={messageError?.tanamanId}
+                required
+              />
+              <FormInput
+                label="Masa Tanam"
+                placeholder="Masukan Masa Tanam"
+                value={String(formData.masaTanam)}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, masaTanam: value })
+                }
+                errorMessage={messageError?.masaTanam}
+                required
+              />
+              <FormSelect
+                label="Status kepemilikan Lahan"
+                value={listStatus.map((value) => value.name)}
+                selected={
+                  listStatus.find(
+                    (plant) => plant.id === formData.statusLahanId
+                  )?.name || ""
+                }
+                onChange={(value: string) => {
+                  const select = listStatus.find(
+                    (plant) => plant.name === value
+                  );
+                  if (select) {
+                    setFormData({
+                      ...formData,
+                      statusLahanId: select.id,
+                    });
                   }
-                  errorMessage={messageError?.jumlahTanaman}
-                  required
-                  type="number"
-                />
-              </div>
-              <div className="flex flex-col items-center w-full gap-4">
-                <FormSelect
-                  label="Jenis Tanaman"
-                  value={listPlant.map((value) => value.name)}
-                  selected={
-                    listPlant.find((plant) => plant.id === formData.tanamanId)
-                      ?.name || ""
-                  }
-                  onChange={(value: string) => {
-                    const selectedPlant = listPlant.find(
-                      (plant) => plant.name === value
-                    );
-                    if (selectedPlant) {
-                      setFormData({
-                        ...formData,
-                        tanamanId: selectedPlant.id,
-                      });
-                    }
-                  }}
-                  errorMessage={messageError?.tanamanId}
-                  required
-                />
-                <FormInput
-                  label="Masa Tanam"
-                  placeholder="Masukan Masa Tanam"
-                  value={String(formData.masaTanam)}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, masaTanam: value })
-                  }
-                  errorMessage={messageError?.masaTanam}
-                  required
-                />
-                <FormSelect
-                  label="Status kepemilikan Lahan"
-                  value={listStatus.map((value) => value.name)}
-                  selected={
-                    listStatus.find(
-                      (plant) => plant.id === formData.statusLahanId
-                    )?.name || ""
-                  }
-                  onChange={(value: string) => {
-                    const select = listStatus.find(
-                      (plant) => plant.name === value
-                    );
-                    if (select) {
-                      setFormData({
-                        ...formData,
-                        statusLahanId: select.id,
-                      });
-                    }
-                  }}
-                  errorMessage={messageError?.statusLahanId}
-                  required
-                />
-              </div>
+                }}
+                errorMessage={messageError?.statusLahanId}
+                required
+              />
             </div>
-            <div className="text-md font-semibold mt-10">
-              Data Kebutuhan Tanaman
+          </div>
+          <div className="text-md font-semibold mt-10">
+            Data Kebutuhan Tanaman
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
+            <div className="flex flex-col items-center w-full gap-4">
+              <FormSelect
+                label="Jenis Tanaman yang Diajukan"
+                value={listPlant.map((value) => value.name)}
+                selected={
+                  listPlant.find((plant) => plant.id === formData.tanamanId)
+                    ?.name || ""
+                }
+                onChange={(value: string) => {
+                  const selectedPlant = listPlant.find(
+                    (plant) => plant.name === value
+                  );
+                  if (selectedPlant) {
+                    setFormData({
+                      ...formData,
+                      tanamanId: selectedPlant.id,
+                    });
+                  }
+                }}
+                errorMessage={messageError?.tanamanId}
+                required
+              />
+              <FormSelect
+                label="Metode Penanaman Tanaman"
+                value={listMetode.map((value) => value.name)}
+                selected={
+                  listMetode.find((plant) => plant.id === formData.methodId)
+                    ?.name || ""
+                }
+                onChange={(value: string) => {
+                  const selectedPlant = listMetode.find(
+                    (plant) => plant.name === value
+                  );
+                  if (selectedPlant) {
+                    setFormData({
+                      ...formData,
+                      methodId: selectedPlant.id,
+                    });
+                  }
+                }}
+                errorMessage={messageError?.methodId}
+                required
+              />
             </div>
-            <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
-              <div className="flex flex-col items-center w-full gap-4">
-                <FormSelect
-                  label="Jenis Tanaman yang Diajukan"
-                  value={listPlant.map((value) => value.name)}
-                  selected={
-                    listPlant.find((plant) => plant.id === formData.tanamanId)
-                      ?.name || ""
-                  }
-                  onChange={(value: string) => {
-                    const selectedPlant = listPlant.find(
-                      (plant) => plant.name === value
-                    );
-                    if (selectedPlant) {
-                      setFormData({
-                        ...formData,
-                        tanamanId: selectedPlant.id,
-                      });
-                    }
-                  }}
-                  errorMessage={messageError?.tanamanId}
-                  required
-                />
-                <FormSelect
-                  label="Metode Penanaman Tanaman"
-                  value={listMetode.map((value) => value.name)}
-                  selected={
-                    listMetode.find((plant) => plant.id === formData.methodId)
-                      ?.name || ""
-                  }
-                  onChange={(value: string) => {
-                    const selectedPlant = listMetode.find(
-                      (plant) => plant.name === value
-                    );
-                    if (selectedPlant) {
-                      setFormData({
-                        ...formData,
-                        methodId: selectedPlant.id,
-                      });
-                    }
-                  }}
-                  errorMessage={messageError?.methodId}
-                  required
-                />
-              </div>
-              <div className="flex flex-col items-center w-full gap-4">
-                <FormInput
-                  label="Jumlah bibit tanaman yang Diajukan (bibit)"
-                  placeholder="Masukan Jumlah bibit tanaman yang Diajukan (bibit)"
-                  value={String(formData.jumlahTanaman)}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, jumlahTanaman: Number(value) })
-                  }
-                  errorMessage={messageError?.jumlahTanaman}
-                  required
-                />
-                <FormInput
-                  label="Alasan Pengajuan Tanaman"
-                  placeholder="Masukan Alasan Pengajuan Tanaman"
-                  value={String(formData.alasan)}
-                  onChange={(value: string) =>
-                    setFormData({ ...formData, alasan: value })
-                  }
-                  errorMessage={messageError?.alasan}
-                  required
-                />
-              </div>
+            <div className="flex flex-col items-center w-full gap-4">
+              <FormInput
+                label="Jumlah bibit tanaman yang Diajukan (bibit)"
+                placeholder="Masukan Jumlah bibit tanaman yang Diajukan (bibit)"
+                value={String(formData.jumlahTanaman)}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, jumlahTanaman: Number(value) })
+                }
+                errorMessage={messageError?.jumlahTanaman}
+                required
+              />
+              <FormInput
+                label="Alasan Pengajuan Tanaman"
+                placeholder="Masukan Alasan Pengajuan Tanaman"
+                value={String(formData.alasan)}
+                onChange={(value: string) =>
+                  setFormData({ ...formData, alasan: value })
+                }
+                errorMessage={messageError?.alasan}
+                required
+              />
             </div>
-            <div className="text-md font-semibold mt-10">Upload</div>
-            <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
+          </div>
+          <div className="text-md font-semibold mt-10">Upload</div>
+          <div className="flex flex-col md:flex-row justify-between items-start mt-4 w-full gap-4 mb-4">
+            <div className="flex flex-col items-start w-full gap-1">
+              <label
+                htmlFor="ktp-file-input"
+                className="block text-sm font-medium"
+              >
+                KTP (JPG/PNG/PDF)
+              </label>
+              <FileInput
+                file={formData.ktp}
+                onChange={(file: File | string) => {
+                  setFormData({ ...formData, ktp: file });
+                }}
+              />
+            </div>
+            <div className="flex flex-col items-center w-full gap-4">
               <div className="flex flex-col items-start w-full gap-1">
                 <label
                   htmlFor="ktp-file-input"
                   className="block text-sm font-medium"
                 >
-                  KTP (JPG/PNG/PDF)
+                  Kartu Tani (JPG/PNG/PDF)
                 </label>
                 <FileInput
-                  file={formData.ktp}
+                  file={formData.kartuTani}
                   onChange={(file: File | string) => {
-                    setFormData({ ...formData, ktp: file });
+                    if (file instanceof File) {
+                      setFormData({ ...formData, kartuTani: file.name });
+                    }
                   }}
                 />
               </div>
-              <div className="flex flex-col items-center w-full gap-4">
-                <div className="flex flex-col items-start w-full gap-1">
-                  <label
-                    htmlFor="ktp-file-input"
-                    className="block text-sm font-medium"
-                  >
-                    Kartu Tani (JPG/PNG/PDF)
-                  </label>
-                  <FileInput
-                    file={formData.kartuTani}
-                    onChange={(file: File | string) => {
-                      if (file instanceof File) {
-                        setFormData({ ...formData, kartuTani: file.name });
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="text-md font-semibold mt-10">Lokasi</div>
-            <div className="flex items-center w-full gap-4">
-              <FormInput
-                label=""
-                placeholder="Cari Lokasi"
-                value={formData.lokasi}
-                onChange={(value: string) =>
-                  setFormData({ ...formData, lokasi: value })
-                }
-              />
-              <Button
-                className="bg-primary-default text-white px-8 tex-sm rounded-full"
-                onClick={async () => {
-                  if (formData.lokasi.trim() !== "") {
-                    setIsLoadingSearch(true);
-                    await fetch(
-                      `https://nominatim.openstreetmap.org/search?q=${formData.lokasi}&format=json`
-                    )
-                      .then((response) => response.json())
-                      .then((data) => {
-                        if (data.length > 0) {
-                          const { lat, lon } = data[0];
-                          setFormData({
-                            ...formData,
-                            latitude: parseFloat(lat),
-                            longitude: parseFloat(lon),
-                          });
-                        } else {
-                          console.error("Location not found");
-                        }
-                      })
-                      .catch((error) => {
-                        console.error("Error fetching location:", error);
-                      });
-                    setIsLoadingSearch(false);
-                  } else {
-                    console.error("Lokasi is empty");
-                  }
-                }}
-              >
-                {isLoadingSearch ? "Loading..." : "Cari Lokasi"}
-              </Button>
-            </div>
-            <div className="mt-4">
-              <Map
-                onLocationSelect={(lat: number, lng: number) => {
-                  setFormData({ ...formData, latitude: lat, longitude: lng });
-                }}
-                center={[formData.latitude, formData.longitude]} // Update center dynamically when latitude or longitude changes
-              />
-            </div>
-            <div className="flex justify-between items-center mt-10 gap-4">
-              <FormInput
-                label="Latitude"
-                placeholder="Masukan Latitude"
-                value={String(formData.latitude)}
-                onChange={(value: string) =>
-                  setFormData({ ...formData, latitude: Number(value) })
-                }
-                errorMessage={messageError?.latitude}
-                required
-              />
-              <FormInput
-                label="Longitude"
-                placeholder="Masukan Longitude"
-                value={String(formData.longitude)}
-                onChange={(value: string) =>
-                  setFormData({ ...formData, longitude: Number(value) })
-                }
-                errorMessage={messageError?.longitude}
-                required
-              />
-            </div>
-            <div className="flex items-center gap-2 mt-10">
-              <input
-                type="checkbox"
-                id="agreement"
-                className="h-5 w-5 rounded border-gray-300 text-primary-default focus:ring-primary-default"
-                required
-              />
-              <label htmlFor="agreement" className="text-sm text-gray-700">
-                Saya menyatakan bahwa data yang diberikan benar dan siap
-                diverifikasi sesuai peraturan pemerintah.
-              </label>
-            </div>
-            <div className="flex justify-end mt-4">
-              <div className="flex gap-4">
-                <button
-                  onClick={() => {
-                    router.back();
-                  }}
-                  className="border border-primary-default text-primary-default rounded-full py-2 px-4"
-                >
-                  Batal
-                </button>
-                <button
-                  className="bg-primary-500 text-white rounded-full py-2 px-4"
-                  onClick={() => handleSimpan()}
-                >
-                  {isLoading ? "Loading..." : "Simpan"}
-                </button>
-              </div>
             </div>
           </div>
-        ) ||
-        (params.slug === "Detail" && (
+          <div className="text-md font-semibold mt-10">Lokasi</div>
+          <div className="flex items-center w-full gap-4">
+            <FormInput
+              label=""
+              placeholder="Cari Lokasi"
+              value={formData.lokasi}
+              onChange={(value: string) =>
+                setFormData({ ...formData, lokasi: value })
+              }
+            />
+            <Button
+              className="bg-primary-default text-white px-8 tex-sm rounded-full"
+              onClick={async () => {
+                if (formData.lokasi.trim() !== "") {
+                  setIsLoadingSearch(true);
+                  await fetch(
+                    `https://nominatim.openstreetmap.org/search?q=${formData.lokasi}&format=json`
+                  )
+                    .then((response) => response.json())
+                    .then((data) => {
+                      if (data.length > 0) {
+                        const { lat, lon } = data[0];
+                        setFormData({
+                          ...formData,
+                          latitude: parseFloat(lat),
+                          longitude: parseFloat(lon),
+                        });
+                      } else {
+                        console.error("Location not found");
+                      }
+                    })
+                    .catch((error) => {
+                      console.error("Error fetching location:", error);
+                    });
+                  setIsLoadingSearch(false);
+                } else {
+                  console.error("Lokasi is empty");
+                }
+              }}
+            >
+              {isLoadingSearch ? "Loading..." : "Cari Lokasi"}
+            </Button>
+          </div>
+          <div className="mt-4">
+            <Map
+              onLocationSelect={(lat: number, lng: number) => {
+                setFormData({ ...formData, latitude: lat, longitude: lng });
+              }}
+              center={[formData.latitude, formData.longitude]} // Update center dynamically when latitude or longitude changes
+            />
+          </div>
+          <div className="flex justify-between items-center mt-10 gap-4">
+            <FormInput
+              label="Latitude"
+              placeholder="Masukan Latitude"
+              value={String(formData.latitude)}
+              onChange={(value: string) =>
+                setFormData({ ...formData, latitude: Number(value) })
+              }
+              errorMessage={messageError?.latitude}
+              required
+            />
+            <FormInput
+              label="Longitude"
+              placeholder="Masukan Longitude"
+              value={String(formData.longitude)}
+              onChange={(value: string) =>
+                setFormData({ ...formData, longitude: Number(value) })
+              }
+              errorMessage={messageError?.longitude}
+              required
+            />
+          </div>
+          <div className="flex items-center gap-2 mt-10">
+            <input
+              type="checkbox"
+              id="agreement"
+              className="h-5 w-5 rounded border-gray-300 text-primary-default focus:ring-primary-default"
+              required
+            />
+            <label htmlFor="agreement" className="text-sm text-gray-700">
+              Saya menyatakan bahwa data yang diberikan benar dan siap
+              diverifikasi sesuai peraturan pemerintah.
+            </label>
+          </div>
+          <div className="flex justify-end mt-4">
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  router.back();
+                }}
+                className="border border-primary-default text-primary-default rounded-full py-2 px-4"
+              >
+                Batal
+              </button>
+              <button
+                className="bg-primary-500 text-white rounded-full py-2 px-4"
+                onClick={() => handleSimpan()}
+              >
+                {isLoading ? "Loading..." : "Simpan"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )) ||
+        (params.slug === "Detail" && role !== "penyuluh" && (
           <div className="flex flex-col gap-4">
             <div className="text-lg font-medium">Data diri</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1179,12 +1308,12 @@ export default function ComponentPage({
               <FormLabel label="Longitude" value={String(formData.longitude)} />
             </div>
             <Map
-                onLocationSelect={(lat: number, lng: number) => {
-                  setFormData({ ...formData, latitude: lat, longitude: lng });
-                }}
-                center={[formData.latitude, formData.longitude]}
-                status="detail"
-              />
+              onLocationSelect={(lat: number, lng: number) => {
+                setFormData({ ...formData, latitude: lat, longitude: lng });
+              }}
+              center={[formData.latitude, formData.longitude]}
+              status="detail"
+            />
             <div className="flex justify-end mt-4">
               <button
                 onClick={() => {
@@ -1196,7 +1325,278 @@ export default function ComponentPage({
               </button>
             </div>
           </div>
-        ))}
+        )) || (
+          <div>
+            <div className="relative flex border-b border-gray-300 mb-4 w-96">
+              <button
+                className={`flex-1 py-2 text-center text-sm font-medium ${
+                  selectTabChild === 0
+                    ? "text-primary-default"
+                    : "text-gray-400"
+                }`}
+                onClick={() => setSelectTabChild(0)}
+              >
+                Detail Pengajuan
+              </button>
+              <button
+                className={`flex-1 py-2 text-center text-sm font-medium ${
+                  selectTabChild === 1
+                    ? "text-primary-default"
+                    : "text-gray-400"
+                }`}
+                onClick={() => setSelectTabChild(1)}
+              >
+                Survey Penyuluh
+              </button>
+              <div
+                className={`absolute bottom-0 h-1 bg-primary-default transition-all duration-300 ${
+                  selectTabChild === 0 ? "left-0 w-1/2" : "left-1/2 w-1/2"
+                }`}
+              ></div>
+            </div>
+            {(selectTabChild === 0 && (
+              <div className="flex flex-col gap-4">
+                <div className="text-lg font-medium">Data diri</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormLabel
+                    label="Nama Lengkap"
+                    value={formData.namaLengkap}
+                    required
+                  />
+                  <FormLabel label="NIK" value={formData.nik} required />
+                  <FormLabel
+                    label="Nomor Telepon"
+                    value={formData.noTelepon}
+                    required
+                  />
+                  <FormLabel label="Email" value={formData.email} />
+                  <FormLabel
+                    label="Nomor Kartu Tani (Jika Ada)"
+                    value={formData.noKartuTani}
+                  />
+                  <FormLabel
+                    label="Nama Kelompok Tani (Poktan)"
+                    value={formData.namaKetuaPoktan}
+                    required
+                  />
+                  <FormLabel
+                    label="Nomor Registrasi Poktan"
+                    value={formData.noRegistrasiPoktan}
+                  />
+                  <FormLabel
+                    label="Nama Ketua Poktan"
+                    value={formData.namaKetuaPoktan}
+                  />
+                  <FormLabel
+                    label="Provinsi"
+                    value={formData.Provinsi}
+                    required
+                  />
+                  <FormLabel
+                    label="Kabupaten"
+                    value={formData.Kabupaten}
+                    required
+                  />
+                  <FormLabel
+                    label="Kecamatan"
+                    value={formData.Kecamatan}
+                    required
+                  />
+                  <FormLabel
+                    label="Desa/Kelurahan"
+                    value={formData.DesaKelurahan}
+                    required
+                  />
+                </div>
+                <FormLabel label="Alamat" value={formData.alamat} required />
+                <div className="text-lg font-medium mt-10">
+                  Data Lahan dan Usaha Tani
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormLabel
+                    label="Luas Lahan (Ha)"
+                    value={String(formData.luasLahan)}
+                    required
+                  />
+                  <FormLabel
+                    label="Jenis Tanaman"
+                    value={
+                      listPlant.find((plant) => plant.id === formData.tanamanId)
+                        ?.name || "-"
+                    }
+                    required
+                  />
+                  <FormLabel
+                    label="Jumlah Tanaman dalam Satuan Hektar (Ha)"
+                    value={String(formData.jumlahTanamanHektar)}
+                    required
+                  />
+                  <FormLabel
+                    label="Masa Tanam"
+                    value={formData.masaTanam}
+                    required
+                  />
+                  <FormLabel
+                    label="Tahun Musim Tanam"
+                    value={String(formData.tahunMusimTanam)}
+                    required
+                  />
+                  <FormLabel
+                    label="Status kepemilikan Lahan"
+                    value={
+                      listStatus.find(
+                        (status) => status.id === formData.statusLahanId
+                      )?.name || "-"
+                    }
+                    required
+                  />
+                </div>
+                <div className="text-lg font-medium mt-10">
+                  Data Kebutuhan Tanaman
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormLabel
+                    label="Jenis Tanaman  yang Diajukan"
+                    value={
+                      listPlant.find((plant) => plant.id === formData.tanamanId)
+                        ?.name || "-"
+                    }
+                    required
+                  />
+                  <FormLabel
+                    label="Jumlah Tanaman yang Diajukan"
+                    value={String(formData.jumlahTanaman)}
+                    required
+                  />
+                  <FormLabel
+                    label="Metode Penanaman Tanaman"
+                    value={
+                      listMetode.find(
+                        (method) => method.id === formData.methodId
+                      )?.name || "-"
+                    }
+                    required
+                  />
+                  <FormLabel
+                    label="Alasan Pengajuan Tanaman"
+                    value={formData.alasan}
+                  />
+                  <FormLabel
+                    label="Latitude"
+                    value={String(formData.latitude)}
+                  />
+                  <FormLabel
+                    label="Longitude"
+                    value={String(formData.longitude)}
+                  />
+                </div>
+                <Map
+                  onLocationSelect={(lat: number, lng: number) => {
+                    setFormData({ ...formData, latitude: lat, longitude: lng });
+                  }}
+                  center={[formData.latitude, formData.longitude]}
+                  status="detail"
+                />
+                <div className="flex justify-end mt-4">
+                  <button
+                    onClick={() => {
+                      router.back();
+                    }}
+                    className="border border-primary-default text-primary-default rounded-full py-2 px-4"
+                  >
+                    Kembali
+                  </button>
+                </div>
+              </div>
+            )) || (
+              <div>
+                <DatePicker
+                  label="Tanggal Survey"
+                  date={formDataPenyuluh.tanggal}
+                  onSelect={(date: Date) =>
+                    setFormDataPenyuluh({
+                      ...formDataPenyuluh,
+                      tanggal: date,
+                    })
+                  }
+                />
+                <div className="mt-8">
+                  <div className="text-md font-semibold mb-2">Upload</div>
+                  <div className="flex flex-col md:flex-row gap-6">
+                    {/* Upload Box */}
+                    <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl min-h-[200px] cursor-pointer transition hover:border-primary-default">
+                      <label
+                        htmlFor="survey-upload"
+                        className="flex flex-col items-center justify-center w-full h-full cursor-pointer"
+                      >
+                        <span className="text-lg text-gray-500 font-medium">
+                          + Tambah Foto
+                        </span>
+                        <input
+                          id="survey-upload"
+                          type="file"
+                          accept="image/*,application/pdf"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setFormDataPenyuluh({
+                                ...formDataPenyuluh,
+                                upload: file,
+                              });
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                    {/* Preview Box */}
+                    <div className="flex-1 flex items-center justify-center bg-gray-100 rounded-xl min-h-[200px]">
+                      {formDataPenyuluh.upload &&
+                      typeof formDataPenyuluh.upload !== "string" ? (
+                        formDataPenyuluh.upload.type.startsWith("image/") ? (
+                          <img
+                            src={URL.createObjectURL(formDataPenyuluh.upload)}
+                            alt="Preview"
+                            className="max-h-48 max-w-full object-contain rounded-lg"
+                          />
+                        ) : (
+                          <span className="text-gray-500">
+                            {formDataPenyuluh.upload.name}
+                          </span>
+                        )
+                      ) : (
+                        <span className="text-gray-400">Preview Foto</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col items-start w-full gap-1 mt-4">
+                  <label
+                    htmlFor="ktp-file-input"
+                    className="block text-sm font-medium"
+                  >
+                    File
+                  </label>
+                  <FileInput
+                    file={formDataPenyuluh.file}
+                    onChange={(file1: File | string) => {
+                      setFormDataPenyuluh({ ...formDataPenyuluh, file: file1 });
+                    }}
+                  />
+                </div>
+                <div className="flex justify-start mt-4">
+                  
+                  <button
+                    className="bg-primary-500 text-white rounded-full py-2 px-4"
+                    onClick={() => {{}}}
+                  >
+                    {isLoading ? "Loading..." : "Simpan"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
       {/* component */}
       <SubmissionStatusModal

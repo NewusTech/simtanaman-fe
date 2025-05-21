@@ -1,6 +1,6 @@
 "use client";
 import { BadgeX, CircleCheckBig, CircleX, Send } from "lucide-react";
-import { LineChartInfo } from "../line-chart-info";
+import { LineChartInfo } from "../../line-chart-info";
 
 export default function TabSubmission() {
   return (

@@ -1,8 +1,8 @@
 "use client";
 import { BadgeX, CircleCheckBig, CircleX, Send } from "lucide-react";
-import { LineChartInfo } from "../line-chart-info";
+import { LineChartInfo } from "../../line-chart-info";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
-import { BarChartInfo } from "../bar-chart-info";
+import { BarChartInfo } from "../../bar-chart-info";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import { addDays } from "date-fns";

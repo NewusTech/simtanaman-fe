@@ -72,7 +72,7 @@ export default function DistributorPage() {
   };
 
   const handleAddAdmin = (slug: string, params?: Object) => {
-    router.push("/home/management/user/distributor/" + slug + (params ? `?${new URLSearchParams(params as any)}` : ""));
+    router.push("/home/management/user/distribution/" + slug + (params ? `?${new URLSearchParams(params as any)}` : ""));
   };
 
   const handleDelete = async () => {

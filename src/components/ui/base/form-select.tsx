@@ -38,7 +38,7 @@ export default function FormSelect({
             className="text-neutral-70"
           />
         </SelectTrigger>
-        <SelectContent className="bg-white shadow-md rounded-md w-full">
+        <SelectContent className="bg-white shadow-md rounded-md w-[20rem]">
           <SelectGroup>
             {value.map((item) => (
               <SelectItem

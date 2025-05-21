@@ -4,7 +4,7 @@ export interface Provinsi {
     code: string;
 }
 
-export interface ApiResponse {
+export interface ApiResponseProvinsi {
     status: number;
     message: string;
     data: Provinsi[];

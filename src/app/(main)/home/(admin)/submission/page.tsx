@@ -272,7 +272,7 @@ export default function SubmissionPage() {
                             >
                               Detail
                             </DropdownMenuItem>
-                            {role === "user" && (
+                            {role === "user" && !value.status.includes('Ditolak') && (
                               <DropdownMenuItem
                               className="cursor-pointer"
                               onClick={() => {

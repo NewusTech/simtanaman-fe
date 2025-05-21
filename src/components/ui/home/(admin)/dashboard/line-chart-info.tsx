@@ -39,10 +39,10 @@ const chartConfig = {
   //     label: "Direvisi",
   //     color: "#D39C55",
   // },
-  // ditolak: {
-  //     label: "Ditolak",
-  //     color: '#F54444',
-  // },
+  ditolak: {
+      label: "Ditolak",
+      color: '#F54444',
+  },
 } satisfies ChartConfig;
 
 export function LineChartInfo() {

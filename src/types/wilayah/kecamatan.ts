@@ -6,7 +6,7 @@ export interface Kecamatan {
     kabupaten_id: number;
 }
 
-export interface ApiResponse {
+export interface ApiResponseKecamatan {
     status: number;
     message: string;
     data: Kecamatan[];
