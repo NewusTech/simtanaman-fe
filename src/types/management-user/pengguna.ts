@@ -6,9 +6,11 @@ export interface Pengguna {
     id: number;
     name: string;
     email: string;
+    profile: {
+        jenisKelamin: string;
+    };
     role: Role;
-    jenisKelamin: string;
-    status: boolean;
+    active_status: boolean;
 }
 export interface PaginationLinks {
     prev: string | null;

@@ -128,7 +128,7 @@ export default function AddDistributorPage({ params }: { params: { slug: string 
 
           clearFormData();
           setIsLoading(false);
-          router.push("/home/management/user/distributor");
+          router.push("/home/management/user/distribution");
         })
         .catch((error) => {
           setIsLoading(false);
@@ -182,7 +182,7 @@ export default function AddDistributorPage({ params }: { params: { slug: string 
 
           clearFormData();
           setIsLoading(false);
-          router.push("/home/management/user/distributor");
+          router.push("/home/management/user/distribution");
         })
         .catch((error) => {
           setIsLoading(false);

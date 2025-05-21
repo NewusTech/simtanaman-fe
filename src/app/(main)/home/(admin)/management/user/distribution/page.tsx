@@ -226,17 +226,17 @@ export default function DistributorPage() {
               <TableCell className="font-medium">{value.name}</TableCell>
               <TableCell>{value.email}</TableCell>
               <TableCell>{value.role?.name}</TableCell>
-              <TableCell className="text-right">{value.jenisKelamin}</TableCell>
+              <TableCell className="text-right">{value.profile?.jenisKelamin}</TableCell>
               <TableCell className="text-right">
                 <Switch
                   id={`status-switch-${listUser.indexOf(value)}`}
                   className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
-                  checked={value.status}
-                  onCheckedChange={(checked) => {
-                    const updatedList = [...listUser];
-                    updatedList[listUser.indexOf(value)].status = checked;
-                    setListUser(updatedList);
-                  }}
+                  checked={value.active_status}
+                  // onCheckedChange={(checked) => {
+                  //   const updatedList = [...listUser];
+                  //   updatedList[listUser.indexOf(value)].active_status = checked;
+                  //   setListUser(updatedList);
+                  // }}
                 >
                   <span className="data-[state=checked]:bg-white data-[state=unchecked]:bg-white"></span>
                 </Switch>
