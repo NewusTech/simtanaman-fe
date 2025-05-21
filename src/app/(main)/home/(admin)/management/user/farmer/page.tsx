@@ -122,7 +122,7 @@ export default function FarmerPage() {
       if (loading) return;
 
       setLoading(true);
-      const data = await fetchPenggunaData(page, String(token), "petani");
+      const data = await fetchPenggunaData(page, String(token), "user");
       setItems(data.items);
       setListUser(data.items);
       setTotalPages(data.current_page);
