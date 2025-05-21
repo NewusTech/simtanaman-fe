@@ -126,7 +126,7 @@ export default function SeedStokPage() {
             </Button>
             <Button
               onClick={() => {
-                handleDetail("Tambah");
+                handleDetail("Tambah Stok Bibit");
               }}
               className="bg-primary-default flex items-center gap-1 rounded-full text-white"
             >
@@ -191,7 +191,7 @@ export default function SeedStokPage() {
                         <DropdownMenuItem
                           className="cursor-pointer"
                           onClick={() => {
-                            handleDetail("Detail", {
+                            handleDetail("Detail Stok Bibit", {
                               id: value.id,
                               jenisTanaman: value.plant.name,
                               jumlah: value.jumlah,

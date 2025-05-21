@@ -37,8 +37,8 @@ const OwnershipStatusModal: React.FC<ModalProps> = ({
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg p-6 w-3/4 md:w-1/2 lg:w-1/3">
-        <h2 className="text-2xl font-semibold mb-4 text-center flex justify-between items-center">
-          {status} Jenis Tanaman
+        <h2 className="text-1xl font-semibold mb-4 text-center flex justify-between items-center">
+          {status} Status Kepemilikan Lahan
           <XIcon className="h-6 w-6 cursor-pointer" onClick={onClose} />
         </h2>
 

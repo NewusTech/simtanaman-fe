@@ -10,7 +10,7 @@ export default function Component() {
 
     return (
         <div>
-            {pathName?.split("/").pop() === "Tambah" ? (<AddSeedStok />) : (<DetailSeedStok />)}
+            {pathName?.split("/").pop()?.includes( "Tambah" )? (<AddSeedStok />) : (<DetailSeedStok />)}
         </div>
     );
 }

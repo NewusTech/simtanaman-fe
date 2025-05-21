@@ -172,7 +172,7 @@ export default function PoktanPage() {
       <div className="flex justify-between items-center gap-4 mb-4">
         <div>
           <button
-            onClick={() => handleSlugPoktan("Tambah")}
+            onClick={() => handleSlugPoktan("Tambah Poktan")}
             className="bg-primary-500 flex text-white px-5 py-2 text-nowrap rounded-full"
           >
             <Plus className="mr-2" />
@@ -228,13 +228,13 @@ export default function PoktanPage() {
                       <DropdownMenuContent className="bg-white shadow-md rounded-md absolute left-[-110px]">
                         <DropdownMenuItem
                           className="cursor-pointer"
-                          onClick={() => handleSlugPoktan("Detail", { id: value.id })}
+                          onClick={() => handleSlugPoktan("Detail Poktan", { id: value.id })}
                         >
                           Detail
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="cursor-pointer"
-                          onClick={() => handleSlugPoktan("Edit", { id: value.id })}
+                          onClick={() => handleSlugPoktan("Edit Poktan", { id: value.id })}
                         >
                           Edit
                         </DropdownMenuItem>

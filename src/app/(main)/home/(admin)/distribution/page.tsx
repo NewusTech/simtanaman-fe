@@ -234,7 +234,7 @@ export default function DistributionPage() {
                   })}
                 </TableCell>
                 <TableCell>{value.namaLengkap}</TableCell>
-                <TableCell>{value.poktan.name}</TableCell>
+                <TableCell>{value.poktan?.name ?? '-'}</TableCell>
                 <TableCell className="text-center">
                   {value.tanaman.name}
                 </TableCell>
@@ -242,7 +242,7 @@ export default function DistributionPage() {
                   {value.jumlahTanaman}
                 </TableCell>
                 <TableCell
-                  className={`text-center ${value.status === "Selesai" ? "text-green-500" : value.status === "Dijadwalkan" ? "text-info-500" : "text-black"}`}
+                  className={`text-center ${value.status.includes('Selesai') ? "text-green-500" : value.status.includes('Dijadwalkan') ? "text-info-500" : "text-black"}`}
                 >
                   {value.status}
                 </TableCell>

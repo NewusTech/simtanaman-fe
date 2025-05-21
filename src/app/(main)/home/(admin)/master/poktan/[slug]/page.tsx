@@ -129,7 +129,7 @@ export default function ComponentPage(
     setIsLoading(true);
     clearMessageError();
 
-    if (params.slug === "Tambah") {
+    if (params.slug.includes("Tambah")) {
       await postPoktanData(formData, String(token))
         .then((response) => {
           if (!response.ok) {
@@ -222,7 +222,7 @@ export default function ComponentPage(
   };
 
   useEffect(() => {
-    if (params.slug !== "Tambah") {
+    if (!params.slug.includes("Tambah")) {
       const id = Number(new URLSearchParams(window.location.search).get("id"));
       fetchPoktanDataById(id, String(token))
         .then((data) => {
@@ -247,11 +247,11 @@ export default function ComponentPage(
   return (
     <div>
       <div className="bg-white p-4 rounded-md shadow-md font-poppins">
-        {(params.slug !== "Detail" && (
+        {(!params.slug.includes("Detail") && (
           <div>
             {/* header */}
             <div className="text-lg font-medium">
-              {params.slug} Poktan
+                {decodeURIComponent(params.slug)}
             </div>
             {/* end of header */}
 

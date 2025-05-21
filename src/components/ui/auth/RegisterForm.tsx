@@ -69,7 +69,7 @@ export default function RegisterForm({
             email: formData.email,
             password: formData.password,
             confirmPassword: formData.confirm_password,
-            roleId: formData.role,
+            roleId: 2,
             nik: formData.nik,
           }),
         });
@@ -217,7 +217,7 @@ export default function RegisterForm({
             </div>
             {messageError && <div className="text-red-500 text-sm mt-2">{messageError.password}</div>}
           </div>
-          <FormSelect
+          {/* <FormSelect
             label="Role"
             value={["Admin", "User", "Penyuluh", "Distributor"]}
             selected={formData.select_role}
@@ -232,7 +232,7 @@ export default function RegisterForm({
                 setFormData({ ...formData, role: 4, select_role: value });
               }
             }}
-          />
+          /> */}
         </div>
         <div className="flex items-center mb-3">
           <Checkbox id="terms1" />

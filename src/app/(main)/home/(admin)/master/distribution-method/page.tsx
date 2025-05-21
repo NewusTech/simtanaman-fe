@@ -436,7 +436,7 @@ export default function DistributionMethodPage() {
           setIsOpen(false);
         }}
         onSimpan={handleDelete}
-        status={"Metode DIstribusi"}
+        status={"Metode Distribusi"}
       />
     </div>
   );

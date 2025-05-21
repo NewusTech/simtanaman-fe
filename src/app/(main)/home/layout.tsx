@@ -8,6 +8,8 @@ import { usePathname } from "next/navigation";
 import { Poppins } from "next/font/google";
 import { ChevronRight } from "lucide-react";
 import UserProfil from "@/components/ui/home/UserProfil";
+import Link from "next/link";
+import Breadcrumb from "@/components/ui/home/Breadcrumb";
 
 /**
  * The props for the Layout component.
@@ -56,44 +58,7 @@ export default function Layout({ children }: LayoutProps) {
         }
       >
         <header className="flex justify-between items-center bg-white p-4 shadow-md md:ml-64">
-          <div className="flex flex-col">
-            <div className="flex text-lg font-semibold text-primary-default">
-              {pathname.split("/")[2] === "management" &&
-                pathname.split("/")[3] === "user"
-                ? "Manajemen Pengguna"
-                : pathname
-                  .split("/")[2]
-                  ?.replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
-            </div>
-            <nav className="text-sm text-gray-500">
-              <ol className="list-reset flex">
-                {pathname.split("/").map(
-                  (segment, index, arr) =>
-                    (index === 2 || index === arr.length - 1) && (
-                      <li key={index} className="flex items-center">
-                        {index > 2 && (
-                          <span className="mx-2">
-                            <ChevronRight size={16} />
-                          </span>
-                        )}
-                        <span
-                          className={
-                            index === arr.length - 1
-                              ? "text-primary-default"
-                              : ""
-                          }
-                        >
-                          {getSegmentName(
-                            segment == "farmer" ? "Petani" : segment,
-                            pathname.split("/")[index + 1]
-                          )}
-                        </span>
-                      </li>
-                    )
-                )}
-              </ol>
-            </nav>
-          </div>
+            <Breadcrumb pathname={pathname} />
           <UserProfil />
         </header>
         <div className="p-4 md:ml-64 h-[calc(100vh-5rem)] overflow-auto">

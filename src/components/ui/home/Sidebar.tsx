@@ -107,11 +107,11 @@ const Sidebar = () => {
       icon: HandHelping,
       current: false,
       link: "/home/submission",
-      role: ["admin", "user","penyuluh","distributor"]
+      role: ["admin", "user","penyuluh"]
     },
     { name: "Distribusi", icon: Boxes, current: false, link: "/home/distribution", role: ["admin", "user","penyuluh","distributor"]},
     {
-      name: "Manajemen Tanaman", icon: Sprout, current: false, link: "/home/planting", role: ["admin"], child: [
+      name: "Manajemen Tanaman", icon: Sprout, current: false, link: "/home/planting", role: ["admin" ,"distributor"], child: [
         {
           name: "Ajukan Tanaman",
           icon: Dot,
@@ -157,31 +157,31 @@ const Sidebar = () => {
           name: "Admin",
           icon: Dot,
           current: false,
-          link: "/home/management/user/admin",
+          link: "/home/management/admin",
         },
         {
           name: "Petani",
           icon: Dot,
           current: false,
-          link: "/home/management/user/farmer",
+          link: "/home/management/farmer",
         },
         {
           name: "Penyuluh",
           icon: Dot,
           current: false,
-          link: "/home/management/user/instructor",
+          link: "/home/management/instructor",
         },
         {
           name: "Distributor",
           icon: Dot,
           current: false,
-          link: "/home/management/user/distribution",
+          link: "/home/management/distribution",
         },
         {
           name: "Hak Akses",
           icon: Dot,
           current: false,
-          link: "/home/management/user/access",
+          link: "/home/management/access",
         },
       ],
       icon: UsersRound,
@@ -349,7 +349,7 @@ const Sidebar = () => {
           <div
         className={`text-primary-default text-sm font-semibold my-3 ${!isOpen && isMobile && "hidden"} ${isMobile && isOpen && "block"}`}
           >
-        SiTANAM
+        SimTANAM
           </div>
           <div
         className={`text-primary-default text-xs ${!isOpen && isMobile && "hidden"} ${isMobile && isOpen && "block"}`}
