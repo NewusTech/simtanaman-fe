@@ -1,3 +1,19 @@
+def sendSlackMessage(message, color = "#36a64f") {
+    withCredentials([string(credentialsId: 'SLACK_WEBHOOK_URL', variable: 'SLACK_URL')]) {
+        def payload = """
+        {
+            "attachments": [
+                {
+                    "color": "${color}",
+                    "text": "${message}"
+                }
+            ]
+        }
+        """
+        sh """curl -X POST -H 'Content-type: application/json' --data '${payload}' '${SLACK_URL}'"""
+    }
+}
+
 pipeline {
     agent any
 
@@ -69,6 +85,23 @@ pipeline {
                     pm2 save
                     '''
                 }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                def source = env.JENKINS_URL ?: 'UNKNOWN_SOURCE'
+                def message = "✅ Build SUCCESS:\n*${env.JOB_NAME}* #${env.BUILD_NUMBER}\n🔗 Source: ${source}"
+                sendSlackMessage(message, "#2eb886")
+            }
+        }
+        failure {
+            script {
+                def source = env.JENKINS_URL ?: 'UNKNOWN_SOURCE'
+                def message = "❌ Build FAILED:\n*${env.JOB_NAME}* #${env.BUILD_NUMBER}\n🔗 Source: ${source}"
+                sendSlackMessage(message, "#ff0000")
             }
         }
     }
