@@ -81,7 +81,7 @@ export default function TabManagementPlant({
               onSelect={setDatePengajuan}
             />
           </div>
-          <LineChartInfo />
+          {/* <LineChartInfo /> */}
           <div className="flex justify-center items-center gap-4 mt-4">
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 bg-[#858590] rounded-full " />
